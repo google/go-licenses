@@ -1,5 +1,7 @@
 # Licenses tool
 
+> This is not an officially supported Google product.
+
 This tool analyzes the dependency tree of a Go package/binary. It can output a
 report on the libraries used and under what license they can be used. It can
 also collect all of the license documents, copyright notices and source code
