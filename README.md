@@ -10,7 +10,7 @@ into a directory in order to comply with license terms on redistribution.
 ## Reports
 
 ```shell
-$ licenses csv "github.com/google/trillian/server/trillian_log_server"
+$ go-licenses csv "github.com/google/trillian/server/trillian_log_server"
 google.golang.org/grpc,https://github.com/grpc/grpc-go/blob/master/LICENSE,Apache-2.0
 go.opencensus.io,https://github.com/census-instrumentation/opencensus-go/blob/master/LICENSE,Apache-2.0
 github.com/google/certificate-transparency-go,https://github.com/google/certificate-transparency-go/blob/master/LICENSE,Apache-2.0
@@ -32,7 +32,7 @@ URLs will not be available if the library is not checked out as a Git repository
 ## Complying with license terms
 
 ```shell
-$ licenses save "github.com/google/trillian/server/trillian_log_server" --save_dir="/tmp/trillian_log_server"
+$ go-licenses save "github.com/google/trillian/server/trillian_log_server" --save_dir="/tmp/trillian_log_server"
 ```
 
 This command analyzes a binary/package's dependencies and determines what needs
@@ -44,7 +44,7 @@ artifacts will be saved in the directory indicated by `--save_dir`.
 ## Checking for forbidden licenses.
 
 ```shell
-$ licenses check github.com/logrusorgru/aurora
+$ go-licenses check github.com/logrusorgru/aurora
 Forbidden license type WTFPL for library github.com/logrusorgru/auroraexit status 1
 ```
 
