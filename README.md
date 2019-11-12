@@ -7,6 +7,15 @@ report on the libraries used and under what license they can be used. It can
 also collect all of the license documents, copyright notices and source code
 into a directory in order to comply with license terms on redistribution.
 
+## Installation
+
+To download and install this tool, make sure [you have Go v1.13 or later
+installed](https://golang.org/dl/), then run the following command:
+
+```shell
+$ go get github.com/google/go-licenses
+```
+
 ## Reports
 
 ```shell
