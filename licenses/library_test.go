@@ -43,19 +43,19 @@ func TestLibraries(t *testing.T) {
 	}{
 		{
 			desc:       "Detects direct dependency",
-			importPath: "github.com/google/trillian/scripts/licenses/licenses/testdata/direct",
+			importPath: "github.com/google/go-licenses/licenses/testdata/direct",
 			wantLibs: []string{
-				"github.com/google/trillian/scripts/licenses/licenses/testdata/direct",
-				"github.com/google/trillian/scripts/licenses/licenses/testdata/indirect",
+				"github.com/google/go-licenses/licenses/testdata/direct",
+				"github.com/google/go-licenses/licenses/testdata/indirect",
 			},
 		},
 		{
 			desc:       "Detects transitive dependency",
-			importPath: "github.com/google/trillian/scripts/licenses/licenses/testdata",
+			importPath: "github.com/google/go-licenses/licenses/testdata",
 			wantLibs: []string{
-				"github.com/google/trillian/scripts/licenses/licenses/testdata",
-				"github.com/google/trillian/scripts/licenses/licenses/testdata/direct",
-				"github.com/google/trillian/scripts/licenses/licenses/testdata/indirect",
+				"github.com/google/go-licenses/licenses/testdata",
+				"github.com/google/go-licenses/licenses/testdata/direct",
+				"github.com/google/go-licenses/licenses/testdata/indirect",
 			},
 		},
 	} {

@@ -45,28 +45,28 @@ func TestFind(t *testing.T) {
 	}{
 		{
 			desc:            "licenSe",
-			dir:             filepath.Join(build.Default.GOPATH, "src/github.com/google/trillian/scripts/licenses/licenses"),
-			wantLicensePath: filepath.Join(build.Default.GOPATH, "src/github.com/google/trillian/LICENSE"),
+			dir:             filepath.Join(build.Default.GOPATH, "src/github.com/google/go-licenses/licenses"),
+			wantLicensePath: filepath.Join(build.Default.GOPATH, "src/github.com/google/go-licenses/LICENSE"),
 		},
 		{
 			desc:            "licenCe",
-			dir:             filepath.Join(build.Default.GOPATH, "src/github.com/google/trillian/scripts/licenses/licenses/testdata/licence"),
-			wantLicensePath: filepath.Join(build.Default.GOPATH, "src/github.com/google/trillian/scripts/licenses/licenses/testdata/licence/LICENCE"),
+			dir:             filepath.Join(build.Default.GOPATH, "src/github.com/google/go-licenses/licenses/testdata/licence"),
+			wantLicensePath: filepath.Join(build.Default.GOPATH, "src/github.com/google/go-licenses/licenses/testdata/licence/LICENCE"),
 		},
 		{
 			desc:            "COPYING",
-			dir:             filepath.Join(build.Default.GOPATH, "src/github.com/google/trillian/scripts/licenses/licenses/testdata/copying"),
-			wantLicensePath: filepath.Join(build.Default.GOPATH, "src/github.com/google/trillian/scripts/licenses/licenses/testdata/copying/COPYING"),
+			dir:             filepath.Join(build.Default.GOPATH, "src/github.com/google/go-licenses/licenses/testdata/copying"),
+			wantLicensePath: filepath.Join(build.Default.GOPATH, "src/github.com/google/go-licenses/licenses/testdata/copying/COPYING"),
 		},
 		{
 			desc:            "NOTICE",
-			dir:             filepath.Join(build.Default.GOPATH, "src/github.com/google/trillian/scripts/licenses/licenses/testdata/notice"),
-			wantLicensePath: filepath.Join(build.Default.GOPATH, "src/github.com/google/trillian/scripts/licenses/licenses/testdata/notice/NOTICE.txt"),
+			dir:             filepath.Join(build.Default.GOPATH, "src/github.com/google/go-licenses/licenses/testdata/notice"),
+			wantLicensePath: filepath.Join(build.Default.GOPATH, "src/github.com/google/go-licenses/licenses/testdata/notice/NOTICE.txt"),
 		},
 		{
 			desc:            "README",
-			dir:             filepath.Join(build.Default.GOPATH, "src/github.com/google/trillian/scripts/licenses/licenses/testdata/readme"),
-			wantLicensePath: filepath.Join(build.Default.GOPATH, "src/github.com/google/trillian/scripts/licenses/licenses/testdata/readme/README.md"),
+			dir:             filepath.Join(build.Default.GOPATH, "src/github.com/google/go-licenses/licenses/testdata/readme"),
+			wantLicensePath: filepath.Join(build.Default.GOPATH, "src/github.com/google/go-licenses/licenses/testdata/readme/README.md"),
 		},
 	} {
 		t.Run(test.desc, func(t *testing.T) {
