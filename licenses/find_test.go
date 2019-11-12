@@ -23,14 +23,14 @@ import (
 func TestFind(t *testing.T) {
 	classifier := classifierStub{
 		licenseNames: map[string]string{
-			"../../../LICENSE":           "foo",
+			"../LICENSE":                 "foo",
 			"testdata/licence/LICENCE":   "foo",
 			"testdata/copying/COPYING":   "foo",
 			"testdata/notice/NOTICE.txt": "foo",
 			"testdata/readme/README.md":  "foo",
 		},
 		licenseTypes: map[string]Type{
-			"../../../LICENSE":           Notice,
+			"../LICENSE":                 Notice,
 			"testdata/licence/LICENCE":   Notice,
 			"testdata/copying/COPYING":   Notice,
 			"testdata/notice/NOTICE.txt": Notice,
