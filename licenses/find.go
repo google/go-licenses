@@ -49,6 +49,11 @@ func Find(dir string, classifier Classifier) (string, error) {
 }
 
 func findUpwards(dir string, r *regexp.Regexp, stopAt []*regexp.Regexp, predicate func(path string) bool) (string, error) {
+	// Dir must be made absolute for reliable matching with stopAt regexps
+	dir, err := filepath.Abs(dir)
+	if err != nil {
+		return "", err
+	}
 	start := dir
 	// Stop once dir matches a stopAt regexp or dir is the filesystem root
 	for !matchAny(stopAt, dir) {
