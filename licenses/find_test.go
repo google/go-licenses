@@ -15,22 +15,27 @@
 package licenses
 
 import (
-	"go/build"
+	"os"
 	"path/filepath"
 	"testing"
 )
 
 func TestFind(t *testing.T) {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("Cannot get working directory: %v", err)
+	}
+
 	classifier := classifierStub{
 		licenseNames: map[string]string{
-			"../LICENSE":                 "foo",
+			"testdata/LICENSE":           "foo",
 			"testdata/licence/LICENCE":   "foo",
 			"testdata/copying/COPYING":   "foo",
 			"testdata/notice/NOTICE.txt": "foo",
 			"testdata/readme/README.md":  "foo",
 		},
 		licenseTypes: map[string]Type{
-			"../LICENSE":                 Notice,
+			"testdata/LICENSE":           Notice,
 			"testdata/licence/LICENCE":   Notice,
 			"testdata/copying/COPYING":   Notice,
 			"testdata/notice/NOTICE.txt": Notice,
@@ -45,34 +50,39 @@ func TestFind(t *testing.T) {
 	}{
 		{
 			desc:            "licenSe",
-			dir:             filepath.Join(build.Default.GOPATH, "src/github.com/google/go-licenses/licenses"),
-			wantLicensePath: filepath.Join(build.Default.GOPATH, "src/github.com/google/go-licenses/LICENSE"),
+			dir:             "testdata",
+			wantLicensePath: filepath.Join(wd, "testdata/LICENSE"),
 		},
 		{
 			desc:            "licenCe",
-			dir:             filepath.Join(build.Default.GOPATH, "src/github.com/google/go-licenses/licenses/testdata/licence"),
-			wantLicensePath: filepath.Join(build.Default.GOPATH, "src/github.com/google/go-licenses/licenses/testdata/licence/LICENCE"),
+			dir:             "testdata/licence",
+			wantLicensePath: filepath.Join(wd, "testdata/licence/LICENCE"),
 		},
 		{
 			desc:            "COPYING",
-			dir:             filepath.Join(build.Default.GOPATH, "src/github.com/google/go-licenses/licenses/testdata/copying"),
-			wantLicensePath: filepath.Join(build.Default.GOPATH, "src/github.com/google/go-licenses/licenses/testdata/copying/COPYING"),
+			dir:             "testdata/copying",
+			wantLicensePath: filepath.Join(wd, "testdata/copying/COPYING"),
 		},
 		{
 			desc:            "NOTICE",
-			dir:             filepath.Join(build.Default.GOPATH, "src/github.com/google/go-licenses/licenses/testdata/notice"),
-			wantLicensePath: filepath.Join(build.Default.GOPATH, "src/github.com/google/go-licenses/licenses/testdata/notice/NOTICE.txt"),
+			dir:             "testdata/notice",
+			wantLicensePath: filepath.Join(wd, "testdata/notice/NOTICE.txt"),
 		},
 		{
 			desc:            "README",
-			dir:             filepath.Join(build.Default.GOPATH, "src/github.com/google/go-licenses/licenses/testdata/readme"),
-			wantLicensePath: filepath.Join(build.Default.GOPATH, "src/github.com/google/go-licenses/licenses/testdata/readme/README.md"),
+			dir:             "testdata/readme",
+			wantLicensePath: filepath.Join(wd, "testdata/readme/README.md"),
+		},
+		{
+			desc:            "parent dir",
+			dir:             "testdata/internal",
+			wantLicensePath: filepath.Join(wd, "testdata/LICENSE"),
 		},
 	} {
 		t.Run(test.desc, func(t *testing.T) {
 			licensePath, err := Find(test.dir, classifier)
 			if err != nil || licensePath != test.wantLicensePath {
-				t.Fatalf("Find(%v) = (%#v, %q), want (%q, nil)", test.dir, licensePath, err, test.wantLicensePath)
+				t.Fatalf("Find(%q) = (%#v, %q), want (%q, nil)", test.dir, licensePath, err, test.wantLicensePath)
 			}
 		})
 	}
