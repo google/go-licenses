@@ -35,7 +35,7 @@ used by a binary/package, the URL where their licenses can be viewed and the
 type of license. A library is considered to be one or more Go packages that
 share a license file.
 
-URLs will not be available if the library is not checked out as a Git repository
+URLs may not be available if the library is not checked out as a Git repository
 (e.g. as is the case when Go Modules are enabled).
 
 ## Complying with license terms
