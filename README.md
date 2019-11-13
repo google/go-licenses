@@ -64,6 +64,25 @@ considered forbidden by the license classifer. See
 
 for licenses considered forbidden.
 
+## Build tags
+
+To read dependencies from packages with
+[build tags](https://golang.org/pkg/go/build/#hdr-Build_Constraints). Use the
+`$GOFLAGS` environment variable.
+
+```shell
+$ GOFLAGS="-tags=tools" licenses csv google.golang.org/grpc/test/tools
+github.com/BurntSushi/toml,https://github.com/BurntSushi/toml/blob/master/COPYING,MIT
+google.golang.org/grpc/test/tools,Unknown,Apache-2.0
+honnef.co/go/tools/lint,Unknown,BSD-3-Clause
+golang.org/x/lint,Unknown,BSD-3-Clause
+golang.org/x/tools,Unknown,BSD-3-Clause
+honnef.co/go/tools,Unknown,MIT
+honnef.co/go/tools/ssa,Unknown,BSD-3-Clause
+github.com/client9/misspell,https://github.com/client9/misspell/blob/master/LICENSE,MIT
+github.com/golang/protobuf/proto,https://github.com/golang/protobuf/blob/master/proto/LICENSE,BSD-3-Clause
+```
+
 ## Warnings and errors
 
 The tool will log warnings and errors in some scenarios. This section provides
