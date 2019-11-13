@@ -26,14 +26,16 @@ import (
 func TestLibraries(t *testing.T) {
 	classifier := classifierStub{
 		licenseNames: map[string]string{
-			"testdata/LICENSE":          "foo",
-			"testdata/direct/LICENSE":   "foo",
-			"testdata/indirect/LICENSE": "foo",
+			"testdata/LICENSE":            "foo",
+			"testdata/direct/LICENSE":     "foo",
+			"testdata/indirect/LICENSE":   "foo",
+			"testdata/binary/cmd/LICENSE": "foo",
 		},
 		licenseTypes: map[string]Type{
-			"testdata/LICENSE":          Notice,
-			"testdata/direct/LICENSE":   Notice,
-			"testdata/indirect/LICENSE": Notice,
+			"testdata/LICENSE":            Notice,
+			"testdata/direct/LICENSE":     Notice,
+			"testdata/indirect/LICENSE":   Notice,
+			"testdata/binary/cmd/LICENSE": Notice,
 		},
 	}
 
@@ -67,6 +69,15 @@ func TestLibraries(t *testing.T) {
 			wantLibs: []string{
 				"github.com/google/go-licenses/licenses/testdata/tags",
 				"github.com/google/go-licenses/licenses/testdata/indirect",
+			},
+		},
+		{
+			desc:       "Binary dependency",
+			importPath: "github.com/google/go-licenses/licenses/testdata/binary",
+			goflags:    "-tags=tools",
+			wantLibs: []string{
+				"github.com/google/go-licenses/licenses/testdata/binary",
+				"github.com/google/go-licenses/licenses/testdata/binary/cmd",
 			},
 		},
 	} {

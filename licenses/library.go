@@ -80,9 +80,13 @@ func Libraries(ctx context.Context, classifier Classifier, importPaths ...string
 	pkgsByLicense := make(map[string][]*packages.Package)
 	errorOccurred := false
 	packages.Visit(rootPkgs, func(p *packages.Package) bool {
-		if len(p.Errors) > 0 {
-			errorOccurred = true
-			return false
+		for _, err := range p.Errors {
+			// Ignore errors complaining that the package is a binary. We still want
+			// to traverse related packages.
+			if !strings.Contains(err.Msg, "is a program, not an importable package") {
+				errorOccurred = true
+				return false
+			}
 		}
 		if isStdLib(p) {
 			// No license requirements for the Go standard library.
@@ -91,6 +95,7 @@ func Libraries(ctx context.Context, classifier Classifier, importPaths ...string
 		if len(p.OtherFiles) > 0 {
 			glog.Warningf("%q contains non-Go code that can't be inspected for further dependencies:\n%s", p.PkgPath, strings.Join(p.OtherFiles, "\n"))
 		}
+
 		var pkgDir string
 		switch {
 		case len(p.GoFiles) > 0:

@@ -20,6 +20,8 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"regexp"
+
+	"github.com/golang/glog"
 )
 
 var (
@@ -42,6 +44,7 @@ func Find(dir string, classifier Classifier) (string, error) {
 	return findUpwards(dir, licenseRegexp, stopAt, func(path string) bool {
 		// TODO(RJPercival): Return license details
 		if _, _, err := classifier.Identify(path); err != nil {
+			glog.Warningf("classifier.Identify(%s): %v", path, err)
 			return false
 		}
 		return true
