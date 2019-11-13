@@ -16,6 +16,7 @@ package licenses
 
 import (
 	"context"
+	"os"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -39,6 +40,7 @@ func TestLibraries(t *testing.T) {
 	for _, test := range []struct {
 		desc       string
 		importPath string
+		goflags    string
 		wantLibs   []string
 	}{
 		{
@@ -58,8 +60,21 @@ func TestLibraries(t *testing.T) {
 				"github.com/google/go-licenses/licenses/testdata/indirect",
 			},
 		},
+		{
+			desc:       "Build tagged package",
+			importPath: "github.com/google/go-licenses/licenses/testdata/tags",
+			goflags:    "-tags=tags",
+			wantLibs: []string{
+				"github.com/google/go-licenses/licenses/testdata/tags",
+				"github.com/google/go-licenses/licenses/testdata/indirect",
+			},
+		},
 	} {
 		t.Run(test.desc, func(t *testing.T) {
+			if test.goflags != "" {
+				os.Setenv("GOFLAGS", test.goflags)
+				defer os.Unsetenv("GOFLAGS")
+			}
 			gotLibs, err := Libraries(context.Background(), classifier, test.importPath)
 			if err != nil {
 				t.Fatalf("Libraries(_, %q) = (_, %q), want (_, nil)", test.importPath, err)
