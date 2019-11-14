@@ -32,7 +32,7 @@ var (
 	saveCmd = &cobra.Command{
 		Use:   "save <package>",
 		Short: "Saves licenses, copyright notices and source code, as required by a Go package's dependencies, to a directory.",
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.MinimumNArgs(1),
 		RunE:  saveMain,
 	}
 
@@ -60,8 +60,6 @@ func init() {
 }
 
 func saveMain(_ *cobra.Command, args []string) error {
-	importPath := args[0]
-
 	if overwriteSavePath {
 		if err := os.RemoveAll(savePath); err != nil {
 			return err
@@ -82,7 +80,7 @@ func saveMain(_ *cobra.Command, args []string) error {
 		return err
 	}
 
-	libs, err := licenses.Libraries(context.Background(), classifier, importPath)
+	libs, err := licenses.Libraries(context.Background(), classifier, args...)
 	if err != nil {
 		return err
 	}

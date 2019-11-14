@@ -29,7 +29,7 @@ var (
 	csvCmd = &cobra.Command{
 		Use:   "csv <package>",
 		Short: "Prints all licenses that apply to a Go package and its dependencies",
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.MinimumNArgs(1),
 		RunE:  csvMain,
 	}
 
@@ -43,7 +43,6 @@ func init() {
 }
 
 func csvMain(_ *cobra.Command, args []string) error {
-	importPath := args[0]
 	writer := csv.NewWriter(os.Stdout)
 
 	classifier, err := licenses.NewClassifier(confidenceThreshold)
@@ -51,7 +50,7 @@ func csvMain(_ *cobra.Command, args []string) error {
 		return err
 	}
 
-	libs, err := licenses.Libraries(context.Background(), classifier, importPath)
+	libs, err := licenses.Libraries(context.Background(), classifier, args...)
 	if err != nil {
 		return err
 	}
