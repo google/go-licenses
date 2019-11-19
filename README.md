@@ -9,8 +9,9 @@ into a directory in order to comply with license terms on redistribution.
 
 ## Installation
 
-To download and install this tool, make sure [you have Go v1.13 or later
-installed](https://golang.org/dl/), then run the following command:
+To download and install this tool, make sure
+[you have Go v1.13 or later installed](https://golang.org/dl/), then run the
+following command:
 
 ```shell
 $ go get github.com/google/go-licenses
@@ -81,9 +82,10 @@ license terms.
 In order to determine the URL where a license file can be viewed, this tool
 performs the following steps:
 
-1) Locates the license file on disk. 2) Assuming that it is in a Git repository,
-inspects the repository's config to find the URL of the remote "origin"
-repository. 3) Adds the license file path to this URL.
+1.  Locates the license file on disk.
+2.  Assuming that it is in a Git repository, inspects the repository's config to
+    find the URL of the remote "origin" repository.
+3.  Adds the license file path to this URL.
 
 For this to work, the remote repository named "origin" must have a HTTPS URL.
 You can check this by running the following commands, inserting the path
