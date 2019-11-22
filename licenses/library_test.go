@@ -86,7 +86,7 @@ func TestLibraries(t *testing.T) {
 				os.Setenv("GOFLAGS", test.goflags)
 				defer os.Unsetenv("GOFLAGS")
 			}
-			gotLibs, err := Libraries(context.Background(), classifier, test.importPath)
+			gotLibs, err := Libraries(context.Background(), classifier, true, test.importPath)
 			if err != nil {
 				t.Fatalf("Libraries(_, %q) = (_, %q), want (_, nil)", test.importPath, err)
 			}
@@ -205,5 +205,22 @@ func TestLibraryFileURL(t *testing.T) {
 				t.Fatalf("FileURL(%q) = %q, want %q", test.path, got, want)
 			}
 		})
+	}
+}
+
+func TestLibraryBinaryError(t *testing.T) {
+	os.Setenv("GOFLAGS", "-tags=tools")
+	defer os.Unsetenv("GOFLAGS")
+	classifier := classifierStub{
+		licenseNames: map[string]string{
+			"testdata/binary/cmd/LICENSE": "foo",
+		},
+		licenseTypes: map[string]Type{
+			"testdata/binary/cmd/LICENSE": Notice,
+		},
+	}
+	importPath := "github.com/google/go-licenses/licenses/testdata/binary"
+	if out, err := Libraries(context.Background(), classifier, false, importPath); err == nil {
+		t.Errorf("Libraries(): wanted error, got %+v", out)
 	}
 }

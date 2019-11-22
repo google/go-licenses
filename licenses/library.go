@@ -65,7 +65,7 @@ func (e PackagesError) Error() string {
 // A library is a collection of one or more packages covered by the same license file.
 // Packages not covered by a license will be returned as individual libraries.
 // Standard library packages will be ignored.
-func Libraries(ctx context.Context, classifier Classifier, importPaths ...string) ([]*Library, error) {
+func Libraries(ctx context.Context, classifier Classifier, allowBinaries bool, importPaths ...string) ([]*Library, error) {
 	cfg := &packages.Config{
 		Context: ctx,
 		Mode:    packages.NeedImports | packages.NeedDeps | packages.NeedFiles | packages.NeedName,
@@ -81,12 +81,14 @@ func Libraries(ctx context.Context, classifier Classifier, importPaths ...string
 	errorOccurred := false
 	packages.Visit(rootPkgs, func(p *packages.Package) bool {
 		for _, err := range p.Errors {
-			// Ignore errors complaining that the package is a binary. We still want
-			// to traverse related packages.
-			if !strings.Contains(err.Msg, "is a program, not an importable package") {
-				errorOccurred = true
-				return false
+			// If enabled, ignore errors complaining that the package is a binary.
+			// We still want to traverse related packages.
+			if allowBinaries && strings.Contains(err.Msg, "is a program, not an importable package") {
+				continue
 			}
+
+			errorOccurred = true
+			return false
 		}
 		if isStdLib(p) {
 			// No license requirements for the Go standard library.

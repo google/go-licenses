@@ -29,10 +29,13 @@ var (
 
 	// Flags shared between subcommands
 	confidenceThreshold float64
+	allowBinaries       bool
 )
 
 func init() {
 	rootCmd.PersistentFlags().Float64Var(&confidenceThreshold, "confidence_threshold", 0.9, "Minimum confidence required in order to positively identify a license.")
+
+	rootCmd.PersistentFlags().BoolVar(&allowBinaries, "allow_binaries", false, "If enabled, ignore errors for importing binary packages. Useful for tracking depedencies on binaries if necessary")
 }
 
 func main() {
