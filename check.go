@@ -52,7 +52,7 @@ func checkMain(_ *cobra.Command, args []string) error {
 			return err
 		}
 		if licenseType == licenses.Forbidden {
-			fmt.Fprintf(os.Stderr, "Forbidden license type %s for library %v", licenseName, lib)
+			fmt.Fprintf(os.Stderr, "Forbidden license type %s for library %v\n", licenseName, lib)
 			os.Exit(1)
 		}
 	}
