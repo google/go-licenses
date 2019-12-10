@@ -201,5 +201,5 @@ func isStdLib(pkg *packages.Package) bool {
 	if len(pkg.GoFiles) == 0 {
 		return false
 	}
-	return strings.HasPrefix(pkg.GoFiles[0], build.Default.GOROOT)
+	return strings.HasPrefix(pkg.GoFiles[0], build.Default.GOROOT + string(filepath.Separator))
 }
