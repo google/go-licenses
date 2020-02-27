@@ -64,6 +64,13 @@ func TestIdentify(t *testing.T) {
 			wantType:    Notice,
 		},
 		{
+			desc:        "MIT license",
+			file:        "testdata/MIT/LICENSE.MIT",
+			confidence:  1,
+			wantLicense: "MIT",
+			wantType:    Notice,
+		},
+		{
 			desc:       "non-existent file",
 			file:       "non-existent-file",
 			confidence: 1,

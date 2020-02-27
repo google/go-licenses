@@ -29,6 +29,7 @@ func TestFind(t *testing.T) {
 	classifier := classifierStub{
 		licenseNames: map[string]string{
 			"testdata/LICENSE":           "foo",
+			"testdata/MIT/LICENSE.MIT":   "MIT",
 			"testdata/licence/LICENCE":   "foo",
 			"testdata/copying/COPYING":   "foo",
 			"testdata/notice/NOTICE.txt": "foo",
@@ -36,6 +37,7 @@ func TestFind(t *testing.T) {
 		},
 		licenseTypes: map[string]Type{
 			"testdata/LICENSE":           Notice,
+			"testdata/MIT/LICENSE.MIT":   Notice,
 			"testdata/licence/LICENCE":   Notice,
 			"testdata/copying/COPYING":   Notice,
 			"testdata/notice/NOTICE.txt": Notice,
@@ -57,6 +59,11 @@ func TestFind(t *testing.T) {
 			desc:            "licenCe",
 			dir:             "testdata/licence",
 			wantLicensePath: filepath.Join(wd, "testdata/licence/LICENCE"),
+		},
+		{
+			desc:            "LICENSE.MIT",
+			dir:             "testdata/MIT",
+			wantLicensePath: filepath.Join(wd, "testdata/MIT/LICENSE.MIT"),
 		},
 		{
 			desc:            "COPYING",
