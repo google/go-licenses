@@ -21,6 +21,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 
 	"github.com/golang/glog"
 	"github.com/google/go-licenses/licenses"
@@ -115,12 +116,10 @@ func saveMain(_ *cobra.Command, args []string) error {
 }
 
 func copySrc(src, dest string) error {
-	if err := copy.Copy(src, dest); err != nil {
-		return err
-	}
-	// Delete the .git directory from the saved copy, if it exists, since we don't want to save the user's
+	// Skip the .git directory for copying, if it exists, since we don't want to save the user's
 	// local Git config along with the source code.
-	if err := os.RemoveAll(filepath.Join(dest, ".git")); err != nil {
+	opt := copy.Options{Skip: func(src string) bool { return strings.HasSuffix(src, ".git") }}
+	if err := copy.Copy(src, dest, opt); err != nil {
 		return err
 	}
 	return nil
