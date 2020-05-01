@@ -34,6 +34,7 @@ func TestFind(t *testing.T) {
 			"testdata/copying/COPYING":   "foo",
 			"testdata/notice/NOTICE.txt": "foo",
 			"testdata/readme/README.md":  "foo",
+			"testdata/lowercase/license": "foo",
 		},
 		licenseTypes: map[string]Type{
 			"testdata/LICENSE":           Notice,
@@ -42,6 +43,7 @@ func TestFind(t *testing.T) {
 			"testdata/copying/COPYING":   Notice,
 			"testdata/notice/NOTICE.txt": Notice,
 			"testdata/readme/README.md":  Notice,
+			"testdata/lowercase/license": Notice,
 		},
 	}
 
@@ -84,6 +86,11 @@ func TestFind(t *testing.T) {
 			desc:            "parent dir",
 			dir:             "testdata/internal",
 			wantLicensePath: filepath.Join(wd, "testdata/LICENSE"),
+		},
+		{
+			desc:            "lowercase",
+			dir:             "testdata/lowercase",
+			wantLicensePath: filepath.Join(wd, "testdata/lowercase/license"),
 		},
 	} {
 		t.Run(test.desc, func(t *testing.T) {
