@@ -42,14 +42,14 @@ URLs may not be available if the library is not checked out as a Git repository
 ## Complying with license terms
 
 ```shell
-$ go-licenses save "github.com/google/trillian/server/trillian_log_server" --save_dir="/tmp/trillian_log_server"
+$ go-licenses save "github.com/google/trillian/server/trillian_log_server" --save_path="/tmp/trillian_log_server"
 ```
 
 This command analyzes a binary/package's dependencies and determines what needs
 to be redistributed alongside that binary/package in order to comply with the
 license terms. This typically includes the license itself and a copyright
 notice, but may also include the dependency's source code. All of the required
-artifacts will be saved in the directory indicated by `--save_dir`.
+artifacts will be saved in the directory indicated by `--save_path`.
 
 ## Checking for forbidden licenses.
 
