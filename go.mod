@@ -7,7 +7,7 @@ require (
 	github.com/google/go-cmp v0.3.1
 	github.com/google/licenseclassifier v0.0.0-20190926221455-842c0d70d702
 	github.com/otiai10/copy v1.2.0
-	github.com/spf13/cobra v0.0.5
+	github.com/spf13/cobra v0.0.7
 	github.com/spf13/pflag v1.0.5 // indirect
 	golang.org/x/crypto v0.0.0-20191117063200-497ca9f6d64f // indirect
 	golang.org/x/net v0.0.0-20191119073136-fc4aabc6c914 // indirect
