@@ -17,6 +17,7 @@ package licenses
 import (
 	"fmt"
 	"io/ioutil"
+	"path/filepath"
 
 	"github.com/google/licenseclassifier"
 )
@@ -63,6 +64,17 @@ func (t Type) String() string {
 	}
 }
 
+var archiveLocation = licenseclassifier.LicenseArchive
+
+// SetArchiveLocation overrides the default license archive path
+func SetArchiveLocation(path string) error {
+	if !filepath.IsAbs(path) {
+		return fmt.Errorf("archive paths must be absolute paths: %v", path)
+	}
+	archiveLocation = path
+	return nil
+}
+
 // Classifier can detect the type of a software license.
 type Classifier interface {
 	Identify(licensePath string) (string, Type, error)
@@ -72,10 +84,20 @@ type googleClassifier struct {
 	classifier *licenseclassifier.License
 }
 
+// classifierOptions sets custom options on the constructed License structure
+func classifierOptions() []licenseclassifier.OptionFunc {
+	opts := make([]licenseclassifier.OptionFunc, 0)
+
+	// Add the Archive location overrides
+	opts = append(opts, licenseclassifier.Archive(archiveLocation))
+
+	return opts
+}
+
 // NewClassifier creates a classifier that requires a specified confidence threshold
 // in order to return a positive license classification.
 func NewClassifier(confidenceThreshold float64) (Classifier, error) {
-	c, err := licenseclassifier.New(confidenceThreshold)
+	c, err := licenseclassifier.New(confidenceThreshold, classifierOptions()...)
 	if err != nil {
 		return nil, err
 	}
