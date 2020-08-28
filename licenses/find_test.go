@@ -85,6 +85,11 @@ func TestFind(t *testing.T) {
 			dir:             "testdata/internal",
 			wantLicensePath: filepath.Join(wd, "testdata/LICENSE"),
 		},
+		{
+			desc:            "UNLICENSE",
+			dir:             "testdata/unlicense",
+			wantLicensePath: filepath.Join(wd, "testdata/unlicense/UNLICENSE"),
+		},
 	} {
 		t.Run(test.desc, func(t *testing.T) {
 			licensePath, err := Find(test.dir, classifier)
