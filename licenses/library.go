@@ -178,7 +178,7 @@ func normalizeVanityURL(path string) (string, error) {
 			return path, nil
 		}
 	}
-	resp, err := http.Get("http://" + path + "?go-get=1")
+	resp, err := http.Get("https://" + path + "?go-get=1")
 	if err != nil {
 		return path, err
 	}
@@ -188,28 +188,30 @@ func normalizeVanityURL(path string) (string, error) {
 		return path, err
 	}
 	tokenizer := html.NewTokenizer(resp.Body)
+	var urlTag html.Token
 	for {
 		tokenTag := tokenizer.Next()
 		token := tokenizer.Token()
-		switch {
-		case tokenTag == html.ErrorToken:
-			return path, fmt.Errorf("HTML parsing failed")
-		case tokenTag == html.StartTagToken:
-			// Process the current token.
-			if token.Data == "meta" {
-				for _, attribute := range token.Attr {
-					if attribute.Key == "name" && attribute.Val != "go-source" {
-						break
-					}
-					if attribute.Key == "content" {
-						return strings.Replace(regExPattern.FindString(attribute.Val), "https://", "", 1), nil
-					}
+		if tokenTag == html.ErrorToken {
+			break
+		} else if tokenTag == html.StartTagToken && token.Data == "meta" {
+			for _, attribute := range token.Attr {
+				if attribute.Key == "name" && attribute.Val == "go-source" {
+					urlTag = token
+					break
 				}
-
 			}
 		}
 	}
-
+	if urlTag.Data == "" {
+		return path, nil
+	}
+	for _, attribute := range urlTag.Attr {
+		if attribute.Key == "content" {
+			return strings.Replace(regExPattern.FindString(attribute.Val), "https://", "", 1), nil
+		}
+	}
+	return path, nil
 }
 
 // FileURL attempts to determine the URL for a file in this library.
@@ -222,7 +224,7 @@ func (l *Library) FileURL(filePath string) (*url.URL, error) {
 	}
 	normalizedName, err := normalizeVanityURL(l.Name())
 	if err != nil {
-		return nil, err
+		normalizedName = l.Name()
 	}
 	nameParts := strings.SplitN(normalizedName, "/", 4)
 	if len(nameParts) < 3 {
