@@ -31,6 +31,7 @@ var (
 
 	// Flags shared between subcommands
 	confidenceThreshold float64
+	ignore              pathList
 )
 
 func init() {
@@ -48,6 +49,7 @@ func init() {
 		os.Exit(1)
 	}
 	rootCmd.PersistentFlags().Float64Var(&confidenceThreshold, "confidence_threshold", 0.9, "Minimum confidence required in order to positively identify a license.")
+	rootCmd.PersistentFlags().Var(&ignore, "ignore", "Module path prefixes to be ignored. Can be specified multiple times.")
 }
 
 func main() {

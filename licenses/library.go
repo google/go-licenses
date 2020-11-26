@@ -59,7 +59,7 @@ func (e PackagesError) Error() string {
 // A library is a collection of one or more packages covered by the same license file.
 // Packages not covered by a license will be returned as individual libraries.
 // Standard library packages will be ignored.
-func Libraries(ctx context.Context, classifier Classifier, importPaths ...string) ([]*Library, error) {
+func Libraries(ctx context.Context, classifier Classifier, ignoredPaths []string, importPaths ...string) ([]*Library, error) {
 	cfg := &packages.Config{
 		Context: ctx,
 		Mode:    packages.NeedImports | packages.NeedDeps | packages.NeedFiles | packages.NeedName | packages.NeedModule,
@@ -82,6 +82,13 @@ func Libraries(ctx context.Context, classifier Classifier, importPaths ...string
 			// No license requirements for the Go standard library.
 			return false
 		}
+		for _, i := range ignoredPaths {
+			if strings.HasPrefix(p.PkgPath, i) {
+				// Marked to be ignored.
+				return true
+			}
+		}
+
 		if len(p.OtherFiles) > 0 {
 			glog.Warningf("%q contains non-Go code that can't be inspected for further dependencies:\n%s", p.PkgPath, strings.Join(p.OtherFiles, "\n"))
 		}
