@@ -22,8 +22,8 @@ import (
 	"regexp"
 	"strings"
 
+	git "github.com/go-git/go-git/v5"
 	"github.com/golang/glog"
-	git "gopkg.in/src-d/go-git.v4"
 )
 
 var (
