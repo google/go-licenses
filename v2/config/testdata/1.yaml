@@ -1,0 +1,58 @@
+module:
+  licenseDB:
+    path: .cache/licenses
+  go:
+    module: github.com/google/go-licenses/v2
+    path: .
+    binary:
+      path: go-licenses
+  csv:
+    path: license_info.csv
+  notices:
+    path: third_party/NOTICES
+  overrides:
+  - name: github.com/google/go-licenses/v2
+    license:
+      path: LICENSE
+      spdxId: Apache-2.0
+      url: https://github.com/google/go-licenses/v2/dummy-url
+    excludePaths:
+    - go-licenses
+  - name: github.com/aws/aws-sdk-go
+    version: v1.36.1
+    license:
+      path: LICENSE.txt
+      spdxId: Apache-2.0
+    subModules:
+    - path: internal/sync/singleflight
+      license:
+        path: LICENSE
+        spdxId: BSD-3-Clause
+  # TODO(Bobgy): support specify path without spdxId
+  # - name: github.com/sergi/go-diff
+  #   license:
+  #     path: LICENSE
+  # - name: github.com/spf13/cobra
+  #   license:
+  #     path: LICENSE.txt
+  - name: github.com/google/licenseclassifier
+    excludePaths:
+    - licenses
+  - name: cloud.google.com/go
+    version: v0.72.0
+    license:
+      path: LICENSE
+      spdxId: Apache-2.0
+    subModules:
+    - path: cmd/go-cloud-debug-agent/internal/debug/elf
+      license:
+        path: elf.go 
+        # https://github.com/googleapis/google-cloud-go/blob/v0.72.0/cmd/go-cloud-debug-agent/internal/debug/elf/elf.go
+        # we only needs to include header of elf.go
+        lineStart: 1 # the first line
+        lineEnd: 43
+        spdxId: BSD-2-Clause
+    - path: third_party/pkgsite
+      license:
+        path: LICENSE
+        spdxId: BSD-3-Clause

@@ -1,0 +1,16 @@
+name: "uw-labs/lichen"
+description:
+    "uw-labs/lichen is a license tool to analyze go binaries"
+
+third_party {
+  url {
+    type: GIT
+    value: "https://github.com/uw-labs/lichen"
+  }
+  version: "be9752894a5958f6ba7be9e05dc370b7a73b58db"
+  last_upgrade_date { year: 2021 month: 4 day: 11 }
+  license_type: NOTICE
+  local_modifications:
+    "Changed import path to github.com/google/go-licenses/v2/third_party/uw-labs/lichen."
+    "Removed unused code in google/go-licenses."
+}

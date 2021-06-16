@@ -1,0 +1,15 @@
+name: "google/licenseclassifier"
+description:
+    "google/licenseclassifier is license classifier we can use to scan text files"
+
+third_party {
+  url {
+    type: GIT
+    value: "https://github.com/google/licenseclassifier"
+  }
+  version: "bb04aff29e72e636ba260ec61150c6e15f111d7e"
+  last_upgrade_date { year: 2021 month: 5 day: 2 }
+  license_type: NOTICE
+  local_modifications:
+    "Only imported v2/licenses folder"
+}

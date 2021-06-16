@@ -1,0 +1,18 @@
+module:
+  licenseDB:
+    path: .cache/licenses
+  go:
+    module: github.com/google/go-licenses/v2
+    path: .
+    binary:
+      path: go-licenses
+  csv:
+    path: license_info.csv
+  overrides:
+  - name: github.com/google/licenseclassifier/v2
+    version: v2.0.0-alpha.1.0.20210325184830-bb04aff29e72
+    license:
+      path: LICENSE
+      spdxId: Apache-2.0
+      startLine: 2 # <== should be lineStart here
+      endLine: 202

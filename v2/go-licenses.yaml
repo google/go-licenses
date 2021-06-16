@@ -1,0 +1,66 @@
+module:
+  go:
+    module: github.com/google/go-licenses/v2
+    path: .
+    binary:
+      path: dist/linux/go-licenses
+  csv:
+    path: license_info.csv
+  notices:
+    path: third_party/NOTICES
+  overrides:
+  - name: github.com/google/go-licenses/v2
+    # This is not available remotely **yet**, so skip it.
+    skip: true
+    excludePaths:
+    # Skip built binaries that take a long time to analyze.
+    - go-licenses
+    - deps/testdata
+    # Skip license testdata.
+    - licenses/testdata
+  - name: github.com/sergi/go-diff
+    version: v1.1.0
+    license:
+      path: LICENSE
+      spdxId: MIT / Apache-2.0
+  - name: github.com/spf13/cobra
+    excludePaths:
+    # The cobra/cmd folder contains CLI commands to generate boilerplate code.
+    # They have templates for different types of licenses, not actual licenses.
+    - cobra/cmd
+  - name: github.com/google/licenseclassifier/v2
+    version: v2.0.0-alpha.1.0.20210325184830-bb04aff29e72
+    license:
+      path: LICENSE
+      spdxId: Apache-2.0
+      lineStart: 2 # an experiment to verify startLine feature, ignores the first empty line in the file.
+      lineEnd: 202
+    excludePaths:
+    - licenses # License samples as classification DB.
+    - scenarios # Test data for license detection.
+  - name: golang.org/x/net
+    excludePaths:
+    - html/testdata
+  - name: github.com/PuerkitoBio/goquery
+    excludePaths:
+    - doc.go # File to generate documentation, it has duplicate license info as root license.
+  - name: github.com/google/licenseclassifier
+    version: v0.0.0-20210108172934-df6aa8a2788b
+    license:
+      path: LICENSE
+      spdxId: Apache-2.0
+    subModules:
+    - path: stringclassifier
+      license:
+        path: LICENSE
+        spdxId: Apache-2.0
+  - name: gopkg.in/yaml.v2
+    version: v2.4.0
+    license:
+      path: LICENSE
+      spdxId: Apache-2.0 / MIT
+  - name: github.com/davecgh/go-spew
+    version: v1.1.1
+    license: # We detected many ISC headers, only include the root license file.
+      path: LICENSE
+      spdxId: ISC
