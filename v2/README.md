@@ -173,7 +173,8 @@ General directions to improve this tool:
 
 #### P0
 
-None
+* [ ] Use cobra to support providing the same information via argument or config.
+* [ ] Implement "check" command
 
 #### P1
 
