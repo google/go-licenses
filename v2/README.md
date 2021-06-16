@@ -1,6 +1,6 @@
 # go-licenses
 
-## **UNDER DEVELOPMENT**
+## **THIS IS STILL UNDER DEVELOPMENT**
 
 A tool to automate license management workflow for go module project's dependencies and transitive dependencies.
 
