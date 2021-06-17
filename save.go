@@ -122,7 +122,7 @@ func copySrc(src, dest string) error {
 		Skip: func(src string) (bool, error) {
 			return strings.HasSuffix(src, ".git"), nil
 		},
-		AddPermission: 0700,
+		AddPermission: 0600,
 	}
 	if err := copy.Copy(src, dest, opt); err != nil {
 		return err
