@@ -52,6 +52,14 @@ func TestGithubRepoRemoteUrl(t *testing.T) {
 			},
 			expected: "https://github.com/googleapis/google-cloud-go/blob/dcfadaf1a8b1/LICENSE",
 		},
+		{
+			args: ghutils.RemoteUrlArgs{
+				Path: "LICENSE",
+				// found a real-world special case, the commit hash has 11 characters
+				Version: "v0.0.0-20181023171402-6480d4af844",
+			},
+			expected: "https://github.com/googleapis/google-cloud-go/blob/6480d4af844/LICENSE",
+		},
 	}
 	for _, tt := range cases {
 		got, err := repo.RemoteUrl(tt.args)

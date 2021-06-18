@@ -177,11 +177,11 @@ General directions to improve this tool:
 * [ ] Implement "check" command.
 * [ ] Support use-case of one modules folder with multiple binaries.
 * [x] Support replace directives.
+* [x] Support modules with +incompatible in their versions, ref: <https://golang.org/ref/mod#incompatible-versions>.
 
 #### P1
 
 * [ ] Support installation using go get.
-* [ ] Support modules with +incompatible in their versions, ref: <https://golang.org/ref/mod#incompatible-versions>.
 * [ ] Refactor & improve test coverage.
 
 #### P2

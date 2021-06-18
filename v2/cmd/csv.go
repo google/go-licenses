@@ -88,6 +88,7 @@ func csvImp() (err error) {
 	mainModule := []deps.GoModule{{
 		ImportPath: config.Module.Go.Module,
 		SrcDir:     mainModuleAbsPath,
+		Version:    config.Module.Go.Version,
 	}}
 	mainModule = append(mainModule)
 	goModules = append(mainModule, goModules...)

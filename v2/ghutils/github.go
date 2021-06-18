@@ -77,6 +77,9 @@ func (repo *GitHubRepo) RemoteUrl(args RemoteUrlArgs) (string, error) {
 	if args.Raw {
 		template = "https://github.com/%s/%s/raw/%s/%s"
 	}
+	// The +incompatible suffix does not affect modules' git version.
+	// ref: https://golang.org/ref/mod#incompatible-versions
+	args.Version = strings.TrimRight(args.Version, "+incompatible")
 	url := fmt.Sprintf(
 		template,
 		repo.Owner,
@@ -96,7 +99,7 @@ func (repo *GitHubRepo) RemoteUrl(args RemoteUrlArgs) (string, error) {
 // vX.0.0-yyyymmddhhmmss-abcdefabcdef is used when there is no known base version. As with all versions, the major version X must match the module's major version suffix.
 // vX.Y.Z-pre.0.yyyymmddhhmmss-abcdefabcdef is used when the base version is a pre-release version like vX.Y.Z-pre.
 // vX.Y.(Z+1)-0.yyyymmddhhmmss-abcdefabcdef is used when the base version is a release version like vX.Y.Z. For example, if the base version is v1.2.3, a pseudo-version might be v1.2.4-0.20191109021931-daa7c04131f5.
-var psuedoVersionPattern = regexp.MustCompile(`^v[0-9]+\.[0-9]+\.[0-9]+-.*[0-9]{14}-(?P<commit>[a-f0-9]{12})$`)
+var psuedoVersionPattern = regexp.MustCompile(`^v[0-9]+\.[0-9]+\.[0-9]+-.*[0-9]{14}-(?P<commit>[a-f0-9]{11,12})$`)
 
 func parseGoModulePseudoVersion(version string) string {
 	if version == "" {

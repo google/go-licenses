@@ -36,9 +36,10 @@ type LicenseDB struct {
 }
 
 type GoModuleConfig struct {
-	Module string `yaml:"module"` // module name, e.g. github.com/google/go-licenses/v2
-	Path   string `yaml:"path"`   // local path where the go module lives in
-	Binary struct {
+	Module  string `yaml:"module"`  // module name, e.g. github.com/google/go-licenses/v2
+	Version string `yaml:"version"` // main module version, e.g. master (defaults to main)
+	Path    string `yaml:"path"`    // local path where the go module lives in
+	Binary  struct {
 		Path string `yaml:"path"` // local path where the go binary lives in
 	} `yaml:"binary"`
 }
@@ -102,6 +103,9 @@ func Load(path string) (config *GoModLicensesConfig, err error) {
 	}
 	if config.Module.Go.Binary.Path == "" {
 		return nil, errors.Errorf("goBinary.path is required")
+	}
+	if config.Module.Go.Version == "" {
+		config.Module.Go.Version = "main"
 	}
 	return config, nil
 }

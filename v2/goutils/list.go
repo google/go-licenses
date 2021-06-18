@@ -25,6 +25,7 @@ import (
 
 type Module struct {
 	Path      string // go import path
+	Main      bool   // is this the main module in the workdir?
 	Version   string
 	Time      string
 	Indirect  bool
@@ -33,21 +34,6 @@ type Module struct {
 	GoVersion string
 	Replace   *Module
 }
-
-// Example of a module with replace directive: 	k8s.io/kubernetes => k8s.io/kubernetes v1.11.1
-// {
-//         "Path": "k8s.io/kubernetes",
-//         "Version": "v0.17.9",
-//         "Replace": {
-//                 "Path": "k8s.io/kubernetes",
-//                 "Version": "v1.11.1",
-//                 "Time": "2018-07-17T04:20:29Z",
-//                 "Dir": "/home/gongyuan_kubeflow_org/go/pkg/mod/k8s.io/kubernetes@v1.11.1",
-//                 "GoMod": "/home/gongyuan_kubeflow_org/go/pkg/mod/cache/download/k8s.io/kubernetes/@v/v1.11.1.mod"
-//         },
-//         "Dir": "/home/gongyuan_kubeflow_org/go/pkg/mod/k8s.io/kubernetes@v1.11.1",
-//         "GoMod": "/home/gongyuan_kubeflow_org/go/pkg/mod/cache/download/k8s.io/kubernetes/@v/v1.11.1.mod"
-// }
 
 func ListModules() ([]Module, error) {
 	out, err := exec.Command("go", "list", "-m", "-json", "all").Output()
@@ -66,6 +52,20 @@ func ListModules() ([]Module, error) {
 			}
 			return nil, errors.Wrapf(err, "Failed to read go list output")
 		}
+		// Example of a module with replace directive: 	k8s.io/kubernetes => k8s.io/kubernetes v1.11.1
+		// {
+		//         "Path": "k8s.io/kubernetes",
+		//         "Version": "v0.17.9",
+		//         "Replace": {
+		//                 "Path": "k8s.io/kubernetes",
+		//                 "Version": "v1.11.1",
+		//                 "Time": "2018-07-17T04:20:29Z",
+		//                 "Dir": "/home/gongyuan_kubeflow_org/go/pkg/mod/k8s.io/kubernetes@v1.11.1",
+		//                 "GoMod": "/home/gongyuan_kubeflow_org/go/pkg/mod/cache/download/k8s.io/kubernetes/@v/v1.11.1.mod"
+		//         },
+		//         "Dir": "/home/gongyuan_kubeflow_org/go/pkg/mod/k8s.io/kubernetes@v1.11.1",
+		//         "GoMod": "/home/gongyuan_kubeflow_org/go/pkg/mod/cache/download/k8s.io/kubernetes/@v/v1.11.1.mod"
+		// }
 		// handle replace directives
 		if m.Replace != nil {
 			m = *m.Replace

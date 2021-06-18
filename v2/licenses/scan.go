@@ -49,6 +49,13 @@ const (
 	matchTypeLicense matchType = "License"
 )
 
+var ignoredDir map[string]bool = make(map[string]bool)
+
+func init() {
+	ignoredDir[".git"] = true
+	ignoredDir["node_modules"] = true
+}
+
 // Scan a directory for licenses.
 func ScanDir(dir string, options ScanDirOptions) ([]LicenseFound, error) {
 	var wrap = func(cause error, extra string) error {
@@ -90,7 +97,7 @@ func ScanDir(dir string, options ScanDirOptions) ([]LicenseFound, error) {
 		}
 		if info.IsDir() {
 			// TODO: move this to config
-			if info.Name() == ".git" {
+			if ignoredDir[info.Name()] {
 				return filepath.SkipDir
 			}
 			_, excluded := excludeAbsPaths[path]
