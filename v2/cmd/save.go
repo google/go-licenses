@@ -117,7 +117,7 @@ const (
 // Determines compliance requirement type of a license, returns ComplianceReq.
 // license can be a list of licenses like "Apache-2.0 / MIT", this method returns
 // strictest ComplianceReq type. The license names should be SPDX ID format.
-func requirementType(license string) (ComplianceReq, error) {
+func requirementType(license string, cfg config.LicensesConfig) (ComplianceReq, error) {
 	// By default, we distribute notice for any licenses.
 	requirement := RedistributeNotice
 	for _, part := range strings.Split(license, "/") {
@@ -127,6 +127,11 @@ func requirementType(license string) (ComplianceReq, error) {
 		}
 
 		licenseType := licenseclassifier.LicenseType(spdxId)
+		for _, override := range cfg.Types.Overrides {
+			if override.SpdxId == spdxId {
+				licenseType = override.Type
+			}
+		}
 		switch licenseType {
 		case "restricted", "reciprocal":
 			requirement = RedistributeSource
@@ -171,7 +176,7 @@ func complyWithLicenses(info []*dict.LicenseRecord, config config.GoModLicensesC
 
 	modulesWithBadLicenses := make([]*dict.LicenseRecord, 0)
 	for _, record := range info {
-		reqType, err := requirementType(record.Type)
+		reqType, err := requirementType(record.Type, config.Licenses)
 		if err != nil {
 			return fmt.Errorf("%s: license=%q: %w", record.Module, record.Type, err)
 		}

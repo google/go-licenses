@@ -15,8 +15,10 @@
 package config
 
 import (
+	"fmt"
 	"io/ioutil"
 
+	"github.com/google/licenseclassifier"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 )
@@ -29,6 +31,7 @@ type GoModLicensesConfig struct {
 		Go        GoModuleConfig   `yaml:"go"`
 		Overrides []ModuleOverride `yaml:"overrides"`
 	} `yaml:"module"`
+	Licenses LicensesConfig `yaml:"licenses"`
 }
 
 type LicenseDB struct {
@@ -76,6 +79,20 @@ type SubModule struct {
 	License LicenseOverride `yaml:"license"` // required, path of license in sub module
 }
 
+type LicenseTypeOverride struct {
+	SpdxId string `yaml:"spdxId"` // required, SPDX ID of the license. Refer to https://spdx.org/licenses/.
+	// required, should be one of https://github.com/google/licenseclassifier/blob/df6aa8a2788bdf5ac382148c2453a407a29819b8/license_type.go#L367-L374
+	Type string `yaml:"type"`
+}
+
+type LicensesConfig struct {
+	Types LicenseTypes `yaml:"types"`
+}
+
+type LicenseTypes struct {
+	Overrides []LicenseTypeOverride `yaml:"overrides"`
+}
+
 const (
 	DefaultConfigPath = "go-licenses.yaml"
 )
@@ -106,6 +123,14 @@ func Load(path string) (config *GoModLicensesConfig, err error) {
 	}
 	if config.Module.Go.Version == "" {
 		config.Module.Go.Version = "main"
+	}
+	for i, licenseOverride := range config.Licenses.Types.Overrides {
+		if licenseOverride.SpdxId == "" {
+			return nil, fmt.Errorf("config.licenses.types.overrides[%v]: license override's spdxId must be non empty", i)
+		}
+		if !licenseclassifier.LicenseTypes.Contains(licenseOverride.Type) {
+			return nil, fmt.Errorf("license override spdxId=%q type=%q is invalid: type must be one of %v", licenseOverride.SpdxId, licenseOverride.Type, licenseclassifier.LicenseTypes.String())
+		}
 	}
 	return config, nil
 }

@@ -176,7 +176,7 @@ General directions to improve this tool:
 * [ ] Use cobra to support providing the same information via argument or config.
 * [ ] Implement "check" command.
 * [ ] Support use-case of one modules folder with multiple binaries.
-* [ ] Support customizing allowed license types.
+* [x] Support customizing allowed license types.
 * [x] Support replace directives.
 * [x] Support modules with +incompatible in their versions, ref: <https://golang.org/ref/mod#incompatible-versions>.
 

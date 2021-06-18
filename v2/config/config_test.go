@@ -83,6 +83,13 @@ func TestLoadConfig_SpecifiedPath(t *testing.T) {
 		},
 	}
 	assert.Equal(t, expected, loaded.Module.Overrides)
+	assert.Equal(t, config.LicensesConfig{
+		Types: config.LicenseTypes{
+			Overrides: []config.LicenseTypeOverride{{
+				SpdxId: "blessing", Type: "unencumbered",
+			}},
+		},
+	}, loaded.Licenses)
 }
 
 func TestLoadConfig_PathNotExist(t *testing.T) {
