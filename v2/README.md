@@ -174,7 +174,9 @@ General directions to improve this tool:
 #### P0
 
 * [ ] Use cobra to support providing the same information via argument or config.
-* [ ] Implement "check" command
+* [ ] Implement "check" command.
+* [ ] Support use-case of one modules folder with multiple binaries.
+* [x] Support replace directives.
 
 #### P1
 
@@ -185,6 +187,7 @@ General directions to improve this tool:
 #### P2
 
 * [ ] Support auto inclusion of licenses in headers by recording start line and end line of a license detection.
+* [ ] Check header licenses match their root license.
 * [ ] Find better default locations of generated files.
 * [ ] Improve logging format & consistency.
 * [ ] Tutorial for integration in CI/CD.
