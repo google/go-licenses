@@ -183,11 +183,7 @@ func csvImp() (err error) {
 			if info.subModulePath != "" {
 				moduleString = moduleString + "/" + info.subModulePath
 			}
-			_, err := f.WriteString(fmt.Sprintf(
-				"%s, %s, %s\n",
-				moduleString,
-				url,
-				info.spdxId))
+			_, err := fmt.Fprintln(f, "%s, %s, %s\n", moduleString, url, info.spdxId)
 			if err != nil {
 				return fmt.Errorf("Failed to write string: %w", err)
 			}
