@@ -18,7 +18,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/google/go-licenses/v2/goutils"
 	lichenmodule "github.com/google/go-licenses/v2/third_party/uw-labs/lichen/module"
 )
 
@@ -71,31 +70,4 @@ func ListModulesInGoBinary(Path string) (refs []goModuleRef, err error) {
 		}
 	}
 	return refs, nil
-}
-
-func JoinModuleRefWithLocalModules(refs []goModuleRef) (modules []GoModule, err error) {
-	localModules, err := goutils.ListModules()
-	if err != nil {
-		return
-	}
-	localModulesDict := goutils.BuildModuleDict(localModules)
-
-	for _, ref := range refs {
-		localModule, ok := localModulesDict[ref.ImportPath]
-		if !ok {
-			return nil, fmt.Errorf("Cannot find %v in current dir's go modules. Are you running this tool from the working dir to build the binary you are analyzing?", ref.ImportPath)
-		}
-		if localModule.Dir == "" {
-			return nil, fmt.Errorf("Module %v's local directory is empty. Did you run go mod download?", ref.ImportPath)
-		}
-		if localModule.Version != ref.Version {
-			return nil, fmt.Errorf("Found %v %v in go binary, but %v is downloaded in go modules. Are you running this tool from the working dir to build the binary you are analyzing?", ref.ImportPath, ref.Version, localModule.Version)
-		}
-		modules = append(modules, GoModule{
-			ImportPath: ref.ImportPath,
-			Version:    ref.Version,
-			SrcDir:     localModule.Dir,
-		})
-	}
-	return modules, nil
 }
