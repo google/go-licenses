@@ -14,6 +14,7 @@
 
 package deps
 
+// Go module with local source directory
 type GoModule struct {
 	// go import path, example: github.com/google/licenseclassifier/v2
 	ImportPath string

@@ -18,17 +18,13 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/go-licenses/v2/goutils"
 	lichenmodule "github.com/google/go-licenses/v2/third_party/uw-labs/lichen/module"
+	"golang.org/x/mod/module"
 )
 
-type goModuleRef struct {
-	// go import path, example: github.com/google/licenseclassifier/v2
-	ImportPath string
-	// version, example: v1.2.3, v0.0.0-20201021035429-f5854403a974
-	Version string
-}
-
-// Parse dependencies from metadata in a go binary.
+// List dependencies from module metadata in a go binary.
+//
 // Prerequisites:
 // * The go binary must be built with go modules without any further modifications.
 // * The command must run with working directory same as to build the analyzed
@@ -47,7 +43,15 @@ type goModuleRef struct {
 // 2. https://github.com/mitchellh/golicense/blob/8c09a94a11ac73299a72a68a7b41e3a737119f91/module/module.go#L27
 // 3. https://github.com/golang/go/issues/39301
 // 4. https://golang.org/pkg/cmd/go/internal/version/
-func ListModulesInGoBinary(Path string) (refs []goModuleRef, err error) {
+func ListGoBinary(path string) ([]goutils.Module, error) {
+	versions, err := listModulesInBinary(path)
+	if err != nil {
+		return nil, err
+	}
+	return joinModulesMetadata(versions)
+}
+
+func listModulesInBinary(Path string) (versions []module.Version, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("ListModulesInGoBinary(Path='%s'): %w", Path, err)
@@ -60,14 +64,37 @@ func ListModulesInGoBinary(Path string) (refs []goModuleRef, err error) {
 	if len(depsBuildInfo) != 1 {
 		return nil, fmt.Errorf("len(depsBuildInfo) should be 1, but found %v", len(depsBuildInfo))
 	}
-	refs = make([]goModuleRef, 0)
+	versions = make([]module.Version, 0)
 	for _, buildInfo := range depsBuildInfo {
 		for _, ref := range buildInfo.ModuleRefs {
-			refs = append(refs, goModuleRef{
-				ImportPath: ref.Path,
-				Version:    ref.Version,
+			versions = append(versions, module.Version{
+				Path:    ref.Path,
+				Version: ref.Version,
 			})
 		}
 	}
-	return refs, nil
+	return versions, nil
+}
+
+func joinModulesMetadata(refs []module.Version) (modules []goutils.Module, err error) {
+	localModules, err := goutils.ListModules()
+	if err != nil {
+		return
+	}
+	localModulesDict := goutils.BuildModuleDict(localModules)
+
+	for _, ref := range refs {
+		localModule, ok := localModulesDict[ref.Path]
+		if !ok {
+			return nil, fmt.Errorf("Cannot find %v in current dir's go modules. Are you running this tool from the working dir to build the binary you are analyzing?", ref.ImportPath)
+		}
+		if localModule.Dir == "" {
+			return nil, fmt.Errorf("Module %v's local directory is empty. Did you run go mod download?", ref.ImportPath)
+		}
+		if localModule.Version != ref.Version {
+			return nil, fmt.Errorf("Found %v %v in go binary, but %v is downloaded in go modules. Are you running this tool from the working dir to build the binary you are analyzing?", ref.ImportPath, ref.Version, localModule.Version)
+		}
+		modules = append(modules, localModule)
+	}
+	return modules, nil
 }
