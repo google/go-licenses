@@ -86,13 +86,13 @@ func joinModulesMetadata(refs []module.Version) (modules []goutils.Module, err e
 	for _, ref := range refs {
 		localModule, ok := localModulesDict[ref.Path]
 		if !ok {
-			return nil, fmt.Errorf("Cannot find %v in current dir's go modules. Are you running this tool from the working dir to build the binary you are analyzing?", ref.ImportPath)
+			return nil, fmt.Errorf("Cannot find %v in current dir's go modules. Are you running this tool from the working dir to build the binary you are analyzing?", ref.Path)
 		}
 		if localModule.Dir == "" {
-			return nil, fmt.Errorf("Module %v's local directory is empty. Did you run go mod download?", ref.ImportPath)
+			return nil, fmt.Errorf("Module %v's local directory is empty. Did you run go mod download?", ref.Path)
 		}
 		if localModule.Version != ref.Version {
-			return nil, fmt.Errorf("Found %v %v in go binary, but %v is downloaded in go modules. Are you running this tool from the working dir to build the binary you are analyzing?", ref.ImportPath, ref.Version, localModule.Version)
+			return nil, fmt.Errorf("Found %v %v in go binary, but %v is downloaded in go modules. Are you running this tool from the working dir to build the binary you are analyzing?", ref.Path, ref.Version, localModule.Version)
 		}
 		modules = append(modules, localModule)
 	}

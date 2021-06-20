@@ -60,15 +60,15 @@ func TestListModulesInGoBinary(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Failed to build binary: %v", err)
 			}
-			actual, err := deps.ListModulesInGoBinary(filepath.Join(tc.path, binaryName))
+			actual, err := deps.ListGoBinary(filepath.Join(tc.path, binaryName))
 			if err != nil {
 				t.Fatal(err)
 			}
 			modulesActual := make([]string, 0)
 			for _, module := range actual {
-				assert.NotEmpty(t, module.ImportPath)
+				assert.NotEmpty(t, module.Path)
 				assert.NotEmpty(t, module.Version)
-				modulesActual = append(modulesActual, module.ImportPath)
+				modulesActual = append(modulesActual, module.Path)
 			}
 			assert.Equal(t, tc.expected, modulesActual)
 		})
