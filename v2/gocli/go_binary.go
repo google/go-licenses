@@ -42,7 +42,7 @@ import (
 // 2. https://github.com/mitchellh/golicense/blob/8c09a94a11ac73299a72a68a7b41e3a737119f91/module/module.go#L27
 // 3. https://github.com/golang/go/issues/39301
 // 4. https://golang.org/pkg/cmd/go/internal/version/
-func ListGoBinary(path string) ([]Module, error) {
+func ListModulesInBinary(path string) ([]Module, error) {
 	versions, err := listModulesInBinary(path)
 	if err != nil {
 		return nil, err

@@ -65,7 +65,7 @@ func TestListModulesInGoBinary(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Failed to build binary: %v", err)
 			}
-			actual, err := gocli.ListGoBinary(binaryName)
+			actual, err := gocli.ListModulesInBinary(binaryName)
 			if err != nil {
 				t.Fatal(err)
 			}
