@@ -53,7 +53,7 @@ func ListModulesInBinary(path string) ([]Module, error) {
 func listModulesInBinary(Path string) (versions []module.Version, err error) {
 	defer func() {
 		if err != nil {
-			err = fmt.Errorf("ListModulesInGoBinary(Path='%s'): %w", Path, err)
+			err = fmt.Errorf("ListModulesInGoBinary(Path=%q): %w", Path, err)
 		}
 	}()
 	depsBuildInfo, err := lichenmodule.Extract(context.Background(), Path)
