@@ -71,13 +71,13 @@ func ExtractBinaryMetadata(path string) (*BinaryMetadata, error) {
 	}, nil
 }
 
-func listModulesInBinary(Path string) (buildinfo *model.BuildInfo, err error) {
+func listModulesInBinary(path string) (buildinfo *model.BuildInfo, err error) {
 	defer func() {
 		if err != nil {
-			err = fmt.Errorf("ListModulesInGoBinary(Path=%q): %w", Path, err)
+			err = fmt.Errorf("listModulesInGoBinary(path=%q): %w", path, err)
 		}
 	}()
-	depsBuildInfo, err := lichenmodule.Extract(context.Background(), Path)
+	depsBuildInfo, err := lichenmodule.Extract(context.Background(), path)
 	if err != nil {
 		return nil, err
 	}
