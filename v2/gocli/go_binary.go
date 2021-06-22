@@ -84,16 +84,6 @@ func listModulesInBinary(path string) (buildinfo *model.BuildInfo, err error) {
 	if len(depsBuildInfo) != 1 {
 		return nil, fmt.Errorf("len(depsBuildInfo) should be 1, but found %v", len(depsBuildInfo))
 	}
-
-	// versions = make([]module.Version, 0)
-	// for _, buildInfo := range depsBuildInfo {
-	// 	for _, ref := range buildInfo.ModuleRefs {
-	// 		versions = append(versions, module.Version{
-	// 			Path:    ref.Path,
-	// 			Version: ref.Version,
-	// 		})
-	// 	}
-	// }
 	return &depsBuildInfo[0], nil
 }
 
