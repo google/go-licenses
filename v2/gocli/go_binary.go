@@ -18,9 +18,22 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/go-licenses/v2/third_party/uw-labs/lichen/model"
 	lichenmodule "github.com/google/go-licenses/v2/third_party/uw-labs/lichen/module"
-	"golang.org/x/mod/module"
 )
+
+// Module metadata extracted from binary and local go module workspace.
+type BinaryMetadata struct {
+	// The main module used to build the binary.
+	// e.g. github.com//google/go-licenses/v2/tests/modules/cli02
+	MainModule string
+	// Import path of the main package to build the binary.
+	// e.g. github.com//google/go-licenses/v2/tests/modules/cli02/cmd
+	Path string
+	// Detailed metadata of all the module dependencies.
+	// Does not include the main module.
+	Modules []Module
+}
 
 // List dependencies from module metadata in a go binary.
 //
@@ -42,15 +55,23 @@ import (
 // 2. https://github.com/mitchellh/golicense/blob/8c09a94a11ac73299a72a68a7b41e3a737119f91/module/module.go#L27
 // 3. https://github.com/golang/go/issues/39301
 // 4. https://golang.org/pkg/cmd/go/internal/version/
-func ListModulesInBinary(path string) ([]Module, error) {
-	versions, err := listModulesInBinary(path)
+func ExtractBinaryMetadata(path string) (*BinaryMetadata, error) {
+	buildInfo, err := listModulesInBinary(path)
 	if err != nil {
 		return nil, err
 	}
-	return joinModulesMetadata(versions)
+	mods, err := joinModulesMetadata(buildInfo.ModuleRefs)
+	if err != nil {
+		return nil, err
+	}
+	return &BinaryMetadata{
+		MainModule: buildInfo.ModulePath,
+		Path:       buildInfo.PackagePath,
+		Modules:    mods,
+	}, nil
 }
 
-func listModulesInBinary(Path string) (versions []module.Version, err error) {
+func listModulesInBinary(Path string) (buildinfo *model.BuildInfo, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("ListModulesInGoBinary(Path=%q): %w", Path, err)
@@ -63,19 +84,20 @@ func listModulesInBinary(Path string) (versions []module.Version, err error) {
 	if len(depsBuildInfo) != 1 {
 		return nil, fmt.Errorf("len(depsBuildInfo) should be 1, but found %v", len(depsBuildInfo))
 	}
-	versions = make([]module.Version, 0)
-	for _, buildInfo := range depsBuildInfo {
-		for _, ref := range buildInfo.ModuleRefs {
-			versions = append(versions, module.Version{
-				Path:    ref.Path,
-				Version: ref.Version,
-			})
-		}
-	}
-	return versions, nil
+
+	// versions = make([]module.Version, 0)
+	// for _, buildInfo := range depsBuildInfo {
+	// 	for _, ref := range buildInfo.ModuleRefs {
+	// 		versions = append(versions, module.Version{
+	// 			Path:    ref.Path,
+	// 			Version: ref.Version,
+	// 		})
+	// 	}
+	// }
+	return &depsBuildInfo[0], nil
 }
 
-func joinModulesMetadata(refs []module.Version) (modules []Module, err error) {
+func joinModulesMetadata(refs []model.ModuleReference) (modules []Module, err error) {
 	localModules, err := ListModules()
 	if err != nil {
 		return

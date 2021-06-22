@@ -27,37 +27,49 @@ import (
 
 func TestListModulesInGoBinary(t *testing.T) {
 	var tests = []struct {
-		path     string
-		expected []string
+		workdir     string
+		mainModule  string
+		packagePath string
+		modules     []string
 	}{
-		{"../tests/modules/hello01", []string{}},
-		{"../tests/modules/cli02", []string{
-			"github.com/fsnotify/fsnotify",
-			"github.com/hashicorp/hcl",
-			"github.com/magiconair/properties",
-			"github.com/mitchellh/go-homedir",
-			"github.com/mitchellh/mapstructure",
-			"github.com/pelletier/go-toml",
-			"github.com/spf13/afero",
-			"github.com/spf13/cast",
-			"github.com/spf13/cobra",
-			"github.com/spf13/jwalterweatherman",
-			"github.com/spf13/pflag",
-			"github.com/spf13/viper",
-			"github.com/subosito/gotenv",
-			"golang.org/x/sys",
-			"golang.org/x/text",
-			"gopkg.in/ini.v1",
-			"gopkg.in/yaml.v2",
-		}},
+		{
+			workdir:     "../tests/modules/hello01",
+			mainModule:  "github.com/google/go-licenses/v2/tests/modules/hello01",
+			packagePath: "github.com/google/go-licenses/v2/tests/modules/hello01",
+			modules:     []string{},
+		},
+		{
+			workdir:     "../tests/modules/cli02",
+			mainModule:  "github.com/google/go-licenses/v2/tests/modules/cli02",
+			packagePath: "github.com/google/go-licenses/v2/tests/modules/cli02",
+			modules: []string{
+				"github.com/fsnotify/fsnotify",
+				"github.com/hashicorp/hcl",
+				"github.com/magiconair/properties",
+				"github.com/mitchellh/go-homedir",
+				"github.com/mitchellh/mapstructure",
+				"github.com/pelletier/go-toml",
+				"github.com/spf13/afero",
+				"github.com/spf13/cast",
+				"github.com/spf13/cobra",
+				"github.com/spf13/jwalterweatherman",
+				"github.com/spf13/pflag",
+				"github.com/spf13/viper",
+				"github.com/subosito/gotenv",
+				"golang.org/x/sys",
+				"golang.org/x/text",
+				"gopkg.in/ini.v1",
+				"gopkg.in/yaml.v2",
+			},
+		},
 	}
 	originalWorkDir, err := os.Getwd()
 	if err != nil {
 		t.Fatal(err)
 	}
 	for _, tc := range tests {
-		t.Run(fmt.Sprintf("List modules in go binary built from %s", tc.path), func(t *testing.T) {
-			os.Chdir(filepath.Join(originalWorkDir, tc.path))
+		t.Run(fmt.Sprintf("List modules in go binary built from %s", tc.workdir), func(t *testing.T) {
+			os.Chdir(filepath.Join(originalWorkDir, tc.workdir))
 			// This outputs the built binary as name "main".
 			binaryName := "main"
 			cmd := exec.Command("go", "build", "-o", binaryName)
@@ -65,17 +77,19 @@ func TestListModulesInGoBinary(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Failed to build binary: %v", err)
 			}
-			actual, err := gocli.ListModulesInBinary(binaryName)
+			metadata, err := gocli.ExtractBinaryMetadata(binaryName)
 			if err != nil {
 				t.Fatal(err)
 			}
+			assert.Equal(t, tc.mainModule, metadata.MainModule)
+			assert.Equal(t, tc.packagePath, metadata.Path)
 			modulesActual := make([]string, 0)
-			for _, module := range actual {
+			for _, module := range metadata.Modules {
 				assert.NotEmpty(t, module.Path)
 				assert.NotEmpty(t, module.Version)
 				modulesActual = append(modulesActual, module.Path)
 			}
-			assert.Equal(t, tc.expected, modulesActual)
+			assert.Equal(t, tc.modules, modulesActual)
 		})
 	}
 }
