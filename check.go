@@ -23,6 +23,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const (
+	exitForbidden = iota + 1
+	exitNotFound
+)
+
 var (
 	checkCmd = &cobra.Command{
 		Use:   "check <package>",
@@ -51,9 +56,12 @@ func checkMain(_ *cobra.Command, args []string) error {
 		if err != nil {
 			return err
 		}
-		if licenseType == licenses.Forbidden {
+		switch licenseType {
+		case licenses.Forbidden:
 			fmt.Fprintf(os.Stderr, "Forbidden license type %s for library %v\n", licenseName, lib)
-			os.Exit(1)
+			os.Exit(exitForbidden)
+		case licenses.Unknown:
+			os.Exit(exitNotFound)
 		}
 	}
 	return nil
