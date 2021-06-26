@@ -16,6 +16,7 @@ package main
 
 import (
 	"flag"
+	"github.com/google/go-licenses/licenses"
 	"strings"
 
 	"github.com/golang/glog"
@@ -25,14 +26,19 @@ import (
 var (
 	rootCmd = &cobra.Command{
 		Use: "licenses",
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			setupArchivePath()
+		},
 	}
 
 	// Flags shared between subcommands
 	confidenceThreshold float64
+	licenseArchivePath string
 )
 
 func init() {
 	rootCmd.PersistentFlags().Float64Var(&confidenceThreshold, "confidence_threshold", 0.9, "Minimum confidence required in order to positively identify a license.")
+	rootCmd.PersistentFlags().StringVar(&licenseArchivePath, "license_db", "", "Path to the license archive (uses archive in source checkout if not specificed)")
 }
 
 func main() {
@@ -50,4 +56,15 @@ func unvendor(importPath string) string {
 		return vendorerAndVendoree[1]
 	}
 	return importPath
+}
+
+// setupArchivePath sets the path to the license archive if specified
+func setupArchivePath() {
+	if licenseArchivePath == "" {
+		return
+	}
+
+	if err := licenses.SetArchiveLocation(licenseArchivePath); err != nil {
+		glog.Exit(err)
+	}
 }
