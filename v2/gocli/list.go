@@ -24,8 +24,8 @@ import (
 	"golang.org/x/tools/go/packages"
 )
 
-// List go modules with metadata using go CLI list command.
-func ListModules() ([]packages.Module, error) {
+// List go modules with metadata in workdir using go CLI list command.
+func ListModules() (map[string]packages.Module, error) {
 	out, err := exec.Command("go", "list", "-m", "-json", "all").Output()
 	if err != nil {
 		return nil, fmt.Errorf("Failed to list go modules: %w", err)
@@ -65,14 +65,10 @@ func ListModules() ([]packages.Module, error) {
 		}
 		modules = append(modules, m)
 	}
-	return modules, nil
-}
 
-// Helper to build a module path -> module dict.
-func BuildModuleDict(modules []packages.Module) map[string]packages.Module {
 	dict := make(map[string]packages.Module)
 	for i := range modules {
 		dict[modules[i].Path] = modules[i]
 	}
-	return dict
+	return dict, nil
 }

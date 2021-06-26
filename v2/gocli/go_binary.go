@@ -89,11 +89,10 @@ func listModulesInBinary(ctx context.Context, path string) (buildinfo *model.Bui
 }
 
 func joinModulesMetadata(refs []model.ModuleReference) (modules []packages.Module, err error) {
-	localModules, err := ListModules()
+	localModulesDict, err := ListModules()
 	if err != nil {
-		return
+		return nil, err
 	}
-	localModulesDict := BuildModuleDict(localModules)
 
 	for _, ref := range refs {
 		localModule, ok := localModulesDict[ref.Path]
