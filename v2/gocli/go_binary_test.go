@@ -15,7 +15,7 @@
 package gocli_test
 
 import (
-	"fmt"
+	"context"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -68,16 +68,15 @@ func TestListModulesInGoBinary(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, tc := range tests {
-		t.Run(fmt.Sprintf("List modules in go binary built from %s", tc.workdir), func(t *testing.T) {
+		t.Run(tc.workdir, func(t *testing.T) {
 			os.Chdir(filepath.Join(originalWorkDir, tc.workdir))
 			// This outputs the built binary as name "main".
 			binaryName := "main"
 			cmd := exec.Command("go", "build", "-o", binaryName)
-			_, err := cmd.Output()
-			if err != nil {
+			if _, err := cmd.Output(); err != nil {
 				t.Fatalf("Failed to build binary: %v", err)
 			}
-			metadata, err := gocli.ExtractBinaryMetadata(binaryName)
+			metadata, err := gocli.ExtractBinaryMetadata(context.Background(), binaryName)
 			if err != nil {
 				t.Fatal(err)
 			}

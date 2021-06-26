@@ -20,6 +20,7 @@ import (
 
 	"github.com/google/go-licenses/v2/third_party/uw-labs/lichen/model"
 	lichenmodule "github.com/google/go-licenses/v2/third_party/uw-labs/lichen/module"
+	"golang.org/x/tools/go/packages"
 )
 
 // Module metadata extracted from binary and local go module workspace.
@@ -32,7 +33,7 @@ type BinaryMetadata struct {
 	Path string
 	// Detailed metadata of all the module dependencies.
 	// Does not include the main module.
-	Modules []Module
+	Modules []packages.Module
 }
 
 // List dependencies from module metadata in a go binary.
@@ -55,8 +56,8 @@ type BinaryMetadata struct {
 // 2. https://github.com/mitchellh/golicense/blob/8c09a94a11ac73299a72a68a7b41e3a737119f91/module/module.go#L27
 // 3. https://github.com/golang/go/issues/39301
 // 4. https://golang.org/pkg/cmd/go/internal/version/
-func ExtractBinaryMetadata(path string) (*BinaryMetadata, error) {
-	buildInfo, err := listModulesInBinary(path)
+func ExtractBinaryMetadata(ctx context.Context, path string) (*BinaryMetadata, error) {
+	buildInfo, err := listModulesInBinary(ctx, path)
 	if err != nil {
 		return nil, err
 	}
@@ -71,13 +72,13 @@ func ExtractBinaryMetadata(path string) (*BinaryMetadata, error) {
 	}, nil
 }
 
-func listModulesInBinary(path string) (buildinfo *model.BuildInfo, err error) {
+func listModulesInBinary(ctx context.Context, path string) (buildinfo *model.BuildInfo, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("listModulesInGoBinary(path=%q): %w", path, err)
 		}
 	}()
-	depsBuildInfo, err := lichenmodule.Extract(context.Background(), path)
+	depsBuildInfo, err := lichenmodule.Extract(ctx, path)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +88,7 @@ func listModulesInBinary(path string) (buildinfo *model.BuildInfo, err error) {
 	return &depsBuildInfo[0], nil
 }
 
-func joinModulesMetadata(refs []model.ModuleReference) (modules []Module, err error) {
+func joinModulesMetadata(refs []model.ModuleReference) (modules []packages.Module, err error) {
 	localModules, err := ListModules()
 	if err != nil {
 		return

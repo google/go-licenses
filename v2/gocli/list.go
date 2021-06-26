@@ -20,33 +20,22 @@ import (
 	"fmt"
 	"io"
 	"os/exec"
+
+	"golang.org/x/tools/go/packages"
 )
 
-// Go module metadata
-type Module struct {
-	Path      string // go import path
-	Main      bool   // whether this is the main module in the workdir
-	Version   string
-	Time      string
-	Indirect  bool
-	Dir       string
-	GoMod     string
-	GoVersion string
-	Replace   *Module
-}
-
 // List go modules with metadata using go CLI list command.
-func ListModules() ([]Module, error) {
+func ListModules() ([]packages.Module, error) {
 	out, err := exec.Command("go", "list", "-m", "-json", "all").Output()
 	if err != nil {
 		return nil, fmt.Errorf("Failed to list go modules: %w", err)
 	}
 	// reference: https://github.com/golang/go/issues/27655#issuecomment-420993215
-	modules := make([]Module, 0)
+	modules := make([]packages.Module, 0)
 
 	dec := json.NewDecoder(bytes.NewReader(out))
 	for {
-		var m Module
+		var m packages.Module
 		if err := dec.Decode(&m); err != nil {
 			if err == io.EOF {
 				break
@@ -68,6 +57,9 @@ func ListModules() ([]Module, error) {
 		//         "GoMod": "/home/gongyuan_kubeflow_org/go/pkg/mod/cache/download/k8s.io/kubernetes/@v/v1.11.1.mod"
 		// }
 		// handle replace directives
+		// Note, we specifically want to replace version field.
+		// Haven't confirmed, but we may also need to override the
+		// entire struct when using replace directive with local folders.
 		if m.Replace != nil {
 			m = *m.Replace
 		}
@@ -77,8 +69,8 @@ func ListModules() ([]Module, error) {
 }
 
 // Helper to build a module path -> module dict.
-func BuildModuleDict(modules []Module) map[string]Module {
-	dict := make(map[string]Module)
+func BuildModuleDict(modules []packages.Module) map[string]packages.Module {
+	dict := make(map[string]packages.Module)
 	for i := range modules {
 		dict[modules[i].Path] = modules[i]
 	}
