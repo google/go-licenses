@@ -18,13 +18,16 @@ import (
 	"context"
 	"fmt"
 	"go/build"
+	"net/http"
 	"net/url"
 	"path"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 
 	"github.com/golang/glog"
+	"golang.org/x/net/html"
 	"golang.org/x/tools/go/packages"
 )
 
@@ -169,6 +172,48 @@ func (l *Library) String() string {
 	return l.Name()
 }
 
+func normalizeVanityURL(path string) (string, error) {
+	for key, _ := range repoPathPrefixes {
+		if strings.Contains(path, key) {
+			return path, nil
+		}
+	}
+	resp, err := http.Get("https://" + path + "?go-get=1")
+	if err != nil {
+		return path, err
+	}
+	defer resp.Body.Close()
+	regExPattern, err := regexp.Compile("https:\\/\\/([\\w_-]+(?:(?:\\.[\\w_-]+)+))([\\w.,@?^=%&:\\/~+#-]*[\\w@?^=%&\\/~+#-])?")
+	if err != nil {
+		return path, err
+	}
+	tokenizer := html.NewTokenizer(resp.Body)
+	var urlTag html.Token
+	for {
+		tokenTag := tokenizer.Next()
+		token := tokenizer.Token()
+		if tokenTag == html.ErrorToken {
+			break
+		} else if tokenTag == html.StartTagToken && token.Data == "meta" {
+			for _, attribute := range token.Attr {
+				if attribute.Key == "name" && attribute.Val == "go-source" {
+					urlTag = token
+					break
+				}
+			}
+		}
+	}
+	if urlTag.Data == "" {
+		return path, nil
+	}
+	for _, attribute := range urlTag.Attr {
+		if attribute.Key == "content" {
+			return strings.Replace(regExPattern.FindString(attribute.Val), "https://", "", 1), nil
+		}
+	}
+	return path, nil
+}
+
 // FileURL attempts to determine the URL for a file in this library.
 // This only works for certain supported package prefixes, such as github.com,
 // bitbucket.org and googlesource.com. Prefer GitRepo.FileURL() if possible.
@@ -177,7 +222,11 @@ func (l *Library) FileURL(filePath string) (*url.URL, error) {
 	if err != nil {
 		return nil, err
 	}
-	nameParts := strings.SplitN(l.Name(), "/", 4)
+	normalizedName, err := normalizeVanityURL(l.Name())
+	if err != nil {
+		normalizedName = l.Name()
+	}
+	nameParts := strings.SplitN(normalizedName, "/", 4)
 	if len(nameParts) < 3 {
 		return nil, fmt.Errorf("cannot determine URL for %q package", l.Name())
 	}
