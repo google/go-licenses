@@ -28,22 +28,24 @@ func TestFind(t *testing.T) {
 
 	classifier := classifierStub{
 		licenseNames: map[string]string{
-			"testdata/LICENSE":           "foo",
-			"testdata/MIT/LICENSE.MIT":   "MIT",
-			"testdata/licence/LICENCE":   "foo",
-			"testdata/copying/COPYING":   "foo",
-			"testdata/notice/NOTICE.txt": "foo",
-			"testdata/readme/README.md":  "foo",
-			"testdata/lowercase/license": "foo",
+			"testdata/LICENSE":                                   "foo",
+			"testdata/MIT/LICENSE.MIT":                           "MIT",
+			"testdata/licence/LICENCE":                           "foo",
+			"testdata/copying/COPYING":                           "foo",
+			"testdata/notice/NOTICE.txt":                         "foo",
+			"testdata/readme/README.md":                          "foo",
+			"testdata/lowercase/license":                         "foo",
+			"testdata/license-apache-2.0/LICENSE-APACHE-2.0.txt": "foo",
 		},
 		licenseTypes: map[string]Type{
-			"testdata/LICENSE":           Notice,
-			"testdata/MIT/LICENSE.MIT":   Notice,
-			"testdata/licence/LICENCE":   Notice,
-			"testdata/copying/COPYING":   Notice,
-			"testdata/notice/NOTICE.txt": Notice,
-			"testdata/readme/README.md":  Notice,
-			"testdata/lowercase/license": Notice,
+			"testdata/LICENSE":                                   Notice,
+			"testdata/MIT/LICENSE.MIT":                           Notice,
+			"testdata/licence/LICENCE":                           Notice,
+			"testdata/copying/COPYING":                           Notice,
+			"testdata/notice/NOTICE.txt":                         Notice,
+			"testdata/readme/README.md":                          Notice,
+			"testdata/lowercase/license":                         Notice,
+			"testdata/license-apache-2.0/LICENSE-APACHE-2.0.txt": Notice,
 		},
 	}
 
@@ -91,6 +93,11 @@ func TestFind(t *testing.T) {
 			desc:            "lowercase",
 			dir:             "testdata/lowercase",
 			wantLicensePath: filepath.Join(wd, "testdata/lowercase/license"),
+		},
+		{
+			desc:            "license-apache-2.0.txt",
+			dir:             "testdata/license-apache-2.0",
+			wantLicensePath: filepath.Join(wd, "testdata/license-apache-2.0/LICENSE-APACHE-2.0.txt"),
 		},
 	} {
 		t.Run(test.desc, func(t *testing.T) {
