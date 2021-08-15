@@ -33,6 +33,15 @@ type Module struct {
 }
 
 func parseBuildInfo(data string) (*BuildInfo, bool) {
+	// Example data (note, separators are \t):
+	//
+	// tests/modules/cli02/main: go1.16.5
+	//     path    github.com/google/go-licenses/v2/tests/modules/cli02
+	//     mod     github.com/google/go-licenses/v2/tests/modules/cli02    (devel)
+	//     dep     github.com/fsnotify/fsnotify    v1.4.9  h1:hsms1Qyu0jgnwNXIxa+/V/PDsU6CfLf6CNO8H7IWoS4=
+	//     dep     github.com/hashicorp/hcl        v1.0.0  h1:0Anlzjpi4vEasTeNFn2mLJgTSwt0+6sfsiTG8qcWGx4=
+	//     dep     github.com/magiconair/properties        v1.8.5  h1:b6kJs+EmPFMYGkow9GiUyCyOvIwYetYJ3fSaWak/Gls=
+	//     dep     golang.org/x/sys        v0.0.0-20210510120138-977fb7262007      h1:gG67DSER+11cZvqIMb8S8bt0vZtiN6xWYARwirrOSfE=
 	const (
 		pathLine = "\tpath\t"
 		modLine  = "\tmod\t"
