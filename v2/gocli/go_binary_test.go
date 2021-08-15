@@ -16,8 +16,10 @@ package gocli_test
 
 import (
 	"context"
+	"io/ioutil"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"testing"
 
@@ -70,10 +72,18 @@ func TestListModulesInGoBinary(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.workdir, func(t *testing.T) {
 			os.Chdir(filepath.Join(originalWorkDir, tc.workdir))
+			tempDir, err := ioutil.TempDir("", "")
+			if err != nil {
+				t.Fatal(err)
+			}
 			// This outputs the built binary as name "main".
-			binaryName := "main"
+			binaryName := path.Join(tempDir, "main")
 			cmd := exec.Command("go", "build", "-o", binaryName)
-			if _, err := cmd.Output(); err != nil {
+			_, err = cmd.Output()
+			// defer remove before checking error, because the file
+			// may be created even when there's an error.
+			defer os.Remove(binaryName)
+			if err != nil {
 				t.Fatalf("Failed to build binary: %v", err)
 			}
 			metadata, err := gocli.ExtractBinaryMetadata(context.Background(), binaryName)
