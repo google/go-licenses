@@ -15,7 +15,6 @@
 package gocli_test
 
 import (
-	"context"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -30,21 +29,18 @@ import (
 
 func TestListModulesInGoBinary(t *testing.T) {
 	var tests = []struct {
-		workdir     string
-		mainModule  string
-		packagePath string
-		modules     []string
+		workdir    string
+		mainModule string
+		modules    []string
 	}{
 		{
-			workdir:     "../tests/modules/hello01",
-			mainModule:  "github.com/google/go-licenses/v2/tests/modules/hello01",
-			packagePath: "github.com/google/go-licenses/v2/tests/modules/hello01",
-			modules:     []string{},
+			workdir:    "../tests/modules/hello01",
+			mainModule: "github.com/google/go-licenses/v2/tests/modules/hello01",
+			modules:    []string{},
 		},
 		{
-			workdir:     "../tests/modules/cli02",
-			mainModule:  "github.com/google/go-licenses/v2/tests/modules/cli02",
-			packagePath: "github.com/google/go-licenses/v2/tests/modules/cli02",
+			workdir:    "../tests/modules/cli02",
+			mainModule: "github.com/google/go-licenses/v2/tests/modules/cli02",
 			modules: []string{
 				"github.com/fsnotify/fsnotify@v1.4.9",
 				"github.com/hashicorp/hcl@v1.0.0",
@@ -87,12 +83,11 @@ func TestListModulesInGoBinary(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Failed to build binary: %v", err)
 			}
-			metadata, err := gocli.ExtractBinaryMetadata(context.Background(), binaryName)
+			metadata, err := gocli.ExtractBinaryMetadata(binaryName)
 			if err != nil {
 				t.Fatal(err)
 			}
 			assert.Equal(t, tc.mainModule, metadata.MainModule)
-			assert.Equal(t, tc.packagePath, metadata.Path)
 			modulesActual := make([]string, 0)
 			for _, module := range metadata.Modules {
 				assert.NotEmpty(t, module.Path)

@@ -8,18 +8,16 @@ import (
 	"strings"
 )
 
-// exported from runtime
-func modinfo() string
-
-// ReadBuildInfo returns the build information embedded
-// in the running binary. The information is available only
-// in binaries built with module support.
-func ReadBuildInfo() (info *BuildInfo, ok bool) {
-	return readBuildInfo(modinfo())
+// ParseBuildInfo parses build info from output of go command `go version -m <go_binary_path>`.
+// Caveat, `go version -m <folder_path>` can be used to get build info of all the go
+// binaries inside a folder. The current implementation cannot correctly parse
+// such outputs with multiple binaries yet.
+func ParseBuildInfo(data string) (info *BuildInfo, ok bool) {
+	return parseBuildInfo(data)
 }
 
 // BuildInfo represents the build information read from
-// the running binary.
+// the binary.
 type BuildInfo struct {
 	Path string    // The main package path
 	Main Module    // The module containing the main package
@@ -34,17 +32,12 @@ type Module struct {
 	Replace *Module // replaced by this module
 }
 
-func readBuildInfo(data string) (*BuildInfo, bool) {
-	if len(data) < 32 {
-		return nil, false
-	}
-	data = data[16 : len(data)-16]
-
+func parseBuildInfo(data string) (*BuildInfo, bool) {
 	const (
-		pathLine = "path\t"
-		modLine  = "mod\t"
-		depLine  = "dep\t"
-		repLine  = "=>\t"
+		pathLine = "\tpath\t"
+		modLine  = "\tmod\t"
+		depLine  = "\tdep\t"
+		repLine  = "\t=>\t"
 	)
 
 	readEntryFirstLine := func(elem []string) (Module, bool) {

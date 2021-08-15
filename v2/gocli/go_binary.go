@@ -15,11 +15,9 @@
 package gocli
 
 import (
-	"context"
 	"fmt"
 
-	"github.com/google/go-licenses/v2/third_party/uw-labs/lichen/model"
-	lichenmodule "github.com/google/go-licenses/v2/third_party/uw-labs/lichen/module"
+	"github.com/google/go-licenses/v2/third_party/go/runtime/debug"
 	"golang.org/x/tools/go/packages"
 )
 
@@ -28,9 +26,6 @@ type BinaryMetadata struct {
 	// The main module used to build the binary.
 	// e.g. github.com//google/go-licenses/v2/tests/modules/cli02
 	MainModule string
-	// Import path of the main package to build the binary.
-	// e.g. github.com//google/go-licenses/v2/tests/modules/cli02/cmd
-	Path string
 	// Detailed metadata of all the module dependencies.
 	// Does not include the main module.
 	Modules []packages.Module
@@ -56,23 +51,22 @@ type BinaryMetadata struct {
 // 2. https://github.com/mitchellh/golicense/blob/8c09a94a11ac73299a72a68a7b41e3a737119f91/module/module.go#L27
 // 3. https://github.com/golang/go/issues/39301
 // 4. https://golang.org/pkg/cmd/go/internal/version/
-func ExtractBinaryMetadata(ctx context.Context, path string) (*BinaryMetadata, error) {
-	buildInfo, err := listModulesInBinary(ctx, path)
+func ExtractBinaryMetadata(path string) (*BinaryMetadata, error) {
+	buildInfo, err := listModulesInBinary(path)
 	if err != nil {
 		return nil, err
 	}
-	mods, err := joinModulesMetadata(buildInfo.ModuleRefs)
+	mods, err := joinModulesMetadata(buildInfo.Deps)
 	if err != nil {
 		return nil, err
 	}
 	return &BinaryMetadata{
-		MainModule: buildInfo.ModulePath,
-		Path:       buildInfo.PackagePath,
+		MainModule: buildInfo.Main.Path,
 		Modules:    mods,
 	}, nil
 }
 
-func listModulesInBinary(ctx context.Context, path string) (buildinfo *model.BuildInfo, err error) {
+func listModulesInBinary(path string) (buildinfo *debug.BuildInfo, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("listModulesInGoBinary(path=%q): %w", path, err)
@@ -80,14 +74,7 @@ func listModulesInBinary(ctx context.Context, path string) (buildinfo *model.Bui
 	}()
 	// TODO(Bobgy): replace with x/mod equivalent from https://github.com/golang/go/issues/39301
 	// when it is available.
-	depsBuildInfo, err := lichenmodule.Extract(ctx, path)
-	if err != nil {
-		return nil, err
-	}
-	if len(depsBuildInfo) != 1 {
-		return nil, fmt.Errorf("len(depsBuildInfo) should be 1, but found %v", len(depsBuildInfo))
-	}
-	return &depsBuildInfo[0], nil
+	return version(path)
 }
 
 // joinModulesMetadata inner joins local go modules metadata with module ref
@@ -97,7 +84,7 @@ func listModulesInBinary(ctx context.Context, path string) (buildinfo *model.Bui
 // An error is reported when we cannot find go module metadata for some refs,
 // or when there's a version mismatch. These errors usually indicate your current
 // working directory does not match exactly where the go binary is built.
-func joinModulesMetadata(refs []model.ModuleReference) (modules []packages.Module, err error) {
+func joinModulesMetadata(refs []*debug.Module) (modules []packages.Module, err error) {
 	// Note, there was an attempt to use golang.org/x/tools/go/packages for
 	// loading modules instead, but it fails for modules like golang.org/x/sys.
 	// These modules only contains sub-packages, but no source code, so it
