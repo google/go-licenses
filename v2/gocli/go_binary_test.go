@@ -16,6 +16,7 @@ package gocli_test
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -45,23 +46,23 @@ func TestListModulesInGoBinary(t *testing.T) {
 			mainModule:  "github.com/google/go-licenses/v2/tests/modules/cli02",
 			packagePath: "github.com/google/go-licenses/v2/tests/modules/cli02",
 			modules: []string{
-				"github.com/fsnotify/fsnotify",
-				"github.com/hashicorp/hcl",
-				"github.com/magiconair/properties",
-				"github.com/mitchellh/go-homedir",
-				"github.com/mitchellh/mapstructure",
-				"github.com/pelletier/go-toml",
-				"github.com/spf13/afero",
-				"github.com/spf13/cast",
-				"github.com/spf13/cobra",
-				"github.com/spf13/jwalterweatherman",
-				"github.com/spf13/pflag",
-				"github.com/spf13/viper",
-				"github.com/subosito/gotenv",
-				"golang.org/x/sys",
-				"golang.org/x/text",
-				"gopkg.in/ini.v1",
-				"gopkg.in/yaml.v2",
+				"github.com/fsnotify/fsnotify@v1.4.9",
+				"github.com/hashicorp/hcl@v1.0.0",
+				"github.com/magiconair/properties@v1.8.5",
+				"github.com/mitchellh/go-homedir@v1.1.0",
+				"github.com/mitchellh/mapstructure@v1.4.1",
+				"github.com/pelletier/go-toml@v1.9.3",
+				"github.com/spf13/afero@v1.6.0",
+				"github.com/spf13/cast@v1.3.1",
+				"github.com/spf13/cobra@v1.1.3",
+				"github.com/spf13/jwalterweatherman@v1.1.0",
+				"github.com/spf13/pflag@v1.0.5",
+				"github.com/spf13/viper@v1.8.0",
+				"github.com/subosito/gotenv@v1.2.0",
+				"golang.org/x/sys@v0.0.0-20210510120138-977fb7262007",
+				"golang.org/x/text@v0.3.5",
+				"gopkg.in/ini.v1@v1.62.0",
+				"gopkg.in/yaml.v2@v2.4.0",
 			},
 		},
 	}
@@ -96,7 +97,7 @@ func TestListModulesInGoBinary(t *testing.T) {
 			for _, module := range metadata.Modules {
 				assert.NotEmpty(t, module.Path)
 				assert.NotEmpty(t, module.Version)
-				modulesActual = append(modulesActual, module.Path)
+				modulesActual = append(modulesActual, fmt.Sprintf("%s@%s", module.Path, module.Version))
 			}
 			assert.Equal(t, tc.modules, modulesActual)
 		})
