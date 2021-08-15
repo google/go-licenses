@@ -4,6 +4,10 @@ import "time"
 
 // Module provides module information for a package.
 type Module struct {
+	// Differences from packages.Module:
+	// * Replace field is removed, it's only an implementation detail in this package.
+	//   If a module is replaced, we'll directly return the replaced module.
+	// * ModuleError field is removed, it's only used in packages.Module.
 	Path      string     // module path
 	Version   string     // module version
 	Time      *time.Time // time version was created
