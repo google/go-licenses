@@ -25,18 +25,19 @@ import (
 )
 
 // List go modules with metadata in workdir using go CLI list command.
-func ListModules() (map[string]packages.Module, error) {
+// Modules with replace directive are returned as the replaced module instead.
+func ListModules() (map[string]Module, error) {
 	out, err := exec.Command("go", "list", "-m", "-json", "all").Output()
 	if err != nil {
 		return nil, fmt.Errorf("Failed to list go modules: %w", err)
 	}
 	// reference: https://github.com/golang/go/issues/27655#issuecomment-420993215
-	modules := make([]packages.Module, 0)
+	modules := make([]Module, 0)
 
 	dec := json.NewDecoder(bytes.NewReader(out))
 	for {
-		var m packages.Module
-		if err := dec.Decode(&m); err != nil {
+		var tmp packages.Module
+		if err := dec.Decode(&tmp); err != nil {
 			if err == io.EOF {
 				break
 			}
@@ -60,13 +61,23 @@ func ListModules() (map[string]packages.Module, error) {
 		// Note, we specifically want to replace version field.
 		// Haven't confirmed, but we may also need to override the
 		// entire struct when using replace directive with local folders.
-		if m.Replace != nil {
-			m = *m.Replace
+		mod := tmp
+		if mod.Replace != nil {
+			mod = *mod.Replace
 		}
-		modules = append(modules, m)
+		modules = append(modules, Module{
+			Path:      mod.Path,
+			Version:   mod.Version,
+			Time:      mod.Time,
+			Main:      mod.Main,
+			Indirect:  mod.Indirect,
+			Dir:       mod.Dir,
+			GoMod:     mod.GoMod,
+			GoVersion: mod.GoVersion,
+		})
 	}
 
-	dict := make(map[string]packages.Module)
+	dict := make(map[string]Module)
 	for i := range modules {
 		dict[modules[i].Path] = modules[i]
 	}

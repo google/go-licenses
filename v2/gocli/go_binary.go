@@ -18,7 +18,6 @@ import (
 	"fmt"
 
 	"github.com/google/go-licenses/v2/third_party/go/runtime/debug"
-	"golang.org/x/tools/go/packages"
 )
 
 // Module metadata extracted from binary and local go module workspace.
@@ -28,10 +27,11 @@ type BinaryMetadata struct {
 	MainModule string
 	// Detailed metadata of all the module dependencies.
 	// Does not include the main module.
-	Modules []packages.Module
+	Modules []Module
 }
 
 // List dependencies from module metadata in a go binary.
+// Modules with replace directives are returned as the replaced module instead.
 //
 // Prerequisites:
 // * The go binary must be built with go modules without any further modifications.
@@ -84,7 +84,7 @@ func listModulesInBinary(path string) (buildinfo *debug.BuildInfo, err error) {
 // An error is reported when we cannot find go module metadata for some refs,
 // or when there's a version mismatch. These errors usually indicate your current
 // working directory does not match exactly where the go binary is built.
-func joinModulesMetadata(refs []*debug.Module) (modules []packages.Module, err error) {
+func joinModulesMetadata(refs []*debug.Module) (modules []Module, err error) {
 	// Note, there was an attempt to use golang.org/x/tools/go/packages for
 	// loading modules instead, but it fails for modules like golang.org/x/sys.
 	// These modules only contains sub-packages, but no source code, so it
