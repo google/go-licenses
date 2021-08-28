@@ -42,8 +42,12 @@ var (
 	// savePath is where the output of the command is written to.
 	savePath string
 	// overwriteSavePath controls behaviour when the directory indicated by savePath already exists.
-	// If true, the directory will be replaced. If false, the command will fail.
+	// If true, the directory will be replaced. If false (and clobberSavePath is true), the command will fail.
 	overwriteSavePath bool
+
+	// clobberSavePath also controls behaviour when the directory indicated by savePath already exists.
+	// If true, any existing contents of the directory will be ignored and go-licenses will provide output with reckless abandon.
+	clobberSavePath bool
 )
 
 func init() {
@@ -57,6 +61,8 @@ func init() {
 
 	saveCmd.Flags().BoolVar(&overwriteSavePath, "force", false, "Delete the destination directory if it already exists.")
 
+	saveCmd.Flags().BoolVar(&clobberSavePath, "clobber", false, "Clobber the destination directory if it already exists.")
+
 	rootCmd.AddCommand(saveCmd)
 }
 
@@ -67,13 +73,15 @@ func saveMain(_ *cobra.Command, args []string) error {
 		}
 	}
 
-	// Check that the save path doesn't exist, otherwise it'd end up with a mix of
+	// If clobberSavePath is false, check that the save path doesn't exist, otherwise it'd end up with a mix of
 	// existing files and the output of this command.
-	if d, err := os.Open(savePath); err == nil {
-		d.Close()
-		return fmt.Errorf("%s already exists", savePath)
-	} else if !os.IsNotExist(err) {
-		return err
+	if !clobberSavePath {
+		if d, err := os.Open(savePath); err == nil {
+			d.Close()
+			return fmt.Errorf("%s already exists", savePath)
+		} else if !os.IsNotExist(err) {
+			return err
+		}
 	}
 
 	classifier, err := licenses.NewClassifier(confidenceThreshold)
