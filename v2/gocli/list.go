@@ -43,38 +43,7 @@ func ListModules() (map[string]Module, error) {
 			}
 			return nil, fmt.Errorf("Failed to read go list output: %w", err)
 		}
-		// Example of a module with replace directive: 	k8s.io/kubernetes => k8s.io/kubernetes v1.11.1
-		// {
-		//         "Path": "k8s.io/kubernetes",
-		//         "Version": "v0.17.9",
-		//         "Replace": {
-		//                 "Path": "k8s.io/kubernetes",
-		//                 "Version": "v1.11.1",
-		//                 "Time": "2018-07-17T04:20:29Z",
-		//                 "Dir": "/home/gongyuan_kubeflow_org/go/pkg/mod/k8s.io/kubernetes@v1.11.1",
-		//                 "GoMod": "/home/gongyuan_kubeflow_org/go/pkg/mod/cache/download/k8s.io/kubernetes/@v/v1.11.1.mod"
-		//         },
-		//         "Dir": "/home/gongyuan_kubeflow_org/go/pkg/mod/k8s.io/kubernetes@v1.11.1",
-		//         "GoMod": "/home/gongyuan_kubeflow_org/go/pkg/mod/cache/download/k8s.io/kubernetes/@v/v1.11.1.mod"
-		// }
-		// handle replace directives
-		// Note, we specifically want to replace version field.
-		// Haven't confirmed, but we may also need to override the
-		// entire struct when using replace directive with local folders.
-		mod := tmp
-		if mod.Replace != nil {
-			mod = *mod.Replace
-		}
-		modules = append(modules, Module{
-			Path:      mod.Path,
-			Version:   mod.Version,
-			Time:      mod.Time,
-			Main:      mod.Main,
-			Indirect:  mod.Indirect,
-			Dir:       mod.Dir,
-			GoMod:     mod.GoMod,
-			GoVersion: mod.GoVersion,
-		})
+		modules = append(modules, *newModule(&tmp))
 	}
 
 	dict := make(map[string]Module)

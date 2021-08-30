@@ -21,13 +21,14 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
+	"sort"
 	"testing"
 
 	"github.com/google/go-licenses/v2/gocli"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestListModulesInGoBinary(t *testing.T) {
+func TestListDeps(t *testing.T) {
 	var tests = []struct {
 		workdir    string
 		mainModule string
@@ -36,12 +37,15 @@ func TestListModulesInGoBinary(t *testing.T) {
 		{
 			workdir:    "../tests/modules/hello01",
 			mainModule: "github.com/google/go-licenses/v2/tests/modules/hello01",
-			modules:    []string{},
+			modules: []string{
+				"github.com/google/go-licenses/v2/tests/modules/hello01@(devel)",
+			},
 		},
 		{
 			workdir:    "../tests/modules/cli02",
 			mainModule: "github.com/google/go-licenses/v2/tests/modules/cli02",
 			modules: []string{
+				"github.com/google/go-licenses/v2/tests/modules/cli02@(devel)",
 				"github.com/fsnotify/fsnotify@v1.4.9",
 				"github.com/hashicorp/hcl@v1.0.0",
 				"github.com/magiconair/properties@v1.8.5",
@@ -67,12 +71,30 @@ func TestListModulesInGoBinary(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, tc := range tests {
-		t.Run(tc.workdir, func(t *testing.T) {
-			os.Chdir(filepath.Join(originalWorkDir, tc.workdir))
+		os.Chdir(filepath.Join(originalWorkDir, tc.workdir))
+		sort.Strings(tc.modules)
+		normalize := func(mods []gocli.Module) []string {
+			res := make([]string, 0, len(mods))
+			for _, module := range mods {
+				ver := module.Version
+				if module.Main && ver == "" {
+					// Main module may not have the version, normalize as develop version.
+					ver = "(devel)"
+				}
+				assert.NotEmpty(t, module.Path)
+				assert.NotEmpty(t, ver)
+				res = append(res, fmt.Sprintf("%s@%s", module.Path, ver))
+			}
+			sort.Strings(res)
+			return res
+		}
+
+		t.Run(fmt.Sprintf("gocli.ExtractBinaryMetadata(%s)", tc.workdir), func(t *testing.T) {
 			tempDir, err := ioutil.TempDir("", "")
 			if err != nil {
 				t.Fatal(err)
 			}
+			defer os.Remove(tempDir)
 			// This outputs the built binary as name "main".
 			binaryName := path.Join(tempDir, "main")
 			cmd := exec.Command("go", "build", "-o", binaryName)
@@ -81,20 +103,21 @@ func TestListModulesInGoBinary(t *testing.T) {
 			// may be created even when there's an error.
 			defer os.Remove(binaryName)
 			if err != nil {
-				t.Fatalf("Failed to build binary: %v", err)
+				t.Fatalf("go build: %v", err)
 			}
 			metadata, err := gocli.ExtractBinaryMetadata(binaryName)
 			if err != nil {
 				t.Fatal(err)
 			}
-			assert.Equal(t, tc.mainModule, metadata.MainModule)
-			modulesActual := make([]string, 0)
-			for _, module := range metadata.Modules {
-				assert.NotEmpty(t, module.Path)
-				assert.NotEmpty(t, module.Version)
-				modulesActual = append(modulesActual, fmt.Sprintf("%s@%s", module.Path, module.Version))
+			assert.Equal(t, tc.modules, normalize(append(metadata.Deps, metadata.Main)))
+		})
+
+		t.Run(fmt.Sprintf("gocli.ListDeps(%s)", tc.workdir), func(t *testing.T) {
+			mods, err := gocli.ListDeps(tc.mainModule)
+			if err != nil {
+				t.Fatalf("gocli.ListDeps: %v", err)
 			}
-			assert.Equal(t, tc.modules, modulesActual)
+			assert.Equal(t, tc.modules, normalize(mods), "gocli.Modules")
 		})
 	}
 }
