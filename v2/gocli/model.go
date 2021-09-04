@@ -15,6 +15,7 @@
 package gocli
 
 import (
+	"strings"
 	"time"
 
 	"golang.org/x/tools/go/packages"
@@ -62,6 +63,9 @@ func newModule(mod *packages.Module) *Module {
 	if tmp.Replace != nil {
 		tmp = *tmp.Replace
 	}
+	// The +incompatible suffix does not affect module version.
+	// ref: https://golang.org/ref/mod#incompatible-versions
+	tmp.Version = strings.TrimSuffix(tmp.Version, "+incompatible")
 	return &Module{
 		Path:      tmp.Path,
 		Version:   tmp.Version,
