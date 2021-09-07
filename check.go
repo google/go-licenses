@@ -32,9 +32,12 @@ var (
 		Args:  cobra.MinimumNArgs(1),
 		RunE:  checkMain,
 	}
+
+	excludeRestricted bool
 )
 
 func init() {
+	checkCmd.Flags().BoolVarP(&excludeRestricted, "exclude-restricted", "", false, "exclude restricted licenses (e.g. GPL)")
 	rootCmd.AddCommand(checkCmd)
 }
 
@@ -58,7 +61,10 @@ func checkMain(_ *cobra.Command, args []string) error {
 			return err
 		}
 
-		if licenseType == licenses.Forbidden {
+		if excludeRestricted && (licenseType == licenses.Restricted) {
+			fmt.Fprintf(os.Stderr, "Restricted license type %s for library %v\n", licenseName, lib)
+			found = true
+		} else if licenseType == licenses.Forbidden {
 			fmt.Fprintf(os.Stderr, "Forbidden license type %s for library %v\n", licenseName, lib)
 			found = true
 		}
