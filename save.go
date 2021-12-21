@@ -61,17 +61,6 @@ func init() {
 }
 
 func saveMain(_ *cobra.Command, args []string) error {
-
-	classifier, err := licenses.NewClassifier(confidenceThreshold)
-	if err != nil {
-		return err
-	}
-
-	libs, err := licenses.Libraries(context.Background(), classifier, args...)
-	if err != nil {
-		return err
-	}
-
 	if overwriteSavePath {
 		if err := os.RemoveAll(savePath); err != nil {
 			return err
@@ -87,6 +76,15 @@ func saveMain(_ *cobra.Command, args []string) error {
 		return err
 	}
 
+	classifier, err := licenses.NewClassifier(confidenceThreshold)
+	if err != nil {
+		return err
+	}
+
+	libs, err := licenses.Libraries(context.Background(), classifier, args...)
+	if err != nil {
+		return err
+	}
 	libsWithBadLicenses := make(map[licenses.Type][]*licenses.Library)
 	for _, lib := range libs {
 		libSaveDir := filepath.Join(savePath, unvendor(lib.Name()))
