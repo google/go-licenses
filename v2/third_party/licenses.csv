@@ -1,23 +1,36 @@
-gopkg.in/src-d/go-git.v4,Unknown,Apache-2.0
-github.com/src-d/gcfg,https://github.com/src-d/gcfg/blob/master/LICENSE,BSD-3-Clause
-github.com/mitchellh/go-homedir,https://github.com/mitchellh/go-homedir/blob/master/LICENSE,MIT
-golang.org/x/crypto,Unknown,BSD-3-Clause
-gopkg.in/warnings.v0,Unknown,BSD-2-Clause
-golang.org/x/net,Unknown,BSD-3-Clause
-github.com/emirpasic/gods,https://github.com/emirpasic/gods/blob/master/LICENSE,BSD-2-Clause
-github.com/otiai10/copy,https://github.com/otiai10/copy/blob/master/LICENSE,MIT
-github.com/golang/glog,https://github.com/golang/glog/blob/master/LICENSE,Apache-2.0
-github.com/google/licenseclassifier/stringclassifier,https://github.com/google/licenseclassifier/blob/master/stringclassifier/LICENSE,Apache-2.0
-golang.org/x/xerrors,Unknown,BSD-3-Clause
-github.com/spf13/cobra,https://github.com/spf13/cobra/blob/master/LICENSE.txt,Apache-2.0
-github.com/spf13/pflag,https://github.com/spf13/pflag/blob/master/LICENSE,BSD-3-Clause
-golang.org/x/sys,Unknown,BSD-3-Clause
-gopkg.in/src-d/go-billy.v4,Unknown,Apache-2.0
-github.com/xanzy/ssh-agent,https://github.com/xanzy/ssh-agent/blob/master/LICENSE,Apache-2.0
-github.com/google/go-licenses/v2,Unknown,Apache-2.0
-github.com/google/licenseclassifier,https://github.com/google/licenseclassifier/blob/master/LICENSE,Apache-2.0
-github.com/sergi/go-diff/diffmatchpatch,https://github.com/sergi/go-diff/blob/master/diffmatchpatch/LICENSE,MIT
-github.com/kevinburke/ssh_config,https://github.com/kevinburke/ssh_config/blob/master/LICENSE,MIT
-golang.org/x/tools,Unknown,BSD-3-Clause
-golang.org/x/mod/semver,Unknown,BSD-3-Clause
-github.com/jbenet/go-context/io,https://github.com/jbenet/go-context/blob/master/io/LICENSE,MIT
+github.com/emirpasic/gods, Unknown, BSD-2-Clause
+github.com/golang/glog, Unknown, Apache-2.0
+github.com/google/go-licenses/v2, Unknown, BSD-3-Clause
+github.com/google/licenseclassifier, Unknown, Apache-2.0
+github.com/google/licenseclassifier, Unknown, Apache-2.0
+github.com/google/licenseclassifier, Unknown, Apache-2.0
+github.com/google/licenseclassifier, Unknown, Apache-2.0
+github.com/jbenet/go-context, Unknown, MIT
+github.com/kevinburke/ssh_config, Unknown, MIT
+github.com/mitchellh/go-homedir, Unknown, MIT
+github.com/otiai10/copy, Unknown, MIT
+github.com/sergi/go-diff, Unknown, MIT
+github.com/sergi/go-diff, Unknown, MIT
+github.com/spf13/cobra, Unknown, Apache-2.0
+github.com/spf13/cobra, Unknown, AGPL-3.0
+github.com/spf13/cobra, Unknown, Apache-2.0
+github.com/spf13/cobra, Unknown, BSD-2-Clause
+github.com/spf13/cobra, Unknown, BSD-3-Clause
+github.com/spf13/cobra, Unknown, GPL-2.0
+github.com/spf13/cobra, Unknown, GPL-3.0
+github.com/spf13/cobra, Unknown, LGPL-3.0
+github.com/spf13/cobra, Unknown, MIT
+github.com/spf13/cobra, Unknown, Apache-2.0
+github.com/spf13/pflag, Unknown, BSD-3-Clause
+github.com/src-d/gcfg, Unknown, BSD-3-Clause
+github.com/xanzy/ssh-agent, Unknown, Apache-2.0
+golang.org/x/crypto, Unknown, BSD-3-Clause
+golang.org/x/mod, Unknown, BSD-3-Clause
+golang.org/x/net, Unknown, BSD-3-Clause
+golang.org/x/sys, Unknown, BSD-3-Clause
+golang.org/x/tools, Unknown, BSD-3-Clause
+golang.org/x/tools, Unknown, BSD-3-Clause
+golang.org/x/xerrors, Unknown, BSD-3-Clause
+gopkg.in/src-d/go-billy.v4, Unknown, Apache-2.0
+gopkg.in/src-d/go-git.v4, Unknown, Apache-2.0
+gopkg.in/warnings.v0, Unknown, BSD-2-Clause
