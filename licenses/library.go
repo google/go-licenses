@@ -18,22 +18,14 @@ import (
 	"context"
 	"fmt"
 	"go/build"
-	"net/url"
-	"path"
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/golang/glog"
+	"github.com/google/go-licenses/internal/third_party/pkgsite/source"
 	"golang.org/x/tools/go/packages"
-)
-
-var (
-	// TODO(RJPercival): Support replacing "master" with Go Module version
-	repoPathPrefixes = map[string]string{
-		"github.com":    "blob/master/",
-		"bitbucket.org": "src/master/",
-	}
 )
 
 // Library is a collection of packages covered by the same license file.
@@ -43,6 +35,8 @@ type Library struct {
 	// Packages contains import paths for Go packages in this library.
 	// It may not be the complete set of all packages in the library.
 	Packages []string
+	// Parent go module.
+	Module *packages.Module
 }
 
 // PackagesError aggregates all Packages[].Errors into a single error.
@@ -124,6 +118,7 @@ func Libraries(ctx context.Context, classifier Classifier, importPaths ...string
 			for _, p := range pkgs {
 				libraries = append(libraries, &Library{
 					Packages: []string{p.PkgPath},
+					Module:   p.Module,
 				})
 			}
 			continue
@@ -133,6 +128,10 @@ func Libraries(ctx context.Context, classifier Classifier, importPaths ...string
 		}
 		for _, pkg := range pkgs {
 			lib.Packages = append(lib.Packages, pkg.PkgPath)
+			if lib.Module == nil {
+				// All the sub packages should belong to the same module.
+				lib.Module = pkg.Module
+			}
 		}
 		libraries = append(libraries, lib)
 	}
@@ -173,31 +172,40 @@ func (l *Library) String() string {
 	return l.Name()
 }
 
-// FileURL attempts to determine the URL for a file in this library.
-// This only works for certain supported package prefixes, such as github.com,
-// bitbucket.org and googlesource.com. Prefer GitRepo.FileURL() if possible.
-func (l *Library) FileURL(filePath string) (*url.URL, error) {
-	relFilePath, err := filepath.Rel(filepath.Dir(l.LicensePath), filePath)
+// FileURL attempts to determine the URL for a file in this library using
+// go module name and version.
+func (l *Library) FileURL(ctx context.Context, filePath string) (string, error) {
+	if l == nil {
+		return "", fmt.Errorf("library is nil")
+	}
+	wrap := func(err error) error {
+		return fmt.Errorf("getting file URL in library %s: %w", l.Name(), err)
+	}
+	m := l.Module
+	if m == nil {
+		return "", wrap(fmt.Errorf("empty go module info"))
+	}
+	if m.Dir == "" {
+		return "", wrap(fmt.Errorf("empty go module dir"))
+	}
+	client := source.NewClient(time.Second * 20)
+	ver := m.Version
+	if ver == "" {
+		// This always happens for the module in development.
+		ver = "master"
+		glog.Warningf("module %s has empty version, defaults to master. The file URL may be incorrect. Please verify!", m.Path)
+	}
+	remote, err := source.ModuleInfo(ctx, client, m.Path, ver)
 	if err != nil {
-		return nil, err
+		return "", wrap(err)
 	}
-	nameParts := strings.SplitN(l.Name(), "/", 4)
-	if len(nameParts) < 3 {
-		return nil, fmt.Errorf("cannot determine URL for %q package", l.Name())
+	relativePath, err := filepath.Rel(m.Dir, filePath)
+	if err != nil {
+		return "", wrap(err)
 	}
-	host, user, project := nameParts[0], nameParts[1], nameParts[2]
-	pathPrefix, ok := repoPathPrefixes[host]
-	if !ok {
-		return nil, fmt.Errorf("unsupported package host %q for %q", host, l.Name())
-	}
-	if len(nameParts) == 4 {
-		pathPrefix = path.Join(pathPrefix, nameParts[3])
-	}
-	return &url.URL{
-		Scheme: "https",
-		Host:   host,
-		Path:   path.Join(user, project, pathPrefix, relFilePath),
-	}, nil
+	// TODO: there are still rare cases this may result in an incorrect URL.
+	// https://github.com/google/go-licenses/issues/73#issuecomment-1005587408
+	return remote.FileURL(relativePath), nil
 }
 
 // isStdLib returns true if this package is part of the Go standard library.

@@ -16,7 +16,7 @@ package main
 
 import (
 	"context"
-	"encoding/csv"
+	"fmt"
 	"os"
 
 	"github.com/golang/glog"
@@ -42,8 +42,6 @@ func init() {
 }
 
 func csvMain(_ *cobra.Command, args []string) error {
-	writer := csv.NewWriter(os.Stdout)
-
 	classifier, err := licenses.NewClassifier(confidenceThreshold)
 	if err != nil {
 		return err
@@ -54,16 +52,27 @@ func csvMain(_ *cobra.Command, args []string) error {
 		return err
 	}
 	for _, lib := range libs {
+		licenseName := "Unknown"
 		licenseURL := "Unknown"
-		licenseName, _, err := classifier.Identify(lib.LicensePath)
-		if err != nil {
-			glog.Errorf("Error identifying license in %q: %v", lib.LicensePath, err)
-			licenseName = "Unknown"
+		if lib.LicensePath != "" {
+			licenseName, _, err = classifier.Identify(lib.LicensePath)
+			if err != nil {
+				glog.Errorf("Error identifying license in %q: %v", lib.LicensePath, err)
+				licenseName = "Unknown"
+			}
+			licenseURL, err = lib.FileURL(context.Background(), lib.LicensePath)
+			if err != nil {
+				glog.Warningf("Error discovering license URL: %s", err)
+			}
+			if licenseURL == "" {
+				licenseURL = "Unknown"
+			}
 		}
-		if err := writer.Write([]string{lib.Name(), licenseURL, licenseName}); err != nil {
+		// Adding spaces after each "," makes vscode/terminal recognize the correct license URL.
+		// Otherwise, if there's no space, vscode interprets the URL as concatenated with the license name.
+		if _, err := os.Stdout.WriteString(fmt.Sprintf("%s, %s, %s\n", lib.Name(), licenseURL, licenseName)); err != nil {
 			return err
 		}
 	}
-	writer.Flush()
-	return writer.Error()
+	return nil
 }
