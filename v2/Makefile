@@ -12,10 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-go-licenses: FORCE
-	go build .
-
-third_party/licenses.csv: FORCE go-licenses
-	./go-licenses csv github.com/google/go-licenses/v2 | tee third_party/licenses.csv
+third_party/licenses.csv: FORCE
+	go run . csv github.com/google/go-licenses/v2 | tee third_party/licenses.csv
 
 FORCE: ;

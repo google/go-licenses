@@ -32,6 +32,9 @@ var (
 )
 
 func init() {
+	// Change glog default log level to INFO.
+	flag.Set("logtostderr", "true")
+	flag.Set("stderrthreshold", "INFO")
 	rootCmd.PersistentFlags().Float64Var(&confidenceThreshold, "confidence_threshold", 0.9, "Minimum confidence required in order to positively identify a license.")
 }
 

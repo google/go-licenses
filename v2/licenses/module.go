@@ -15,12 +15,16 @@
 package licenses
 
 import (
+	"context"
 	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
+	"time"
 
+	"github.com/golang/glog"
 	"github.com/google/go-licenses/v2/gocli"
+	"github.com/google/go-licenses/v2/third_party/go/pkgsite/source"
 )
 
 // License is an open source software license.
@@ -43,10 +47,20 @@ type Module struct {
 	Licenses []License
 }
 
+// Error when we find an empty DIR
 var ErrorEmptyDir = fmt.Errorf("dir is empty")
 
+// ScanOptions configures behavior of Scan.
+type ScanOptions struct {
+	// By default, Scan does not get remote URLs of licenses.
+	// Turning on this config gets URLs.
+	// Failing to find a URL does not result in an error, the URL field will
+	// be an empty string instead and a warning message will be logged.
+	GetURL bool
+}
+
 // Scan scans a module for licenses.
-func Scan(m gocli.Module, classifier Classifier) (res Module, err error) {
+func Scan(ctx context.Context, m gocli.Module, classifier Classifier, opts ScanOptions) (res Module, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("scanning licenses for module %q: %w", m.Path, err)
@@ -55,6 +69,22 @@ func Scan(m gocli.Module, classifier Classifier) (res Module, err error) {
 	res.Module = m
 	if m.Dir == "" {
 		return res, ErrorEmptyDir
+	}
+	var remote *source.Info
+	if opts.GetURL {
+		client := source.NewClient(time.Second * 20)
+		ver := m.Version
+		if ver == "" {
+			// This always happens for the module in development.
+			ver = "master"
+			glog.Warningf("module %s has empty version, defaults to master. The license URL may be incorrect. Please verify!", m.Path)
+		}
+		remote, err = source.ModuleInfo(ctx, client, m.Path, ver)
+		if err != nil {
+			glog.Warningf("finding module info for %s: %s", m.Path, err)
+			// Do not exit early, because URL is considered to be an optional field.
+			remote = nil
+		}
 	}
 	res.Licenses = make([]License, 0)
 	err = filepath.Walk(m.Dir, func(path string, info fs.FileInfo, err error) error {
@@ -80,9 +110,14 @@ func Scan(m gocli.Module, classifier Classifier) (res Module, err error) {
 			// It's expected for files without license text in it.
 			return nil
 		}
+		relativePath, err := filepath.Rel(m.Dir, path)
+		if err != nil {
+			return err
+		}
 		res.Licenses = append(res.Licenses, License{
 			ID:   licenseID,
-			Path: path,
+			Path: relativePath,
+			URL:  remote.FileURL(relativePath), // remote.FileURL returns empty string when remote is nil.
 		})
 		return nil
 	})

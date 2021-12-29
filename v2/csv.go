@@ -15,6 +15,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -50,16 +51,19 @@ func csvMain(_ *cobra.Command, args []string) error {
 		return err
 	}
 	for _, mod := range mods {
-		m, err := licenses.Scan(mod, classifier)
+		m, err := licenses.Scan(context.Background(), mod, classifier, licenses.ScanOptions{GetURL: true})
 		if err != nil {
 			return err
 		}
 		for _, license := range m.Licenses {
-			licenseURL := "Unknown"
+			url := "Unknown"
+			if license.URL != "" {
+				url = license.URL
+			}
 			// Generated csv is streamed to stdout while scanning
 			// other licenses, this provides a better user experience
 			// because license scanning may take a long time.
-			if _, err := os.Stdout.WriteString(fmt.Sprintf("%s, %s, %s\n", mod.Path, licenseURL, license.ID)); err != nil {
+			if _, err := os.Stdout.WriteString(fmt.Sprintf("%s, %s, %s\n", mod.Path, url, license.ID)); err != nil {
 				return err
 			}
 		}
