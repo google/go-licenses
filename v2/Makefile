@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-precommit: FORCE tidy lint csv
+precommit: FORCE tidy lint test csv
 
 csv: FORCE
 	go run . csv github.com/google/go-licenses/v2 | tee third_party/licenses.csv
@@ -23,5 +23,8 @@ lint: FORCE
 
 tidy: FORCE
 	go mod tidy
+
+test: FORCE
+	go test ./...
 
 FORCE: ;

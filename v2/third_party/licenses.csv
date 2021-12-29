@@ -1,24 +1,42 @@
-github.com/emirpasic/gods,Unknown,BSD-2-Clause
-github.com/golang/glog,Unknown,Apache-2.0
-github.com/google/go-licenses/v2,Unknown,
-github.com/google/go-licenses/v2/licenses,Unknown,
-github.com/google/licenseclassifier,Unknown,Apache-2.0
-github.com/google/licenseclassifier/stringclassifier,Unknown,Apache-2.0
-github.com/jbenet/go-context/io,Unknown,MIT
-github.com/kevinburke/ssh_config,Unknown,MIT
-github.com/mitchellh/go-homedir,Unknown,MIT
-github.com/otiai10/copy,Unknown,MIT
-github.com/sergi/go-diff/diffmatchpatch,Unknown,MIT
-github.com/spf13/cobra,Unknown,Apache-2.0
-github.com/spf13/pflag,Unknown,BSD-3-Clause
-github.com/src-d/gcfg,Unknown,BSD-3-Clause
-github.com/xanzy/ssh-agent,Unknown,Apache-2.0
-golang.org/x/crypto,Unknown,BSD-3-Clause
-golang.org/x/mod/semver,Unknown,BSD-3-Clause
-golang.org/x/net,Unknown,BSD-3-Clause
-golang.org/x/sys,Unknown,BSD-3-Clause
-golang.org/x/tools,Unknown,BSD-3-Clause
-golang.org/x/xerrors,Unknown,BSD-3-Clause
-gopkg.in/src-d/go-billy.v4,Unknown,Apache-2.0
-gopkg.in/src-d/go-git.v4,Unknown,Apache-2.0
-gopkg.in/warnings.v0,Unknown,BSD-2-Clause
+cloud.google.com/go, https://github.com/googleapis/google-cloud-go/blob/v0.99.0/LICENSE, Apache-2.0
+cloud.google.com/go/errorreporting, https://github.com/googleapis/google-cloud-go/blob/errorreporting/v0.1.0/errorreporting/LICENSE, Apache-2.0
+github.com/ProtonMail/go-crypto, https://github.com/ProtonMail/go-crypto/blob/04723f9f07d7/LICENSE, BSD-3-Clause
+github.com/emirpasic/gods, https://github.com/emirpasic/gods/blob/v1.12.0/LICENSE, BSD-2-Clause
+github.com/go-git/gcfg, https://github.com/go-git/gcfg/blob/v1.5.0/LICENSE, BSD-3-Clause
+github.com/go-git/go-billy/v5, https://github.com/go-git/go-billy/blob/v5.3.1/LICENSE, Apache-2.0
+github.com/go-git/go-git/v5, https://github.com/go-git/go-git/blob/v5.4.2/LICENSE, Apache-2.0
+github.com/golang/glog, https://github.com/golang/glog/blob/v1.0.0/LICENSE, Apache-2.0
+github.com/golang/groupcache/lru, https://github.com/golang/groupcache/blob/41bb18bfe9da/LICENSE, Apache-2.0
+github.com/golang/protobuf, https://github.com/golang/protobuf/blob/v1.5.2/LICENSE, BSD-3-Clause
+github.com/google/go-cmp/cmp, https://github.com/google/go-cmp/blob/v0.5.6/LICENSE, BSD-3-Clause
+github.com/google/go-licenses/v2, Unknown, Unknown
+github.com/google/go-licenses/v2/licenses, Unknown, Unknown
+github.com/google/go-licenses/v2/third_party/go/pkgsite, https://github.com/google/go-licenses/blob/master/third_party/go/pkgsite/LICENSE, BSD-3-Clause
+github.com/google/licenseclassifier, https://github.com/google/licenseclassifier/blob/3043a050f148/LICENSE, Apache-2.0
+github.com/google/licenseclassifier/stringclassifier, https://github.com/google/licenseclassifier/blob/3043a050f148/stringclassifier/LICENSE, Apache-2.0
+github.com/googleapis/gax-go/v2, https://github.com/googleapis/gax-go/blob/v2.1.1/v2/LICENSE, BSD-3-Clause
+github.com/imdario/mergo, https://github.com/imdario/mergo/blob/v0.3.12/LICENSE, BSD-3-Clause
+github.com/jbenet/go-context/io, https://github.com/jbenet/go-context/blob/d14ea06fba99/LICENSE, MIT
+github.com/kevinburke/ssh_config, https://github.com/kevinburke/ssh_config/blob/4977a11b4351/LICENSE, MIT
+github.com/mitchellh/go-homedir, https://github.com/mitchellh/go-homedir/blob/v1.1.0/LICENSE, MIT
+github.com/otiai10/copy, https://github.com/otiai10/copy/blob/v1.7.0/LICENSE, MIT
+github.com/sergi/go-diff/diffmatchpatch, https://github.com/sergi/go-diff/blob/v1.1.0/LICENSE, MIT
+github.com/spf13/cobra, https://github.com/spf13/cobra/blob/v1.3.0/LICENSE.txt, Apache-2.0
+github.com/spf13/pflag, https://github.com/spf13/pflag/blob/v1.0.5/LICENSE, BSD-3-Clause
+github.com/xanzy/ssh-agent, https://github.com/xanzy/ssh-agent/blob/v0.3.0/LICENSE, Apache-2.0
+go.opencensus.io, https://github.com/census-instrumentation/opencensus-go/blob/v0.23.0/LICENSE, Apache-2.0
+golang.org/x/crypto, https://cs.opensource.google/go/x/crypto/+/32db7946:LICENSE, BSD-3-Clause
+golang.org/x/mod/semver, https://cs.opensource.google/go/x/mod/+/v0.5.0:LICENSE, BSD-3-Clause
+golang.org/x/net, https://cs.opensource.google/go/x/net/+/60bc85c4:LICENSE, BSD-3-Clause
+golang.org/x/oauth2, https://cs.opensource.google/go/x/oauth2/+/d3ed0bb2:LICENSE, BSD-3-Clause
+golang.org/x/sync/semaphore, https://cs.opensource.google/go/x/sync/+/036812b2:LICENSE, BSD-3-Clause
+golang.org/x/sys, https://cs.opensource.google/go/x/sys/+/97ca703d:LICENSE, BSD-3-Clause
+golang.org/x/text, https://cs.opensource.google/go/x/text/+/v0.3.7:LICENSE, BSD-3-Clause
+golang.org/x/tools, https://cs.opensource.google/go/x/tools/+/v0.1.5:LICENSE, BSD-3-Clause
+golang.org/x/xerrors, https://cs.opensource.google/go/x/xerrors/+/5ec99f83:LICENSE, BSD-3-Clause
+google.golang.org/api, https://github.com/googleapis/google-api-go-client/blob/v0.62.0/LICENSE, BSD-3-Clause
+google.golang.org/api/internal/third_party/uritemplates, https://github.com/googleapis/google-api-go-client/blob/v0.62.0/internal/third_party/uritemplates/LICENSE, BSD-3-Clause
+google.golang.org/genproto/googleapis, https://github.com/googleapis/go-genproto/blob/3a66f561d7aa/LICENSE, Apache-2.0
+google.golang.org/grpc, https://github.com/grpc/grpc-go/blob/v1.42.0/LICENSE, Apache-2.0
+google.golang.org/protobuf, https://github.com/protocolbuffers/protobuf-go/blob/v1.27.1/LICENSE, BSD-3-Clause
+gopkg.in/warnings.v0, https://github.com/go-warnings/warnings/blob/v0.1.2/LICENSE, BSD-2-Clause
