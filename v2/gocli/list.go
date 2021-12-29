@@ -24,7 +24,7 @@ import (
 	"golang.org/x/tools/go/packages"
 )
 
-// List go modules with metadata in workdir using go CLI list command.
+// ListModules lists go modules with metadata in workdir using go CLI list command.
 // Modules with replace directive are returned as the replaced module instead.
 func ListModules() (map[string]Module, error) {
 	out, err := exec.Command("go", "list", "-m", "-json", "all").Output()

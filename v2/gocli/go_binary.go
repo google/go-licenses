@@ -20,7 +20,7 @@ import (
 	"github.com/google/go-licenses/v2/third_party/go/runtime/debug"
 )
 
-// Module metadata extracted from binary and local go module workspace.
+// BinaryMetadata is module metadata extracted from binary and local go module workspace.
 type BinaryMetadata struct {
 	// The main module used to build the binary.
 	// e.g. github.com//google/go-licenses/v2/tests/modules/cli02
@@ -30,7 +30,7 @@ type BinaryMetadata struct {
 	Deps []Module
 }
 
-// List dependencies from module metadata in a go binary.
+// ExtractBinaryMetadata lists dependencies from module metadata in a go binary.
 // Modules with replace directives are returned as the replaced module instead.
 //
 // Prerequisites:
