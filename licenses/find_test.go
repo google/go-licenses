@@ -101,7 +101,7 @@ func TestFind(t *testing.T) {
 		},
 	} {
 		t.Run(test.desc, func(t *testing.T) {
-			licensePath, err := Find(test.dir, classifier)
+			licensePath, err := Find(test.dir, "./testdata", classifier)
 			if err != nil || licensePath != test.wantLicensePath {
 				t.Fatalf("Find(%q) = (%#v, %q), want (%q, nil)", test.dir, licensePath, err, test.wantLicensePath)
 			}
