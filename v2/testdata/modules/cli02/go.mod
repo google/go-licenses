@@ -1,4 +1,4 @@
-module github.com/google/go-licenses/v2/tests/modules/cli02
+module github.com/google/go-licenses/v2/testdata/modules/cli02
 
 go 1.15
 

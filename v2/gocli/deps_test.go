@@ -32,20 +32,21 @@ func TestListDeps(t *testing.T) {
 	var tests = []struct {
 		workdir    string
 		mainModule string
+		goflags    string
 		modules    []string
 	}{
 		{
-			workdir:    "../tests/modules/hello01",
-			mainModule: "github.com/google/go-licenses/v2/tests/modules/hello01",
+			workdir:    "../testdata/modules/hello01",
+			mainModule: "github.com/google/go-licenses/v2/testdata/modules/hello01",
 			modules: []string{
-				"github.com/google/go-licenses/v2/tests/modules/hello01@(devel)",
+				"github.com/google/go-licenses/v2/testdata/modules/hello01@(devel)",
 			},
 		},
 		{
-			workdir:    "../tests/modules/cli02",
-			mainModule: "github.com/google/go-licenses/v2/tests/modules/cli02",
+			workdir:    "../testdata/modules/cli02",
+			mainModule: "github.com/google/go-licenses/v2/testdata/modules/cli02",
 			modules: []string{
-				"github.com/google/go-licenses/v2/tests/modules/cli02@(devel)",
+				"github.com/google/go-licenses/v2/testdata/modules/cli02@(devel)",
 				"github.com/fsnotify/fsnotify@v1.4.9",
 				"github.com/hashicorp/hcl@v1.0.0",
 				"github.com/magiconair/properties@v1.8.5",
@@ -63,6 +64,24 @@ func TestListDeps(t *testing.T) {
 				"golang.org/x/text@v0.3.5",
 				"gopkg.in/ini.v1@v1.62.0",
 				"gopkg.in/yaml.v2@v2.4.0",
+			},
+		},
+		{
+			// without tags, only the main module is included
+			workdir:    "../testdata/modules/tags03",
+			mainModule: "github.com/google/go-licenses/v2/testdata/modules/tags03",
+			modules: []string{
+				"github.com/google/go-licenses/v2/testdata/modules/tags03@(devel)",
+			},
+		},
+		{
+			// tags cause additional dependencies to be included
+			workdir:    "../testdata/modules/tags03",
+			mainModule: "github.com/google/go-licenses/v2/testdata/modules/tags03",
+			goflags:    "-tags=tags",
+			modules: []string{
+				"github.com/google/go-licenses/v2/testdata/modules/tags03@(devel)",
+				"github.com/mitchellh/go-homedir@v1.1.0",
 			},
 		},
 	}
@@ -90,6 +109,10 @@ func TestListDeps(t *testing.T) {
 		}
 
 		t.Run(fmt.Sprintf("gocli.ExtractBinaryMetadata(%s)", tc.workdir), func(t *testing.T) {
+			if tc.goflags != "" {
+				os.Setenv("GOFLAGS", tc.goflags)
+				defer os.Unsetenv("GOFLAGS")
+			}
 			tempDir, err := ioutil.TempDir("", "")
 			if err != nil {
 				t.Fatal(err)
@@ -98,12 +121,12 @@ func TestListDeps(t *testing.T) {
 			// This outputs the built binary as name "main".
 			binaryName := path.Join(tempDir, "main")
 			cmd := exec.Command("go", "build", "-o", binaryName)
-			_, err = cmd.Output()
+			output, err := cmd.CombinedOutput()
 			// defer remove before checking error, because the file
 			// may be created even when there's an error.
 			defer os.Remove(binaryName)
 			if err != nil {
-				t.Fatalf("go build: %v", err)
+				t.Fatalf("go build: %v\n%s\n", err, string(output))
 			}
 			metadata, err := gocli.ExtractBinaryMetadata(binaryName)
 			if err != nil {
@@ -113,6 +136,10 @@ func TestListDeps(t *testing.T) {
 		})
 
 		t.Run(fmt.Sprintf("gocli.ListDeps(%s)", tc.workdir), func(t *testing.T) {
+			if tc.goflags != "" {
+				os.Setenv("GOFLAGS", tc.goflags)
+				defer os.Unsetenv("GOFLAGS")
+			}
 			mods, err := gocli.ListDeps(tc.mainModule)
 			if err != nil {
 				t.Fatalf("gocli.ListDeps: %v", err)
