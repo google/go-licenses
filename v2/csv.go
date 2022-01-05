@@ -18,7 +18,6 @@ import (
 	"context"
 	"encoding/csv"
 	"os"
-	"strings"
 
 	"github.com/golang/glog"
 	"github.com/google/go-licenses/v2/licenses"
@@ -56,41 +55,12 @@ func csvMain(_ *cobra.Command, args []string) error {
 	}
 	for _, lib := range libs {
 		licenseURL := "Unknown"
-		licenseName := "Unknown"
-		if lib.LicensePath != "" {
-			// Find a URL for the license file, based on the URL of a remote for the Git repository.
-			var errs []string
-			repo, err := licenses.FindGitRepo(lib.LicensePath)
-			if err != nil {
-				// Can't find Git repo (possibly a Go Module?) - derive URL from lib name instead.
-				lURL, err := lib.FileURL(lib.LicensePath)
-				if err != nil {
-					errs = append(errs, err.Error())
-				} else {
-					licenseURL = lURL.String()
-				}
-			} else {
-				for _, remote := range gitRemotes {
-					url, err := repo.FileURL(lib.LicensePath, remote)
-					if err != nil {
-						errs = append(errs, err.Error())
-						continue
-					}
-					licenseURL = url.String()
-					break
-				}
-			}
-			if licenseURL == "Unknown" {
-				glog.Errorf("Error discovering URL for %q:\n- %s", lib.LicensePath, strings.Join(errs, "\n- "))
-			}
-			licenseName, _, err = classifier.Identify(lib.LicensePath)
-			if err != nil {
-				glog.Errorf("Error identifying license in %q: %v", lib.LicensePath, err)
-				licenseName = "Unknown"
-			}
+		licenseName, _, err := classifier.Identify(lib.LicensePath)
+		if err != nil {
+			glog.Errorf("Error identifying license in %q: %v", lib.LicensePath, err)
+			licenseName = "Unknown"
 		}
-		// Remove the "*/vendor/" prefix from the library name for conciseness.
-		if err := writer.Write([]string{unvendor(lib.Name()), licenseURL, licenseName}); err != nil {
+		if err := writer.Write([]string{lib.Name(), licenseURL, licenseName}); err != nil {
 			return err
 		}
 	}

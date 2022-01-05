@@ -46,11 +46,12 @@ type GitRepo struct {
 // FindGitRepo finds the Git repository that contains the specified filePath
 // by searching upwards through the directory tree for a ".git" directory.
 func FindGitRepo(filePath string) (*GitRepo, error) {
-	path, err := findUpwards(filepath.Dir(filePath), gitRegexp, srcDirRegexps, nil)
-	if err != nil {
-		return nil, err
-	}
-	return &GitRepo{dotGitPath: path}, nil
+	return nil, nil
+	// path, err := findUpwards(filepath.Dir(filePath), gitRegexp, srcDirRegexps, nil)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// return &GitRepo{dotGitPath: path}, nil
 }
 
 // FileURL returns the URL of a file stored in a Git repository.

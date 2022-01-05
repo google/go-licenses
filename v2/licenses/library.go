@@ -68,7 +68,7 @@ func (e PackagesError) Error() string {
 func Libraries(ctx context.Context, classifier Classifier, importPaths ...string) ([]*Library, error) {
 	cfg := &packages.Config{
 		Context: ctx,
-		Mode:    packages.NeedImports | packages.NeedDeps | packages.NeedFiles | packages.NeedName,
+		Mode:    packages.NeedImports | packages.NeedDeps | packages.NeedFiles | packages.NeedName | packages.NeedModule,
 	}
 
 	rootPkgs, err := packages.Load(cfg, importPaths...)
@@ -103,7 +103,7 @@ func Libraries(ctx context.Context, classifier Classifier, importPaths ...string
 			// This package is empty - nothing to do.
 			return true
 		}
-		licensePath, err := Find(pkgDir, classifier)
+		licensePath, err := Find(pkgDir, p.Module.Dir, classifier)
 		if err != nil {
 			glog.Errorf("Failed to find license for %s: %v", p.PkgPath, err)
 		}
@@ -202,6 +202,10 @@ func (l *Library) FileURL(filePath string) (*url.URL, error) {
 
 // isStdLib returns true if this package is part of the Go standard library.
 func isStdLib(pkg *packages.Package) bool {
+	if pkg.Name == "unsafe" {
+		// Special case unsafe stdlib, because it does not contain go files.
+		return true
+	}
 	if len(pkg.GoFiles) == 0 {
 		return false
 	}
