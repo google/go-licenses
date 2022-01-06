@@ -5,5 +5,6 @@ because the source package is internal, and there's no plan to move it out anyti
 
 Local modifications:
 
-* Tests are not vendored.
-* pkgsite/internal/stdlib's UseTestData flag is removed.
+- Tests are not vendored.
+- pkgsite/internal/stdlib's UseTestData flag is removed.
+- Add a SetCommit method to type ModuleInfo, more rationale explained in the method's comments.

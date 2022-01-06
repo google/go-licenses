@@ -47,6 +47,20 @@ type Info struct {
 	templates urlTemplates // for building URLs
 }
 
+// SetCommit overrides commit to a specified commit. Usually, you should pass your version to
+// ModuleInfo(). However, when you do not know the version and just wants a link that points to
+// master branch. You can use this method to directly override the commit like info.SetCommit("master").
+//
+// Note this is different from directly passing "master" as version to ModuleInfo(), because there
+// are conventions that add a module's relative dir in front of the version text as the actual git
+// tag.
+func (i *Info) SetCommit(commit string) {
+	if i == nil {
+		return
+	}
+	i.commit = commit
+}
+
 // RepoURL returns a URL for the home page of the repository.
 func (i *Info) RepoURL() string {
 	if i == nil {

@@ -11,7 +11,7 @@ github.com/golang/protobuf, https://github.com/golang/protobuf/blob/v1.5.2/LICEN
 github.com/google/go-cmp/cmp, https://github.com/google/go-cmp/blob/v0.5.6/LICENSE, BSD-3-Clause
 github.com/google/go-licenses/v2, Unknown, Unknown
 github.com/google/go-licenses/v2/licenses, Unknown, Unknown
-github.com/google/go-licenses/v2/third_party/go/pkgsite, https://github.com/google/go-licenses/blob/master/third_party/go/pkgsite/LICENSE, BSD-3-Clause
+github.com/google/go-licenses/v2/third_party/go/pkgsite, https://github.com/google/go-licenses/blob/master/v2/third_party/go/pkgsite/LICENSE, BSD-3-Clause
 github.com/google/licenseclassifier, https://github.com/google/licenseclassifier/blob/3043a050f148/LICENSE, Apache-2.0
 github.com/google/licenseclassifier/stringclassifier, https://github.com/google/licenseclassifier/blob/3043a050f148/stringclassifier/LICENSE, Apache-2.0
 github.com/googleapis/gax-go/v2, https://github.com/googleapis/gax-go/blob/v2.1.1/v2/LICENSE, BSD-3-Clause

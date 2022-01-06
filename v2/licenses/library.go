@@ -93,19 +93,12 @@ func Libraries(ctx context.Context, classifier Classifier, importPaths ...string
 		if len(p.OtherFiles) > 0 {
 			glog.Warningf("%q contains non-Go code that can't be inspected for further dependencies:\n%s", p.PkgPath, strings.Join(p.OtherFiles, "\n"))
 		}
-		var pkgDir string
-		switch {
-		case len(p.GoFiles) > 0:
-			pkgDir = filepath.Dir(p.GoFiles[0])
-		case len(p.CompiledGoFiles) > 0:
-			pkgDir = filepath.Dir(p.CompiledGoFiles[0])
-		case len(p.OtherFiles) > 0:
-			pkgDir = filepath.Dir(p.OtherFiles[0])
-		default:
+		dir := pkgDir(p)
+		if dir == "" {
 			// This package is empty - nothing to do.
 			return true
 		}
-		licensePath, err := Find(pkgDir, p.Module.Dir, classifier)
+		licensePath, err := Find(dir, p.Module.Dir, classifier)
 		if err != nil {
 			glog.Errorf("Failed to find license for %s: %v", p.PkgPath, err)
 		}
@@ -139,6 +132,31 @@ func Libraries(ctx context.Context, classifier Classifier, importPaths ...string
 			if lib.Module == nil {
 				// All the sub packages should belong to the same module.
 				lib.Module = pkg.Module
+			}
+		}
+		if lib.Module != nil && lib.Module.Path != "" && lib.Module.Dir == "" {
+			// A known cause is that the module is vendored, so some information is lost.
+			splits := strings.SplitN(lib.LicensePath, "/vendor/", 2)
+			if len(splits) != 2 {
+				glog.Warningf("module %s does not have dir and it's not vendored, cannot discover the license URL. Report to go-licenses developer if you see this.", lib.Module.Path)
+			} else {
+				// This is vendored. Handle this known special
+				// case.
+				parentModDir := splits[0]
+				var parentPkg *packages.Package
+				for _, rootPkg := range rootPkgs {
+					if rootPkg.Module != nil && rootPkg.Module.Dir == parentModDir {
+						parentPkg = rootPkg
+						break
+					}
+				}
+				if parentPkg == nil {
+					glog.Warningf("cannot find parent package of vendored module %s", lib.Module.Path)
+				} else {
+					// Vendored modules should be commited in the parent module, so it counts as part of the
+					// parent module.
+					lib.Module = parentPkg.Module
+				}
 			}
 		}
 		libraries = append(libraries, lib)
@@ -197,15 +215,21 @@ func (l *Library) FileURL(ctx context.Context, filePath string) (string, error) 
 		return "", wrap(fmt.Errorf("empty go module dir"))
 	}
 	client := source.NewClient(time.Second * 20)
-	ver := m.Version
-	if ver == "" {
-		// This always happens for the module in development.
-		ver = "master"
-		glog.Warningf("module %s has empty version, defaults to master. The file URL may be incorrect. Please verify!", m.Path)
-	}
-	remote, err := source.ModuleInfo(ctx, client, m.Path, ver)
+	remote, err := source.ModuleInfo(ctx, client, m.Path, m.Version)
 	if err != nil {
 		return "", wrap(err)
+	}
+	if m.Version == "" {
+		// This always happens for the module in development.
+		// Note, if we pass version=master to source.ModuleInfo, github tag for modules not at the root
+		// of the repo will be incorrect, because there's a convention that:
+		// * I have a module at github.com/google/go-licenses/submod.
+		// * The module is of version v1.0.0.
+		// Then the github tag should be submod/v1.0.0.
+		// In our case, if we pass master as version, the result commit will be submod/master which is incorrect.
+		// Therefore, to workaround this problem, we directly set the commit after getting module info.
+		remote.SetCommit("master")
+		glog.Warningf("module %s has empty version, defaults to master. The file URL may be incorrect. Please verify!", m.Path)
 	}
 	relativePath, err := filepath.Rel(m.Dir, filePath)
 	if err != nil {
@@ -226,4 +250,18 @@ func isStdLib(pkg *packages.Package) bool {
 		return false
 	}
 	return strings.HasPrefix(pkg.GoFiles[0], build.Default.GOROOT)
+}
+
+func pkgDir(p *packages.Package) string {
+	switch {
+	case len(p.GoFiles) > 0:
+		return filepath.Dir(p.GoFiles[0])
+	case len(p.CompiledGoFiles) > 0:
+		return filepath.Dir(p.CompiledGoFiles[0])
+	case len(p.OtherFiles) > 0:
+		return filepath.Dir(p.OtherFiles[0])
+	default:
+		// This package is empty.
+		return ""
+	}
 }
