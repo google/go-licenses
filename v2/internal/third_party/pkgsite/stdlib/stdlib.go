@@ -10,7 +10,6 @@ package stdlib
 
 import (
 	"archive/zip"
-	"bytes"
 	"fmt"
 	"io"
 	"os"
@@ -346,63 +345,6 @@ func ZipInfo(requestedVersion string) (resolvedVersion string, err error) {
 		return "", err
 	}
 	return resolvedVersion, nil
-}
-
-func zipInternal(requestedVersion string) (_ *zip.Reader, resolvedVersion string, commitTime time.Time, prefix string, err error) {
-	if !UseTestData && requestedVersion == version.Latest {
-		requestedVersion, err = semanticVersion(requestedVersion)
-		if err != nil {
-			return nil, "", time.Time{}, "", err
-		}
-	}
-	repo, refName, err := getGoRepo(requestedVersion)
-	if err != nil {
-		return nil, "", time.Time{}, "", err
-	}
-	var buf bytes.Buffer
-	z := zip.NewWriter(&buf)
-
-	ref, err := repo.Reference(refName, true)
-	if err != nil {
-		return nil, "", time.Time{}, "", err
-	}
-	commit, err := repo.CommitObject(ref.Hash())
-	if err != nil {
-		return nil, "", time.Time{}, "", err
-	}
-	resolvedVersion = requestedVersion
-	if SupportedBranches[requestedVersion] {
-		resolvedVersion = newPseudoVersion("v0.0.0", commit.Committer.When, commit.Hash)
-	}
-	root, err := repo.TreeObject(commit.TreeHash)
-	if err != nil {
-		return nil, "", time.Time{}, "", err
-	}
-	prefixPath := ModulePath + "@" + requestedVersion
-	// Add top-level files.
-	if err := addFiles(z, repo, root, prefixPath, false); err != nil {
-		return nil, "", time.Time{}, "", err
-	}
-	// Add files from the stdlib directory.
-	libdir := root
-	for _, d := range strings.Split(Directory(resolvedVersion), "/") {
-		libdir, err = subTree(repo, libdir, d)
-		if err != nil {
-			return nil, "", time.Time{}, "", err
-		}
-	}
-	if err := addFiles(z, repo, libdir, prefixPath, true); err != nil {
-		return nil, "", time.Time{}, "", err
-	}
-	if err := z.Close(); err != nil {
-		return nil, "", time.Time{}, "", err
-	}
-	br := bytes.NewReader(buf.Bytes())
-	zr, err := zip.NewReader(br, int64(br.Len()))
-	if err != nil {
-		return nil, "", time.Time{}, "", err
-	}
-	return zr, resolvedVersion, commit.Committer.When, prefixPath, nil
 }
 
 const pseudoHashLen = 12

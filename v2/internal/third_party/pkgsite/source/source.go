@@ -24,6 +24,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log" // We cannot use glog instead, because its "v" flag conflicts with other libraries we use.
 	"net/http"
 	"path"
 	"regexp"
@@ -31,7 +32,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang/glog"
 	"github.com/google/go-licenses/v2/internal/third_party/pkgsite/derrors"
 	"github.com/google/go-licenses/v2/internal/third_party/pkgsite/stdlib"
 	"github.com/google/go-licenses/v2/internal/third_party/pkgsite/version"
@@ -496,7 +496,7 @@ func moduleInfoDynamic(ctx context.Context, client *Client, modulePath, version 
 				templates, transformCommit = matchLegacyTemplates(ctx, sourceMeta)
 				repoURL = strings.TrimSuffix(repoURL, ".git")
 			} else {
-				glog.Infof("no templates for repo URL %q from meta tag: err=%v", sourceMeta.repoURL, err)
+				log.Printf("no templates for repo URL %q from meta tag: err=%v", sourceMeta.repoURL, err)
 			}
 		} else {
 			// Use the repo from the template, not the original one.
@@ -555,7 +555,7 @@ func matchLegacyTemplates(ctx context.Context, sm *sourceMeta) (_ urlTemplates, 
 			return ltm.templates, ltm.transformCommit
 		}
 	}
-	glog.Infof("matchLegacyTemplates: no matches for repo URL %q; replacing", sm.repoURL)
+	log.Printf("matchLegacyTemplates: no matches for repo URL %q; replacing", sm.repoURL)
 	rep := strings.NewReplacer(
 		"{/dir}/{file}", "/{file}",
 		"{dir}/{file}", "{file}",
