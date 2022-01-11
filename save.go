@@ -62,6 +62,12 @@ func init() {
 
 func saveMain(_ *cobra.Command, args []string) error {
 
+	if overwriteSavePath {
+		if err := os.RemoveAll(savePath); err != nil {
+			return err
+		}
+	}
+
 	classifier, err := licenses.NewClassifier(confidenceThreshold)
 	if err != nil {
 		return err
@@ -70,12 +76,6 @@ func saveMain(_ *cobra.Command, args []string) error {
 	libs, err := licenses.Libraries(context.Background(), classifier, args...)
 	if err != nil {
 		return err
-	}
-
-	if overwriteSavePath {
-		if err := os.RemoveAll(savePath); err != nil {
-			return err
-		}
 	}
 
 	// Check that the save path doesn't exist, otherwise it'd end up with a mix of
