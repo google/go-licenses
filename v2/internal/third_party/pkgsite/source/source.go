@@ -31,13 +31,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/go-licenses/v2/internal/third_party/pkgsite/derrors"
+	"github.com/google/go-licenses/v2/internal/third_party/pkgsite/log"
+	"github.com/google/go-licenses/v2/internal/third_party/pkgsite/stdlib"
+	"github.com/google/go-licenses/v2/internal/third_party/pkgsite/version"
 	"go.opencensus.io/plugin/ochttp"
 	"go.opencensus.io/trace"
 	"golang.org/x/net/context/ctxhttp"
-	"golang.org/x/pkgsite/internal/derrors"
-	"golang.org/x/pkgsite/internal/log"
-	"golang.org/x/pkgsite/internal/stdlib"
-	"golang.org/x/pkgsite/internal/version"
 )
 
 // Info holds source information about a module, used to generate URLs referring
