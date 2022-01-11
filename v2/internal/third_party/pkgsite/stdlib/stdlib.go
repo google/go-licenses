@@ -22,10 +22,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/google/go-licenses/v2/internal/third_party/pkgsite/derrors"
+	"github.com/google/go-licenses/v2/internal/third_party/pkgsite/testing/testhelper"
+	"github.com/google/go-licenses/v2/internal/third_party/pkgsite/version"
 	"golang.org/x/mod/semver"
-	"golang.org/x/pkgsite/internal/derrors"
-	"golang.org/x/pkgsite/internal/testing/testhelper"
-	"golang.org/x/pkgsite/internal/version"
 
 	"github.com/go-git/go-billy/v5/osfs"
 	"github.com/go-git/go-git/v5"

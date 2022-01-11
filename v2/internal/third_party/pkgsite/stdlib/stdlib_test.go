@@ -11,8 +11,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/google/go-licenses/v2/internal/third_party/pkgsite/version"
 	"golang.org/x/mod/semver"
-	"golang.org/x/pkgsite/internal/version"
 )
 
 var (
