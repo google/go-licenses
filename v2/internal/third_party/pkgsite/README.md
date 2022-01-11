@@ -6,7 +6,7 @@ because the source package is internal, and there's no plan to move it out anyti
 Local modifications:
 
 - Update import paths.
-- Removed unused functions from pkgsite/internal/stdlib and pkgsite/internal/derrors to avoid other
-  dependencies.
+- Removed unused functions from pkgsite/internal/stdlib, pkgsite/internal/derrors,
+  pkgsite/internal/version to avoid other dependencies.
 - For pkgsite/internal/source, switched to use go log package, because glog conflicts with a test
   dependency that also defines the "v" flag.
