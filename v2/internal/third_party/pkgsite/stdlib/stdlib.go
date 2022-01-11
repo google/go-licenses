@@ -13,21 +13,17 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/fs"
 	"os"
 	"path"
-	"path/filepath"
 	"regexp"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/google/go-licenses/v2/internal/third_party/pkgsite/derrors"
-	"github.com/google/go-licenses/v2/internal/third_party/pkgsite/testing/testhelper"
 	"github.com/google/go-licenses/v2/internal/third_party/pkgsite/version"
 	"golang.org/x/mod/semver"
 
-	"github.com/go-git/go-billy/v5/osfs"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
@@ -220,18 +216,6 @@ func getGoRepoPath() string {
 	return goRepoPath
 }
 
-// getGoRepo returns a repo object for the Go repo at version.
-func getGoRepo(version string) (_ *git.Repository, _ plumbing.ReferenceName, err error) {
-	defer derrors.Wrap(&err, "getGoRepo(%q)", version)
-	if UseTestData {
-		return getTestGoRepo(version)
-	}
-	if path := getGoRepoPath(); path != "" {
-		return openGoRepo(path, version)
-	}
-	return cloneGoRepo(version)
-}
-
 // cloneGoRepo returns a repo object for the Go repo at version by cloning the
 // Go repo.
 func cloneGoRepo(v string) (_ *git.Repository, ref plumbing.ReferenceName, err error) {
@@ -279,39 +263,6 @@ func refNameForVersion(v string) (plumbing.ReferenceName, error) {
 		return "", err
 	}
 	return plumbing.NewTagReferenceName(tag), nil
-}
-
-// getTestGoRepo gets a Go repo for testing.
-func getTestGoRepo(v string) (_ *git.Repository, _ plumbing.ReferenceName, err error) {
-	defer derrors.Wrap(&err, "getTestGoRepo(%q)", v)
-	if v == TestMasterVersion {
-		v = version.Master
-	}
-	if v == TestDevFuzzVersion {
-		v = DevFuzz
-	}
-	fs := osfs.New(filepath.Join(testhelper.TestDataPath("testdata"), v))
-	repo, err := git.Init(memory.NewStorage(), fs)
-	if err != nil {
-		return nil, "", fmt.Errorf("git.Initi: %v", err)
-	}
-	wt, err := repo.Worktree()
-	if err != nil {
-		return nil, "", fmt.Errorf("repo.Worktree: %v", err)
-	}
-	// Add all files in the directory.
-	if _, err := wt.Add(""); err != nil {
-		return nil, "", fmt.Errorf("wt.Add(): %v", err)
-	}
-	_, err = wt.Commit("", &git.CommitOptions{All: true, Author: &object.Signature{
-		Name:  "Joe Random",
-		Email: "joe@example.com",
-		When:  TestCommitTime,
-	}})
-	if err != nil {
-		return nil, "", fmt.Errorf("wt.Commit: %v", err)
-	}
-	return repo, plumbing.HEAD, nil
 }
 
 // Versions returns all the versions of Go that are relevant to the discovery
@@ -452,33 +403,6 @@ func zipInternal(requestedVersion string) (_ *zip.Reader, resolvedVersion string
 		return nil, "", time.Time{}, "", err
 	}
 	return zr, resolvedVersion, commit.Committer.When, prefixPath, nil
-}
-
-// ContentDir creates an fs.FS representing the entire Go standard library at the
-// given version (which must have been resolved with ZipInfo) and returns a
-// reader to it. It also returns the time of the commit for that version.
-//
-// Normally, ContentDir returns the resolved version it was passed. If the
-// resolved version is a supported branch like "master", ContentDir returns a
-// semantic version for the branch.
-//
-// ContentDir reads the standard library at the Go repository tag corresponding
-// to to the given semantic version.
-//
-// ContentDir ignores go.mod files in the standard library, treating it as if it
-// were a single module named "std" at the given version.
-func ContentDir(requestedVersion string) (_ fs.FS, resolvedVersion string, commitTime time.Time, err error) {
-	defer derrors.Wrap(&err, "stdlib.ContentDir(%q)", requestedVersion)
-
-	zr, resolvedVersion, commitTime, prefix, err := zipInternal(requestedVersion)
-	if err != nil {
-		return nil, "", time.Time{}, err
-	}
-	cdir, err := fs.Sub(zr, prefix)
-	if err != nil {
-		return nil, "", time.Time{}, err
-	}
-	return cdir, resolvedVersion, commitTime, nil
 }
 
 const pseudoHashLen = 12

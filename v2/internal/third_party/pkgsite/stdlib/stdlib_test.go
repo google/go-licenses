@@ -11,7 +11,6 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/google/go-licenses/v2/internal/third_party/pkgsite/version"
 	"golang.org/x/mod/semver"
 )
 
@@ -120,67 +119,6 @@ func TestMajorVersionForVersion(t *testing.T) {
 		if err == nil && got != test.want {
 			t.Errorf("%q: got %q, want %q", test.in, got, test.want)
 		}
-	}
-}
-
-func TestContentDir(t *testing.T) {
-	UseTestData = true
-	defer func() { UseTestData = false }()
-	for _, resolvedVersion := range []string{
-		"v1.3.2",
-		"v1.12.5",
-		"v1.14.6",
-		DevFuzz,
-		version.Master,
-	} {
-		t.Run(resolvedVersion, func(t *testing.T) {
-			cdir, gotResolvedVersion, gotTime, err := ContentDir(resolvedVersion)
-			if err != nil {
-				t.Fatal(err)
-			}
-			if SupportedBranches[resolvedVersion] {
-				if !version.IsPseudo(gotResolvedVersion) {
-					t.Errorf("resolved version: %s is not a pseudo-version", gotResolvedVersion)
-				}
-			} else if gotResolvedVersion != resolvedVersion {
-				t.Errorf("resolved version: got %s, want %s", gotResolvedVersion, resolvedVersion)
-			}
-			if !gotTime.Equal(TestCommitTime) {
-				t.Errorf("commit time: got %s, want %s", gotTime, TestCommitTime)
-			}
-			checkContentDirFiles(t, cdir, resolvedVersion)
-		})
-	}
-}
-
-func TestContentDirCloneAndOpen(t *testing.T) {
-	if !*clone && *repoPath == "" {
-		t.Skip("-clone and -path not supplied")
-	}
-
-	run := func(t *testing.T) {
-		for _, resolvedVersion := range []string{
-			"v1.3.2",
-			"v1.14.6",
-			version.Master,
-			version.Latest,
-		} {
-			t.Run(resolvedVersion, func(t *testing.T) {
-				cdir, _, _, err := ContentDir(resolvedVersion)
-				if err != nil {
-					t.Fatal(err)
-				}
-				checkContentDirFiles(t, cdir, resolvedVersion)
-			})
-		}
-	}
-
-	if *clone {
-		t.Run("clone", run)
-	}
-	if *repoPath != "" {
-		SetGoRepoPath(*repoPath)
-		t.Run("open", run)
 	}
 }
 

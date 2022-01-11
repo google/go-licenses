@@ -31,8 +31,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/golang/glog"
 	"github.com/google/go-licenses/v2/internal/third_party/pkgsite/derrors"
-	"github.com/google/go-licenses/v2/internal/third_party/pkgsite/log"
 	"github.com/google/go-licenses/v2/internal/third_party/pkgsite/stdlib"
 	"github.com/google/go-licenses/v2/internal/third_party/pkgsite/version"
 	"go.opencensus.io/plugin/ochttp"
@@ -496,7 +496,7 @@ func moduleInfoDynamic(ctx context.Context, client *Client, modulePath, version 
 				templates, transformCommit = matchLegacyTemplates(ctx, sourceMeta)
 				repoURL = strings.TrimSuffix(repoURL, ".git")
 			} else {
-				log.Infof(ctx, "no templates for repo URL %q from meta tag: err=%v", sourceMeta.repoURL, err)
+				glog.Infof("no templates for repo URL %q from meta tag: err=%v", sourceMeta.repoURL, err)
 			}
 		} else {
 			// Use the repo from the template, not the original one.
@@ -555,7 +555,7 @@ func matchLegacyTemplates(ctx context.Context, sm *sourceMeta) (_ urlTemplates, 
 			return ltm.templates, ltm.transformCommit
 		}
 	}
-	log.Infof(ctx, "matchLegacyTemplates: no matches for repo URL %q; replacing", sm.repoURL)
+	glog.Infof("matchLegacyTemplates: no matches for repo URL %q; replacing", sm.repoURL)
 	rep := strings.NewReplacer(
 		"{/dir}/{file}", "/{file}",
 		"{dir}/{file}", "{file}",
