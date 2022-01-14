@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
+	github.com/golangci/golangci-lint v1.29.0
 	github.com/google/go-cmp v0.5.6
 	github.com/google/go-replayers/httpreplay v1.0.0
 	github.com/google/licenseclassifier v0.0.0-20210722185704-3043a050f148
