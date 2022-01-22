@@ -136,6 +136,10 @@ func Libraries(ctx context.Context, classifier Classifier, importPaths ...string
 		}
 		libraries = append(libraries, lib)
 	}
+	// Sort libraries to produce a stable result for snapshot diffing.
+	sort.Slice(libraries, func(i, j int) bool {
+		return libraries[i].Name() < libraries[j].Name()
+	})
 	return libraries, nil
 }
 
