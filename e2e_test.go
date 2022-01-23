@@ -16,6 +16,7 @@ package main_test
 
 import (
 	"bytes"
+	"errors"
 	"flag"
 	"io/ioutil"
 	"os"
@@ -34,6 +35,7 @@ func TestCsvCommandE2E(t *testing.T) {
 	}{
 		{workdir: "testdata/modules/hello01"},
 		{workdir: "testdata/modules/cli02"},
+		{workdir: "testdata/modules/vendored03"},
 	}
 	originalWorkDir, err := os.Getwd()
 	if err != nil {
@@ -54,7 +56,7 @@ func TestCsvCommandE2E(t *testing.T) {
 			cmd := exec.Command("go", "mod", "download")
 			log, err := cmd.CombinedOutput()
 			if err != nil {
-				t.Errorf("Failed to download go modules:\n%s", string(log))
+				t.Fatalf("downloading go modules:\n%s", string(log))
 			}
 			cmd = exec.Command("go-licenses", "csv", ".")
 			// Capture stderr to buffer.
@@ -71,12 +73,15 @@ func TestCsvCommandE2E(t *testing.T) {
 			if *update {
 				err := ioutil.WriteFile(goldenFilePath, output, 0600)
 				if err != nil {
-					t.Fatal(err)
+					t.Fatalf("writing golden file: %s", err)
 				}
 			}
 			goldenBytes, err := ioutil.ReadFile(goldenFilePath)
 			if err != nil {
-				t.Fatal(err)
+				if errors.Is(err, os.ErrNotExist) {
+					t.Fatalf("reading golden file: %s. Create a golden file by running `go test --update .`", err)
+				}
+				t.Fatalf("reading golden file: %s", err)
 			}
 			golden := string(goldenBytes)
 			if got != golden {
