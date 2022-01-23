@@ -18,6 +18,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/golang/glog"
 	"github.com/google/go-licenses/licenses"
@@ -55,22 +56,27 @@ func csvMain(_ *cobra.Command, args []string) error {
 		licenseName := "Unknown"
 		licenseURL := "Unknown"
 		if lib.LicensePath != "" {
-			licenseName, _, err = classifier.Identify(lib.LicensePath)
-			if err != nil {
+			name, _, err := classifier.Identify(lib.LicensePath)
+			if err == nil {
+				licenseName = name
+			} else {
 				glog.Errorf("Error identifying license in %q: %v", lib.LicensePath, err)
-				licenseName = "Unknown"
 			}
-			licenseURL, err = lib.FileURL(context.Background(), lib.LicensePath)
-			if err != nil {
+			url, err := lib.FileURL(context.Background(), lib.LicensePath)
+			if err == nil {
+				licenseURL = url
+			} else {
 				glog.Warningf("Error discovering license URL: %s", err)
 			}
-			if licenseURL == "" {
-				licenseURL = "Unknown"
-			}
 		}
-		// Adding spaces after each "," makes vscode/terminal recognize the correct license URL.
-		// Otherwise, if there's no space, vscode interprets the URL as concatenated with the license name.
-		if _, err := os.Stdout.WriteString(fmt.Sprintf("%s, %s, %s\n", lib.Name(), licenseURL, licenseName)); err != nil {
+		// Using ", " to join words makes vscode/terminal recognize the
+		// correct license URL. Otherwise, if there's no space after
+		// comma, vscode interprets the URL as concatenated with the
+		// license name after it.
+		// Also, the extra spaces does not affect csv syntax much, we
+		// can still copy the csv text and paste into Excel / Google
+		// Sheets.
+		if _, err := fmt.Fprintln(os.Stdout, strings.Join([]string{lib.Name(), licenseURL, licenseName}, ", ")); err != nil {
 			return err
 		}
 	}
