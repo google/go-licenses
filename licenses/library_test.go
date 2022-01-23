@@ -21,7 +21,6 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
-	"golang.org/x/tools/go/packages"
 )
 
 func TestLibraries(t *testing.T) {
@@ -155,7 +154,7 @@ func TestLibraryFileURL(t *testing.T) {
 					"github.com/google/trillian/crypto",
 				},
 				LicensePath: "/go/src/github.com/google/trillian/LICENSE",
-				Module: &packages.Module{
+				module: &Module{
 					Path:    "github.com/google/trillian",
 					Dir:     "/go/src/github.com/google/trillian",
 					Version: "v1.2.3",
@@ -172,7 +171,7 @@ func TestLibraryFileURL(t *testing.T) {
 					"bitbucket.org/user/project/pkg2",
 				},
 				LicensePath: "/foo/bar/bitbucket.org/user/project/LICENSE",
-				Module: &packages.Module{
+				module: &Module{
 					Path:    "bitbucket.org/user/project",
 					Dir:     "/foo/bar/bitbucket.org/user/project",
 					Version: "v1.2.3",
@@ -189,7 +188,7 @@ func TestLibraryFileURL(t *testing.T) {
 					"example.com/user/project/pkg2",
 				},
 				LicensePath: "/foo/bar/example.com/user/project/LICENSE",
-				Module: &packages.Module{
+				module: &Module{
 					Path:    "example.com/user/project",
 					Dir:     "/foo/bar/example.com/user/project",
 					Version: "v1.2.3",
@@ -206,7 +205,7 @@ func TestLibraryFileURL(t *testing.T) {
 					"github.com/google/trillian/crypto",
 				},
 				LicensePath: "/go/src/github.com/google/trillian/LICENSE",
-				Module: &packages.Module{
+				module: &Module{
 					Path: "github.com/google/trillian",
 					Dir:  "/go/src/github.com/google/trillian",
 				},
@@ -221,7 +220,7 @@ func TestLibraryFileURL(t *testing.T) {
 					"k8s.io/api/core/v1",
 				},
 				LicensePath: "/go/modcache/k8s.io/api/LICENSE",
-				Module: &packages.Module{
+				module: &Module{
 					Path:    "k8s.io/api",
 					Dir:     "/go/modcache/k8s.io/api",
 					Version: "v0.23.1",
