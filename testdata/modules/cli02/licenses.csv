@@ -1,5 +1,5 @@
 github.com/fsnotify/fsnotify, https://github.com/fsnotify/fsnotify/blob/v1.4.9/LICENSE, BSD-3-Clause
-github.com/google/go-licenses/testdata/modules/cli02, https://github.com/google/go-licenses/blob/testdata/modules/cli02/master/testdata/modules/cli02/LICENSE, Apache-2.0
+github.com/google/go-licenses/testdata/modules/cli02, https://github.com/google/go-licenses/blob/HEAD/testdata/modules/cli02/LICENSE, Apache-2.0
 github.com/hashicorp/hcl, https://github.com/hashicorp/hcl/blob/v1.0.0/LICENSE, MPL-2.0
 github.com/magiconair/properties, https://github.com/magiconair/properties/blob/v1.8.5/LICENSE.md, BSD-2-Clause
 github.com/mitchellh/go-homedir, https://github.com/mitchellh/go-homedir/blob/v1.1.0/LICENSE, MIT

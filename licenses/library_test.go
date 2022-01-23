@@ -199,7 +199,7 @@ func TestLibraryFileURL(t *testing.T) {
 			wantURL: "https://example.com/user/project/blob/v1.2.3/foo/README.md",
 		},
 		{
-			desc: "Library without version defaults to master branch",
+			desc: "Library without version defaults to remote HEAD",
 			lib: &Library{
 				Packages: []string{
 					"github.com/google/trillian",
@@ -212,7 +212,7 @@ func TestLibraryFileURL(t *testing.T) {
 				},
 			},
 			path:    "/go/src/github.com/google/trillian/foo/README.md",
-			wantURL: "https://github.com/google/trillian/blob/master/foo/README.md",
+			wantURL: "https://github.com/google/trillian/blob/HEAD/foo/README.md",
 		},
 		{
 			desc: "Library on k8s.io",
