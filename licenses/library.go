@@ -36,7 +36,7 @@ type Library struct {
 	// It may not be the complete set of all packages in the library.
 	Packages []string
 	// Parent go module.
-	Module *packages.Module
+	module *Module
 }
 
 // PackagesError aggregates all Packages[].Errors into a single error.
@@ -118,7 +118,7 @@ func Libraries(ctx context.Context, classifier Classifier, importPaths ...string
 			for _, p := range pkgs {
 				libraries = append(libraries, &Library{
 					Packages: []string{p.PkgPath},
-					Module:   p.Module,
+					module:   newModule(p.Module),
 				})
 			}
 			continue
@@ -128,15 +128,15 @@ func Libraries(ctx context.Context, classifier Classifier, importPaths ...string
 		}
 		for _, pkg := range pkgs {
 			lib.Packages = append(lib.Packages, pkg.PkgPath)
-			if lib.Module == nil {
+			if lib.module == nil {
 				// All the sub packages should belong to the same module.
-				lib.Module = pkg.Module
+				lib.module = newModule(pkg.Module)
 			}
-			if lib.Module != nil && lib.Module.Path != "" && lib.Module.Dir == "" {
+			if lib.module != nil && lib.module.Path != "" && lib.module.Dir == "" {
 				// A known cause is that the module is vendored, so some information is lost.
 				splits := strings.SplitN(lib.LicensePath, "/vendor/", 2)
 				if len(splits) != 2 {
-					glog.Warningf("module %s does not have dir and it's not vendored, cannot discover the license URL. Report to go-licenses developer if you see this.", lib.Module.Path)
+					glog.Warningf("module %s does not have dir and it's not vendored, cannot discover the license URL. Report to go-licenses developer if you see this.", lib.module.Path)
 				} else {
 					// This is vendored. Handle this known special case.
 					parentModDir := splits[0]
@@ -148,11 +148,11 @@ func Libraries(ctx context.Context, classifier Classifier, importPaths ...string
 						}
 					}
 					if parentPkg == nil {
-						glog.Warningf("cannot find parent package of vendored module %s", lib.Module.Path)
+						glog.Warningf("cannot find parent package of vendored module %s", lib.module.Path)
 					} else {
 						// Vendored modules should be commited in the parent module, so it counts as part of the
 						// parent module.
-						lib.Module = parentPkg.Module
+						lib.module = newModule(parentPkg.Module)
 					}
 				}
 			}
@@ -205,7 +205,7 @@ func (l *Library) FileURL(ctx context.Context, filePath string) (string, error) 
 	wrap := func(err error) error {
 		return fmt.Errorf("getting file URL in library %s: %w", l.Name(), err)
 	}
-	m := l.Module
+	m := l.module
 	if m == nil {
 		return "", wrap(fmt.Errorf("empty go module info"))
 	}
