@@ -16,3 +16,4 @@ Local modifications:
   pkgsite/internal/version to avoid other dependencies.
 - For pkgsite/internal/source, switched to use go log package, because glog conflicts with a test
   dependency that also defines the "v" flag.
+- Add a SetCommit method to type ModuleInfo in ./source/source_patch.go, more rationale explained in the method's comments.
