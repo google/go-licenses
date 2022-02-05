@@ -14,6 +14,11 @@
 
 package source
 
+import (
+	"path"
+	"strings"
+)
+
 // This file includes all local additions to source package for google/go-licenses use-cases.
 
 // SetCommit overrides commit to a specified commit. Usually, you should pass your version to
@@ -30,4 +35,37 @@ func (i *Info) SetCommit(commit string) {
 		return
 	}
 	i.commit = commit
+}
+
+// RepoFileURL returns a URL for a file whose pathname is relative to the repo's home directory instead of the module's.
+func (i *Info) RepoFileURL(pathname string) string {
+	if i == nil {
+		return ""
+	}
+	dir, base := path.Split(pathname)
+	return expand(i.templates.File, map[string]string{
+		"repo":       i.repoURL,
+		"importPath": path.Join(strings.TrimPrefix(i.repoURL, "https://"), dir),
+		"commit":     i.commit,
+		"dir":        dir,
+		"file":       pathname,
+		"base":       base,
+	})
+}
+
+// RepoRawURL returns a URL referring to the raw contents of a file relative to the
+// repo's home directory instead of the module's.
+func (i *Info) RepoRawURL(pathname string) string {
+	if i == nil {
+		return ""
+	}
+	// Some templates don't support raw content serving.
+	if i.templates.Raw == "" {
+		return ""
+	}
+	return expand(i.templates.Raw, map[string]string{
+		"repo":   i.repoURL,
+		"commit": i.commit,
+		"file":   pathname,
+	})
 }
