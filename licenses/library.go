@@ -128,32 +128,32 @@ func Libraries(ctx context.Context, classifier Classifier, importPaths ...string
 		}
 		for _, pkg := range pkgs {
 			lib.Packages = append(lib.Packages, pkg.PkgPath)
-			if lib.module == nil {
+			if lib.module == nil && pkg.Module != nil {
 				// All the sub packages should belong to the same module.
 				lib.module = newModule(pkg.Module)
 			}
-			if lib.module != nil && lib.module.Path != "" && lib.module.Dir == "" {
-				// A known cause is that the module is vendored, so some information is lost.
-				splits := strings.SplitN(lib.LicensePath, "/vendor/", 2)
-				if len(splits) != 2 {
-					glog.Warningf("module %s does not have dir and it's not vendored, cannot discover the license URL. Report to go-licenses developer if you see this.", lib.module.Path)
+		}
+		if lib.module != nil && lib.module.Path != "" && lib.module.Dir == "" {
+			// A known cause is that the module is vendored, so some information is lost.
+			splits := strings.SplitN(lib.LicensePath, "/vendor/", 2)
+			if len(splits) != 2 {
+				glog.Warningf("module %s does not have dir and it's not vendored, cannot discover the license URL. Report to go-licenses developer if you see this.", lib.module.Path)
+			} else {
+				// This is vendored. Handle this known special case.
+				parentModDir := splits[0]
+				var parentPkg *packages.Package
+				for _, rootPkg := range rootPkgs {
+					if rootPkg.Module != nil && rootPkg.Module.Dir == parentModDir {
+						parentPkg = rootPkg
+						break
+					}
+				}
+				if parentPkg == nil {
+					glog.Warningf("cannot find parent package of vendored module %s", lib.module.Path)
 				} else {
-					// This is vendored. Handle this known special case.
-					parentModDir := splits[0]
-					var parentPkg *packages.Package
-					for _, rootPkg := range rootPkgs {
-						if rootPkg.Module != nil && rootPkg.Module.Dir == parentModDir {
-							parentPkg = rootPkg
-							break
-						}
-					}
-					if parentPkg == nil {
-						glog.Warningf("cannot find parent package of vendored module %s", lib.module.Path)
-					} else {
-						// Vendored modules should be commited in the parent module, so it counts as part of the
-						// parent module.
-						lib.module = newModule(parentPkg.Module)
-					}
+					// Vendored modules should be commited in the parent module, so it counts as part of the
+					// parent module.
+					lib.module = newModule(parentPkg.Module)
 				}
 			}
 		}
