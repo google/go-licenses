@@ -140,6 +140,19 @@ func Libraries(ctx context.Context, classifier Classifier, importPaths ...string
 				glog.Warningf("module %s does not have dir and it's not vendored, cannot discover the license URL. Report to go-licenses developer if you see this.", lib.module.Path)
 			} else {
 				// This is vendored. Handle this known special case.
+
+				// Extra note why we identify a vendored package like this.
+				//
+				// For a normal package:
+				// * if it's not in a module, lib.module == nil
+				// * if it's in a module, lib.module.Dir != ""
+				// Only vendored modules will have lib.module != nil && lib.module.Path != "" && lib.module.Dir == "" as far as I know.
+				// So the if condition above is already very strict for vendored packages.
+				// On top of it, we checked the lib.LicensePath contains a vendor folder in it.
+				// So it's rare to have a false positive for both conditions at the same time, although it may happen in theory.
+				//
+				// These assumptions may change in the future,
+				// so we need to keep this updated with go tooling changes.
 				parentModDir := splits[0]
 				var parentPkg *packages.Package
 				for _, rootPkg := range rootPkgs {

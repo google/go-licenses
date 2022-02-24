@@ -46,6 +46,9 @@ type GitRepo struct {
 // FindGitRepo finds the Git repository that contains the specified filePath
 // by searching upwards through the directory tree for a ".git" directory.
 func FindGitRepo(filePath string) (*GitRepo, error) {
+	// TODO(Bobgy): the "/" is used just to fix the test. git.go is not
+	// currently used, but I plan to bring it back to detect version of the
+	// main module in following up PRs.
 	path, err := findUpwards(filepath.Dir(filePath), gitRegexp, "/", nil)
 	if err != nil {
 		return nil, err
