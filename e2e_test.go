@@ -30,27 +30,32 @@ import (
 var update = flag.Bool("update", false, "update golden files")
 
 func TestCsvCommandE2E(t *testing.T) {
-	var tests = []struct {
-		workdir string
-	}{
-		{workdir: "testdata/modules/hello01"},
-		{workdir: "testdata/modules/cli02"},
-		{workdir: "testdata/modules/vendored03"},
-		{workdir: "testdata/modules/replace04"},
+	workdirs := []string{
+		"testdata/modules/hello01",
+		"testdata/modules/cli02",
+		"testdata/modules/vendored03",
+		"testdata/modules/replace04",
 	}
 	originalWorkDir, err := os.Getwd()
 	if err != nil {
 		t.Fatal(err)
 	}
-	// This builds and installs go-licenses CLI to $(go env GOPATH)/bin.
-	cmd := exec.Command("go", "install", ".")
+	// This builds go-licenses CLI to temporary dir.
+	tempDir, err := ioutil.TempDir("", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(tempDir)
+	goLicensesPath := filepath.Join(tempDir, "go-licenses")
+	cmd := exec.Command("go", "build", "-o", goLicensesPath)
 	_, err = cmd.Output()
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, tc := range tests {
-		t.Run(tc.workdir, func(t *testing.T) {
-			err := os.Chdir(filepath.Join(originalWorkDir, tc.workdir))
+	t.Logf("Built go-licenses binary in %s.", goLicensesPath)
+	for _, workdir := range workdirs {
+		t.Run(workdir, func(t *testing.T) {
+			err := os.Chdir(filepath.Join(originalWorkDir, workdir))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -59,11 +64,11 @@ func TestCsvCommandE2E(t *testing.T) {
 			if err != nil {
 				t.Fatalf("downloading go modules:\n%s", string(log))
 			}
-			cmd = exec.Command("go-licenses", "csv", ".")
+			cmd = exec.Command(goLicensesPath, "csv", ".")
 			// Capture stderr to buffer.
 			var stderr bytes.Buffer
 			cmd.Stderr = &stderr
-			t.Logf("%s $ go-licenses csv .", tc.workdir)
+			t.Logf("%s $ go-licenses csv .", workdir)
 			output, err := cmd.Output()
 			if err != nil {
 				t.Logf("\n=== start of log ===\n%s=== end of log ===\n\n\n", stderr.String())
