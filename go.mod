@@ -10,7 +10,7 @@ require (
 	github.com/google/licenseclassifier v0.0.0-20210722185704-3043a050f148
 	github.com/otiai10/copy v1.6.0
 	github.com/sergi/go-diff v1.2.0 // indirect
-	github.com/spf13/cobra v1.3.0
+	github.com/spf13/cobra v1.4.0
 	go.opencensus.io v0.23.0
 	golang.org/x/mod v0.6.0-dev.0.20220106191415-9b9b3d81d5e3
 	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2
