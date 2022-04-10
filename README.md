@@ -11,8 +11,8 @@ into a directory in order to comply with license terms on redistribution.
 
 To use this tool, make sure:
 
-* [You have Go v1.16 or later installed](https://golang.org/dl/)
-* Change directory to your go project, for example:
+* [You have Go v1.16 or later installed](https://golang.org/dl/).
+* Change directory to your go project, **for example**:
 
   ```shell
   git clone git@github.com:google/go-licenses.git
@@ -40,6 +40,14 @@ If you were using `go get` to install this tool, note that
 
 ```shell
 $ go-licenses csv github.com/google/go-licenses
+W0410 06:02:57.077781   31529 library.go:86] "golang.org/x/sys/unix" contains non-Go code that can't be inspected for further dependencies:
+/home/gongyuan_kubeflow_org/go/pkg/mod/golang.org/x/sys@v0.0.0-20220111092808-5a964db01320/unix/asm_linux_amd64.s
+W0410 06:02:59.476443   31529 library.go:86] "golang.org/x/crypto/curve25519/internal/field" contains non-Go code that can't be inspected for further dependencies:
+/home/gongyuan_kubeflow_org/go/pkg/mod/golang.org/x/crypto@v0.0.0-20220112180741-5e0467b6c7ce/curve25519/internal/field/fe_amd64.s
+W0410 06:02:59.486045   31529 library.go:86] "golang.org/x/crypto/internal/poly1305" contains non-Go code that can't be inspected for further dependencies:
+/home/gongyuan_kubeflow_org/go/pkg/mod/golang.org/x/crypto@v0.0.0-20220112180741-5e0467b6c7ce/internal/poly1305/sum_amd64.s
+W0410 06:02:59.872215   31529 library.go:253] module github.com/google/go-licenses has empty version, defaults to HEAD. The license URL may be incorrect. Please verify!
+W0410 06:02:59.880621   31529 library.go:253] module github.com/google/go-licenses has empty version, defaults to HEAD. The license URL may be incorrect. Please verify!
 github.com/emirpasic/gods,https://github.com/emirpasic/gods/blob/v1.12.0/LICENSE,BSD-2-Clause
 github.com/golang/glog,https://github.com/golang/glog/blob/23def4e6c14b/LICENSE,Apache-2.0
 github.com/golang/groupcache/lru,https://github.com/golang/groupcache/blob/41bb18bfe9da/LICENSE,Apache-2.0
@@ -52,16 +60,16 @@ github.com/kevinburke/ssh_config,https://github.com/kevinburke/ssh_config/blob/0
 github.com/mitchellh/go-homedir,https://github.com/mitchellh/go-homedir/blob/v1.1.0/LICENSE,MIT
 github.com/otiai10/copy,https://github.com/otiai10/copy/blob/v1.6.0/LICENSE,MIT
 github.com/sergi/go-diff/diffmatchpatch,https://github.com/sergi/go-diff/blob/v1.2.0/LICENSE,MIT
-github.com/spf13/cobra,https://github.com/spf13/cobra/blob/v1.3.0/LICENSE.txt,Apache-2.0
+github.com/spf13/cobra,https://github.com/spf13/cobra/blob/v1.4.0/LICENSE.txt,Apache-2.0
 github.com/spf13/pflag,https://github.com/spf13/pflag/blob/v1.0.5/LICENSE,BSD-3-Clause
 github.com/src-d/gcfg,https://github.com/src-d/gcfg/blob/v1.4.0/LICENSE,BSD-3-Clause
 github.com/xanzy/ssh-agent,https://github.com/xanzy/ssh-agent/blob/v0.2.1/LICENSE,Apache-2.0
 go.opencensus.io,https://github.com/census-instrumentation/opencensus-go/blob/v0.23.0/LICENSE,Apache-2.0
 golang.org/x/crypto,https://cs.opensource.google/go/x/crypto/+/5e0467b6:LICENSE,BSD-3-Clause
-golang.org/x/mod/semver,https://cs.opensource.google/go/x/mod/+/v0.5.1:LICENSE,BSD-3-Clause
+golang.org/x/mod/semver,https://cs.opensource.google/go/x/mod/+/9b9b3d81:LICENSE,BSD-3-Clause
 golang.org/x/net,https://cs.opensource.google/go/x/net/+/69e39bad:LICENSE,BSD-3-Clause
 golang.org/x/sys,https://cs.opensource.google/go/x/sys/+/5a964db0:LICENSE,BSD-3-Clause
-golang.org/x/tools,https://cs.opensource.google/go/x/tools/+/v0.1.9:LICENSE,BSD-3-Clause
+golang.org/x/tools,https://cs.opensource.google/go/x/tools/+/v0.1.10:LICENSE,BSD-3-Clause
 golang.org/x/xerrors,https://cs.opensource.google/go/x/xerrors/+/5ec99f83:LICENSE,BSD-3-Clause
 gopkg.in/src-d/go-billy.v4,https://github.com/src-d/go-billy/blob/v4.3.2/LICENSE,Apache-2.0
 gopkg.in/src-d/go-git.v4,https://github.com/src-d/go-git/blob/v4.13.1/LICENSE,Apache-2.0
@@ -74,6 +82,15 @@ type of license. A library is considered to be one or more Go packages that
 share a license file.
 
 URLs are versioned based on go modules metadata.
+
+**Tip**: go-licenses writes CSV to stdout and info/warnings/errors logs to stderr.
+To save the CSV to a file "licenses.csv" in bash, run:
+
+```bash
+go-licenses csv github.com/google/go-licenses <licenses.csv
+```
+
+**Note**: some warnings and errors may be expected, refer to [Warnings and Errors](#warnings-and-errors) for more information.
 
 ## Save licenses, copyright notices and source code (depending on license type)
 
