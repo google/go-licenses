@@ -30,9 +30,11 @@ import (
 )
 
 var (
-	saveCmd = &cobra.Command{
-		Use:   "save <package>",
-		Short: "Saves licenses, copyright notices and source code, as required by a Go package's dependencies, to a directory.",
+	saveHelp = "Saves licenses, copyright notices and source code, as required by a Go package's dependencies, to a directory."
+	saveCmd  = &cobra.Command{
+		Use:   "save <package> [package...]",
+		Short: saveHelp,
+		Long:  saveHelp + packageHelp,
 		Args:  cobra.MinimumNArgs(1),
 		RunE:  saveMain,
 	}
@@ -61,19 +63,11 @@ func init() {
 }
 
 func saveMain(_ *cobra.Command, args []string) error {
+
 	if overwriteSavePath {
 		if err := os.RemoveAll(savePath); err != nil {
 			return err
 		}
-	}
-
-	// Check that the save path doesn't exist, otherwise it'd end up with a mix of
-	// existing files and the output of this command.
-	if d, err := os.Open(savePath); err == nil {
-		d.Close()
-		return fmt.Errorf("%s already exists", savePath)
-	} else if !os.IsNotExist(err) {
-		return err
 	}
 
 	classifier, err := licenses.NewClassifier(confidenceThreshold)
@@ -85,6 +79,16 @@ func saveMain(_ *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+
+	// Check that the save path doesn't exist, otherwise it'd end up with a mix of
+	// existing files and the output of this command.
+	if d, err := os.Open(savePath); err == nil {
+		d.Close()
+		return fmt.Errorf("%s already exists", savePath)
+	} else if !os.IsNotExist(err) {
+		return err
+	}
+
 	libsWithBadLicenses := make(map[licenses.Type][]*licenses.Library)
 	for _, lib := range libs {
 		libSaveDir := filepath.Join(savePath, unvendor(lib.Name()))
@@ -118,7 +122,12 @@ func saveMain(_ *cobra.Command, args []string) error {
 func copySrc(src, dest string) error {
 	// Skip the .git directory for copying, if it exists, since we don't want to save the user's
 	// local Git config along with the source code.
-	opt := copy.Options{Skip: func(src string) (bool, error) { return strings.HasSuffix(src, ".git"), nil }}
+	opt := copy.Options{
+		Skip: func(src string) (bool, error) {
+			return strings.HasSuffix(src, ".git"), nil
+		},
+		AddPermission: 0600,
+	}
 	if err := copy.Copy(src, dest, opt); err != nil {
 		return err
 	}

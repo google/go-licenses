@@ -1,17 +1,19 @@
 module github.com/google/go-licenses
 
-go 1.13
+go 1.16
 
 require (
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
-	github.com/google/go-cmp v0.3.1
-	github.com/google/licenseclassifier v0.0.0-20190926221455-842c0d70d702
-	github.com/otiai10/copy v1.2.0
-	github.com/spf13/cobra v0.0.5
-	github.com/spf13/pflag v1.0.5 // indirect
-	golang.org/x/crypto v0.0.0-20191117063200-497ca9f6d64f // indirect
-	golang.org/x/net v0.0.0-20191119073136-fc4aabc6c914 // indirect
-	golang.org/x/sys v0.0.0-20191119060738-e882bf8e40c2 // indirect
-	golang.org/x/tools v0.0.0-20191118222007-07fc4c7f2b98
+	github.com/golangci/golangci-lint v1.44.2
+	github.com/google/go-cmp v0.5.7
+	github.com/google/go-replayers/httpreplay v1.1.1
+	github.com/google/licenseclassifier v0.0.0-20210722185704-3043a050f148
+	github.com/otiai10/copy v1.6.0
+	github.com/sergi/go-diff v1.2.0 // indirect
+	github.com/spf13/cobra v1.4.0
+	go.opencensus.io v0.23.0
+	golang.org/x/mod v0.6.0-dev.0.20220106191415-9b9b3d81d5e3
+	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2
+	golang.org/x/tools v0.1.10
 	gopkg.in/src-d/go-git.v4 v4.13.1
 )
