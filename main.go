@@ -38,7 +38,7 @@ Prerequisites:
 
 	// Flags shared between subcommands
 	confidenceThreshold float64
-	ignore              pathList
+	ignore              []string
 	packageHelp         = `
 
 Typically, specify the Go package that builds your Go binary.
@@ -64,7 +64,7 @@ func init() {
 		os.Exit(1)
 	}
 	rootCmd.PersistentFlags().Float64Var(&confidenceThreshold, "confidence_threshold", 0.9, "Minimum confidence required in order to positively identify a license.")
-	rootCmd.PersistentFlags().Var(&ignore, "ignore", "Module path prefixes to be ignored. Can be specified multiple times.")
+	rootCmd.PersistentFlags().StringSliceVar(&ignore, "ignore", nil, "Module path prefixes to be ignored. Can be specified multiple times.")
 }
 
 func main() {
