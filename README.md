@@ -41,11 +41,11 @@ If you were using `go get` to install this tool, note that
 ```shell
 $ go-licenses csv github.com/google/go-licenses
 W0410 06:02:57.077781   31529 library.go:86] "golang.org/x/sys/unix" contains non-Go code that can't be inspected for further dependencies:
-/home/gongyuan_kubeflow_org/go/pkg/mod/golang.org/x/sys@v0.0.0-20220111092808-5a964db01320/unix/asm_linux_amd64.s
+/home/username/go/pkg/mod/golang.org/x/sys@v0.0.0-20220111092808-5a964db01320/unix/asm_linux_amd64.s
 W0410 06:02:59.476443   31529 library.go:86] "golang.org/x/crypto/curve25519/internal/field" contains non-Go code that can't be inspected for further dependencies:
-/home/gongyuan_kubeflow_org/go/pkg/mod/golang.org/x/crypto@v0.0.0-20220112180741-5e0467b6c7ce/curve25519/internal/field/fe_amd64.s
+/home/username/go/pkg/mod/golang.org/x/crypto@v0.0.0-20220112180741-5e0467b6c7ce/curve25519/internal/field/fe_amd64.s
 W0410 06:02:59.486045   31529 library.go:86] "golang.org/x/crypto/internal/poly1305" contains non-Go code that can't be inspected for further dependencies:
-/home/gongyuan_kubeflow_org/go/pkg/mod/golang.org/x/crypto@v0.0.0-20220112180741-5e0467b6c7ce/internal/poly1305/sum_amd64.s
+/home/username/go/pkg/mod/golang.org/x/crypto@v0.0.0-20220112180741-5e0467b6c7ce/internal/poly1305/sum_amd64.s
 W0410 06:02:59.872215   31529 library.go:253] module github.com/google/go-licenses has empty version, defaults to HEAD. The license URL may be incorrect. Please verify!
 W0410 06:02:59.880621   31529 library.go:253] module github.com/google/go-licenses has empty version, defaults to HEAD. The license URL may be incorrect. Please verify!
 github.com/emirpasic/gods,https://github.com/emirpasic/gods/blob/v1.12.0/LICENSE,BSD-2-Clause
