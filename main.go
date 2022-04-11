@@ -26,12 +26,27 @@ import (
 
 var (
 	rootCmd = &cobra.Command{
-		Use: "licenses",
+		Use:   "go-licenses",
+		Short: "go-licenses helps you work with licenses of your go project's dependencies.",
+		Long: `go-licenses helps you work with licenses of your go project's dependencies.
+
+Prerequisites:
+1. Go v1.16 or later.
+2. Change directory to your go project.
+3. Run "go mod download".`,
 	}
 
 	// Flags shared between subcommands
 	confidenceThreshold float64
 	ignore              pathList
+	packageHelp         = `
+
+Typically, specify the Go package that builds your Go binary.
+go-licenses expects the same package argument format as "go build".
+For example:
+* A rooted import path like "github.com/google/go-licenses" or "github.com/google/go-licenses/licenses".
+* A relative path that denotes the package in that directory, like "." or "./cmd/some-command".
+To learn more about Go package argument, run "go help packages".`
 )
 
 func init() {

@@ -25,9 +25,11 @@ import (
 )
 
 var (
-	csvCmd = &cobra.Command{
-		Use:   "csv <package>",
-		Short: "Prints all licenses that apply to a Go package and its dependencies",
+	csvHelp = "Prints all licenses that apply to one or more Go packages and their dependencies."
+	csvCmd  = &cobra.Command{
+		Use:   "csv <package> [package...]",
+		Short: csvHelp,
+		Long:  csvHelp + packageHelp,
 		Args:  cobra.MinimumNArgs(1),
 		RunE:  csvMain,
 	}
