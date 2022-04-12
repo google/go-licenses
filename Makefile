@@ -18,10 +18,13 @@ precommit: test lint tidy
 test: FORCE
 	go test ./...
 
+# Note, when upgrading, also upgrade version in .github/workflows/golangci-lint.yml.
+GOLANGCI_LINT_VERSION=v1.29
 lint:  FORCE
-# Note, golangci-lint version is pinned in go.mod. When upgrading, also
-# upgrade version in .github/workflows/golangci-lint.yml.
-	go run github.com/golangci/golangci-lint/cmd/golangci-lint run -v
+	@which golangci-lint >/dev/null || ( \
+		echo 'golangci-lint is not installed. Install by:\ngo install github.com/golangci/golangci-lint/cmd/golangci-lint@$(GOLANGCI_LINT_VERSION)' \
+		&& exit 1 )
+	golangci-lint run -v
 
 tidy: FORCE
 	go mod tidy
