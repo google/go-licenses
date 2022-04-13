@@ -44,7 +44,7 @@ func checkMain(_ *cobra.Command, args []string) error {
 		return err
 	}
 
-	libs, err := licenses.Libraries(context.Background(), classifier, args...)
+	libs, err := licenses.Libraries(context.Background(), classifier, ignore, args...)
 	if err != nil {
 		return err
 	}

@@ -166,6 +166,20 @@ github.com/client9/misspell,https://github.com/client9/misspell/blob/master/LICE
 github.com/golang/protobuf/proto,https://github.com/golang/protobuf/blob/master/proto/LICENSE,BSD-3-Clause
 ```
 
+## Ignoring packages
+
+Use the `--ignore` global flag to specify package path prefixes to be ignored.
+For example, to ignore your organization's internal packages under `github.com/example-corporation`:
+
+```shell
+$ go-licenses check \
+    github.com/example-corporation/example-product \
+    --ignore github.com/example-corporation
+```
+
+Note that dependencies from the ignored packages are still resolved and checked.
+This flag makes effect to `check`, `csv` and `save` commands.
+
 ## Warnings and errors
 
 The tool will log warnings and errors in some scenarios. This section provides
