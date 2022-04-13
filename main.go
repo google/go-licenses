@@ -64,7 +64,7 @@ func init() {
 		os.Exit(1)
 	}
 	rootCmd.PersistentFlags().Float64Var(&confidenceThreshold, "confidence_threshold", 0.9, "Minimum confidence required in order to positively identify a license.")
-	rootCmd.PersistentFlags().StringSliceVar(&ignore, "ignore", nil, "Module path prefixes to be ignored. Can be specified multiple times.")
+	rootCmd.PersistentFlags().StringSliceVar(&ignore, "ignore", nil, "Package path prefixes to be ignored. Can be specified multiple times.")
 }
 
 func main() {
