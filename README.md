@@ -84,10 +84,16 @@ share a license file.
 URLs are versioned based on go modules metadata.
 
 **Tip**: go-licenses writes CSV to stdout and info/warnings/errors logs to stderr.
-To save the CSV to a file "licenses.csv" in bash, run:
+To save the CSV to a file `licenses.csv` in bash, run:
 
 ```bash
-go-licenses csv github.com/google/go-licenses <licenses.csv
+go-licenses csv github.com/google/go-licenses > licenses.csv
+```
+
+Or, to also save error logs to an `errors` file, run:
+
+```bash
+go-licenses csv github.com/google/go-licenses > licenses.csv 2> errors
 ```
 
 **Note**: some warnings and errors may be expected, refer to [Warnings and Errors](#warnings-and-errors) for more information.
