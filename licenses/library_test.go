@@ -41,6 +41,7 @@ func TestLibraries(t *testing.T) {
 		desc       string
 		importPath string
 		goflags    string
+		ignore     []string
 		wantLibs   []string
 	}{
 		{
@@ -61,6 +62,17 @@ func TestLibraries(t *testing.T) {
 			},
 		},
 		{
+			desc:       "Ignores a package path",
+			importPath: "github.com/google/go-licenses/licenses/testdata",
+			ignore: []string{
+				"github.com/google/go-licenses/licenses/testdata/direct",
+			},
+			wantLibs: []string{
+				"github.com/google/go-licenses/licenses/testdata",
+				"github.com/google/go-licenses/licenses/testdata/indirect",
+			},
+		},
+		{
 			desc:       "Build tagged package",
 			importPath: "github.com/google/go-licenses/licenses/testdata/tags",
 			goflags:    "-tags=tags",
@@ -75,7 +87,7 @@ func TestLibraries(t *testing.T) {
 				os.Setenv("GOFLAGS", test.goflags)
 				defer os.Unsetenv("GOFLAGS")
 			}
-			gotLibs, err := Libraries(context.Background(), classifier, test.importPath)
+			gotLibs, err := Libraries(context.Background(), classifier, test.ignore, test.importPath)
 			if err != nil {
 				t.Fatalf("Libraries(_, %q) = (_, %q), want (_, nil)", test.importPath, err)
 			}

@@ -61,7 +61,7 @@ func (e PackagesError) Error() string {
 // A library is a collection of one or more packages covered by the same license file.
 // Packages not covered by a license will be returned as individual libraries.
 // Standard library packages will be ignored.
-func Libraries(ctx context.Context, classifier Classifier, importPaths ...string) ([]*Library, error) {
+func Libraries(ctx context.Context, classifier Classifier, ignoredPaths []string, importPaths ...string) ([]*Library, error) {
 	cfg := &packages.Config{
 		Context: ctx,
 		Mode:    packages.NeedImports | packages.NeedDeps | packages.NeedFiles | packages.NeedName | packages.NeedModule,
@@ -74,16 +74,24 @@ func Libraries(ctx context.Context, classifier Classifier, importPaths ...string
 
 	pkgs := map[string]*packages.Package{}
 	pkgsByLicense := make(map[string][]*packages.Package)
-	errorOccurred := false
+	pkgErrorOccurred := false
+	otherErrorOccurred := false
 	packages.Visit(rootPkgs, func(p *packages.Package) bool {
 		if len(p.Errors) > 0 {
-			errorOccurred = true
+			pkgErrorOccurred = true
 			return false
 		}
 		if isStdLib(p) {
 			// No license requirements for the Go standard library.
 			return false
 		}
+		for _, i := range ignoredPaths {
+			if strings.HasPrefix(p.PkgPath, i) {
+				// Marked to be ignored.
+				return true
+			}
+		}
+
 		if len(p.OtherFiles) > 0 {
 			glog.Warningf("%q contains non-Go code that can't be inspected for further dependencies:\n%s", p.PkgPath, strings.Join(p.OtherFiles, "\n"))
 		}
@@ -99,6 +107,11 @@ func Libraries(ctx context.Context, classifier Classifier, importPaths ...string
 			// This package is empty - nothing to do.
 			return true
 		}
+		if p.Module == nil {
+			otherErrorOccurred = true
+			glog.Errorf("Package %s does not have module info. Non go modules projects are no longer supported. For feedback, refer to https://github.com/google/go-licenses/issues/128.", p.PkgPath)
+			return false
+		}
 		licensePath, err := Find(pkgDir, p.Module.Dir, classifier)
 		if err != nil {
 			glog.Errorf("Failed to find license for %s: %v", p.PkgPath, err)
@@ -107,10 +120,13 @@ func Libraries(ctx context.Context, classifier Classifier, importPaths ...string
 		pkgsByLicense[licensePath] = append(pkgsByLicense[licensePath], p)
 		return true
 	}, nil)
-	if errorOccurred {
+	if pkgErrorOccurred {
 		return nil, PackagesError{
 			pkgs: rootPkgs,
 		}
+	}
+	if otherErrorOccurred {
+		return nil, fmt.Errorf("some errors occurred when loading direct and transitive dependency packages")
 	}
 
 	var libraries []*Library

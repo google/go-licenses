@@ -30,9 +30,11 @@ import (
 )
 
 var (
-	saveCmd = &cobra.Command{
-		Use:   "save <package>",
-		Short: "Saves licenses, copyright notices and source code, as required by a Go package's dependencies, to a directory.",
+	saveHelp = "Saves licenses, copyright notices and source code, as required by a Go package's dependencies, to a directory."
+	saveCmd  = &cobra.Command{
+		Use:   "save <package> [package...]",
+		Short: saveHelp,
+		Long:  saveHelp + packageHelp,
 		Args:  cobra.MinimumNArgs(1),
 		RunE:  saveMain,
 	}
@@ -73,7 +75,7 @@ func saveMain(_ *cobra.Command, args []string) error {
 		return err
 	}
 
-	libs, err := licenses.Libraries(context.Background(), classifier, args...)
+	libs, err := licenses.Libraries(context.Background(), classifier, ignore, args...)
 	if err != nil {
 		return err
 	}

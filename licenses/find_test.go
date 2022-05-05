@@ -17,6 +17,7 @@ package licenses
 import (
 	"os"
 	"path/filepath"
+	"regexp"
 	"testing"
 )
 
@@ -52,7 +53,9 @@ func TestFind(t *testing.T) {
 	for _, test := range []struct {
 		desc            string
 		dir             string
+		rootDir         string
 		wantLicensePath string
+		wantErr         *regexp.Regexp
 	}{
 		{
 			desc:            "licenSe",
@@ -99,9 +102,24 @@ func TestFind(t *testing.T) {
 			dir:             "testdata/license-apache-2.0",
 			wantLicensePath: filepath.Join(wd, "testdata/license-apache-2.0/LICENSE-APACHE-2.0.txt"),
 		},
+		{
+			desc:    "proprietary-license",
+			dir:     "testdata/proprietary-license",
+			rootDir: "testdata/proprietary-license",
+			wantErr: regexp.MustCompile(`cannot find a known open source license for.*testdata/proprietary-license.*whose name matches regexp.*and locates up until.*testdata/proprietary-license`),
+		},
 	} {
 		t.Run(test.desc, func(t *testing.T) {
-			licensePath, err := Find(test.dir, "./testdata", classifier)
+			if test.rootDir == "" {
+				test.rootDir = "./testdata"
+			}
+			licensePath, err := Find(test.dir, test.rootDir, classifier)
+			if test.wantErr != nil {
+				if err == nil || !test.wantErr.Match([]byte(err.Error())) {
+					t.Fatalf("Find(%q) = %q, %q, want (%q, %q)", test.dir, licensePath, err, "", test.wantErr)
+				}
+				return
+			}
 			if err != nil || licensePath != test.wantLicensePath {
 				t.Fatalf("Find(%q) = (%#v, %q), want (%q, nil)", test.dir, licensePath, err, test.wantLicensePath)
 			}
