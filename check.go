@@ -48,15 +48,25 @@ func checkMain(_ *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+
+	// indicate that a forbidden license was found
+	found := false
+
 	for _, lib := range libs {
 		licenseName, licenseType, err := classifier.Identify(lib.LicensePath)
 		if err != nil {
 			return err
 		}
+
 		if licenseType == licenses.Forbidden {
 			fmt.Fprintf(os.Stderr, "Forbidden license type %s for library %v\n", licenseName, lib)
-			os.Exit(1)
+			found = true
 		}
 	}
+
+	if found {
+		os.Exit(1)
+	}
+
 	return nil
 }

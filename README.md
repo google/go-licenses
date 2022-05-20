@@ -120,7 +120,6 @@ Forbidden license type WTFPL for library github.com/logrusorgru/auroraexit statu
 This command analyzes a package's dependencies and determines if any are
 considered forbidden by the license classifer. See
 [github.com/google/licenseclassifier](https://github.com/google/licenseclassifier/blob/842c0d70d7027215932deb13801890992c9ba364/license_type.go#L323)
-
 for licenses considered forbidden.
 
 ## Usages

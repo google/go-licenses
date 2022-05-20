@@ -70,6 +70,8 @@ func init() {
 func main() {
 	flag.Parse()
 	rootCmd.PersistentFlags().AddGoFlagSet(flag.CommandLine)
+	rootCmd.SilenceErrors = true // to avoid duplicate error output
+	rootCmd.SilenceUsage = true  // to avoid usage/help output on error
 
 	if err := rootCmd.Execute(); err != nil {
 		glog.Exit(err)
