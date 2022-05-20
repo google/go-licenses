@@ -108,11 +108,11 @@ func TestFind(t *testing.T) {
 			rootDir: "testdata/proprietary-license",
 			wantErr: regexp.MustCompile(`cannot find a known open source license for.*testdata/proprietary-license.*whose name matches regexp.*and locates up until.*testdata/proprietary-license`),
 		},
-    {
-      desc:            "UNLICENSE",
+		{
+			desc:            "UNLICENSE",
 			dir:             "testdata/unlicense",
 			wantLicensePath: filepath.Join(wd, "testdata/unlicense/UNLICENSE"),
-    },
+		},
 	} {
 		t.Run(test.desc, func(t *testing.T) {
 			if test.rootDir == "" {
