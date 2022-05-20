@@ -37,6 +37,7 @@ func TestFind(t *testing.T) {
 			"testdata/readme/README.md":                          "foo",
 			"testdata/lowercase/license":                         "foo",
 			"testdata/license-apache-2.0/LICENSE-APACHE-2.0.txt": "foo",
+			"testdata/unlicense/UNLICENSE":                       "unlicense",
 		},
 		licenseTypes: map[string]Type{
 			"testdata/LICENSE":                                   Notice,
@@ -47,6 +48,7 @@ func TestFind(t *testing.T) {
 			"testdata/readme/README.md":                          Notice,
 			"testdata/lowercase/license":                         Notice,
 			"testdata/license-apache-2.0/LICENSE-APACHE-2.0.txt": Notice,
+			"testdata/unlicense/UNLICENSE":                       Unencumbered,
 		},
 	}
 
@@ -107,6 +109,11 @@ func TestFind(t *testing.T) {
 			dir:     "testdata/proprietary-license",
 			rootDir: "testdata/proprietary-license",
 			wantErr: regexp.MustCompile(`cannot find a known open source license for.*testdata/proprietary-license.*whose name matches regexp.*and locates up until.*testdata/proprietary-license`),
+		},
+		{
+			desc:            "UNLICENSE",
+			dir:             "testdata/unlicense",
+			wantLicensePath: filepath.Join(wd, "testdata/unlicense/UNLICENSE"),
 		},
 	} {
 		t.Run(test.desc, func(t *testing.T) {
