@@ -23,10 +23,10 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/golang/glog"
 	"github.com/google/go-licenses/licenses"
 	"github.com/otiai10/copy"
 	"github.com/spf13/cobra"
+	"k8s.io/klog/v2"
 )
 
 var (
@@ -51,10 +51,10 @@ var (
 func init() {
 	saveCmd.Flags().StringVar(&savePath, "save_path", "", "Directory into which files should be saved that are required by license terms")
 	if err := saveCmd.MarkFlagRequired("save_path"); err != nil {
-		glog.Fatal(err)
+		klog.Fatal(err)
 	}
 	if err := saveCmd.MarkFlagFilename("save_path"); err != nil {
-		glog.Fatal(err)
+		klog.Fatal(err)
 	}
 
 	saveCmd.Flags().BoolVar(&overwriteSavePath, "force", false, "Delete the destination directory if it already exists.")

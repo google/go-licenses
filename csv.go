@@ -19,9 +19,9 @@ import (
 	"encoding/csv"
 	"os"
 
-	"github.com/golang/glog"
 	"github.com/google/go-licenses/licenses"
 	"github.com/spf13/cobra"
+	"k8s.io/klog/v2"
 )
 
 var (
@@ -63,13 +63,13 @@ func csvMain(_ *cobra.Command, args []string) error {
 			if err == nil {
 				licenseName = name
 			} else {
-				glog.Errorf("Error identifying license in %q: %v", lib.LicensePath, err)
+				klog.Errorf("Error identifying license in %q: %v", lib.LicensePath, err)
 			}
 			url, err := lib.FileURL(context.Background(), lib.LicensePath)
 			if err == nil {
 				licenseURL = url
 			} else {
-				glog.Warningf("Error discovering license URL: %s", err)
+				klog.Warningf("Error discovering license URL: %s", err)
 			}
 		}
 		if err := writer.Write([]string{lib.Name(), licenseURL, licenseName}); err != nil {

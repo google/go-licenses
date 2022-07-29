@@ -22,8 +22,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/golang/glog"
 	git "gopkg.in/src-d/go-git.v4"
+	"k8s.io/klog/v2"
 )
 
 var (
@@ -91,7 +91,7 @@ func gitRemoteURL(repoPath string, remoteName string) (*url.URL, error) {
 	for _, urlStr := range remote.Config().URLs {
 		u, err := url.Parse(urlStr)
 		if err != nil {
-			glog.Warningf("Error parsing %q as URL from remote %q in Git repo at %q: %s", urlStr, remoteName, repoPath, err)
+			klog.Warningf("Error parsing %q as URL from remote %q in Git repo at %q: %s", urlStr, remoteName, repoPath, err)
 			continue
 		}
 		return u, nil
