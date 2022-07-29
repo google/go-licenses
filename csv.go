@@ -65,7 +65,7 @@ func csvMain(_ *cobra.Command, args []string) error {
 			} else {
 				glog.Errorf("Error identifying license in %q: %v", lib.LicensePath, err)
 			}
-			url, err := lib.FileURL(context.Background(), lib.LicensePath)
+			url, err := lib.LicenseURL(context.Background())
 			if err == nil {
 				licenseURL = url
 			} else {

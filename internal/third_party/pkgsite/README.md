@@ -17,3 +17,5 @@ Local modifications:
 - For pkgsite/internal/source, switched to use go log package, because glog conflicts with a test
   dependency that also defines the "v" flag.
 - Add a SetCommit method to type ModuleInfo in ./source/source_patch.go, more rationale explained in the method's comments.
+- Added RepoFileURL and RepoRawURL methods to source.Info struct in file ./source/source_patch.go.
+They are needed when accessing files outside of the module dir, but in the same repo.

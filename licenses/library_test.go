@@ -165,14 +165,13 @@ func TestLibraryFileURL(t *testing.T) {
 					"github.com/google/trillian",
 					"github.com/google/trillian/crypto",
 				},
-				LicensePath: "/go/src/github.com/google/trillian/LICENSE",
+				LicensePath: "/go/src/github.com/google/trillian/foo/README.md",
 				module: &Module{
 					Path:    "github.com/google/trillian",
 					Dir:     "/go/src/github.com/google/trillian",
 					Version: "v1.2.3",
 				},
 			},
-			path:    "/go/src/github.com/google/trillian/foo/README.md",
 			wantURL: "https://github.com/google/trillian/blob/v1.2.3/foo/README.md",
 		},
 		{
@@ -182,14 +181,13 @@ func TestLibraryFileURL(t *testing.T) {
 					"bitbucket.org/user/project/pkg",
 					"bitbucket.org/user/project/pkg2",
 				},
-				LicensePath: "/foo/bar/bitbucket.org/user/project/LICENSE",
+				LicensePath: "/foo/bar/bitbucket.org/user/project/foo/README.md",
 				module: &Module{
 					Path:    "bitbucket.org/user/project",
 					Dir:     "/foo/bar/bitbucket.org/user/project",
 					Version: "v1.2.3",
 				},
 			},
-			path:    "/foo/bar/bitbucket.org/user/project/foo/README.md",
 			wantURL: "https://bitbucket.org/user/project/src/v1.2.3/foo/README.md",
 		},
 		{
@@ -199,14 +197,13 @@ func TestLibraryFileURL(t *testing.T) {
 					"example.com/user/project/pkg",
 					"example.com/user/project/pkg2",
 				},
-				LicensePath: "/foo/bar/example.com/user/project/LICENSE",
+				LicensePath: "/foo/bar/example.com/user/project/foo/README.md",
 				module: &Module{
 					Path:    "example.com/user/project",
 					Dir:     "/foo/bar/example.com/user/project",
 					Version: "v1.2.3",
 				},
 			},
-			path:    "/foo/bar/example.com/user/project/foo/README.md",
 			wantURL: "https://example.com/user/project/blob/v1.2.3/foo/README.md",
 		},
 		{
@@ -216,13 +213,12 @@ func TestLibraryFileURL(t *testing.T) {
 					"github.com/google/trillian",
 					"github.com/google/trillian/crypto",
 				},
-				LicensePath: "/go/src/github.com/google/trillian/LICENSE",
+				LicensePath: "/go/src/github.com/google/trillian/foo/README.md",
 				module: &Module{
 					Path: "github.com/google/trillian",
 					Dir:  "/go/src/github.com/google/trillian",
 				},
 			},
-			path:    "/go/src/github.com/google/trillian/foo/README.md",
 			wantURL: "https://github.com/google/trillian/blob/HEAD/foo/README.md",
 		},
 		{
@@ -238,19 +234,19 @@ func TestLibraryFileURL(t *testing.T) {
 					Version: "v0.23.1",
 				},
 			},
-			path:    "/go/modcache/k8s.io/api/LICENSE",
 			wantURL: "https://github.com/kubernetes/api/blob/v0.23.1/LICENSE",
 		},
 	} {
 		t.Run(test.desc, func(t *testing.T) {
-			fileURL, err := test.lib.FileURL(context.Background(), test.path)
+			testOnlySkipValidation = true
+			fileURL, err := test.lib.LicenseURL(context.Background())
 			if gotErr := err != nil; gotErr != test.wantErr {
-				t.Fatalf("FileURL(%q) = (_, %q), want err? %t", test.path, err, test.wantErr)
+				t.Fatalf("LicenseURL(%q) = (_, %q), want err? %t", test.path, err, test.wantErr)
 			} else if gotErr {
 				return
 			}
 			if got, want := fileURL, test.wantURL; got != want {
-				t.Fatalf("FileURL(%q) = %q, want %q", test.path, got, want)
+				t.Fatalf("LicenseURL(%q) = %q, want %q", test.path, got, want)
 			}
 		})
 	}
