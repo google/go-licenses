@@ -29,17 +29,26 @@ import (
 
 var update = flag.Bool("update", false, "update golden files")
 
-func TestCsvCommandE2E(t *testing.T) {
-	workdirs := []string{
-		"testdata/modules/hello01",
-		"testdata/modules/cli02",
-		"testdata/modules/vendored03",
-		"testdata/modules/replace04",
+func TestReportCommandE2E(t *testing.T) {
+	tests := []struct {
+		workdir        string
+		args           []string // additional arguments to pass to report command.
+		goldenFilePath string
+	}{
+		{"testdata/modules/hello01", nil, "licenses.csv"},
+		{"testdata/modules/cli02", nil, "licenses.csv"},
+		{"testdata/modules/vendored03", nil, "licenses.csv"},
+		{"testdata/modules/replace04", nil, "licenses.csv"},
+
+		{"testdata/modules/hello01", []string{"--template", "licenses.tpl"}, "licenses.md"},
 	}
+
 	originalWorkDir, err := os.Getwd()
 	if err != nil {
 		t.Fatal(err)
 	}
+	t.Cleanup(func() { _ = os.Chdir(originalWorkDir) })
+
 	// This builds go-licenses CLI to temporary dir.
 	tempDir, err := ioutil.TempDir("", "")
 	if err != nil {
@@ -53,9 +62,10 @@ func TestCsvCommandE2E(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Logf("Built go-licenses binary in %s.", goLicensesPath)
-	for _, workdir := range workdirs {
-		t.Run(workdir, func(t *testing.T) {
-			err := os.Chdir(filepath.Join(originalWorkDir, workdir))
+
+	for _, tt := range tests {
+		t.Run(tt.workdir, func(t *testing.T) {
+			err := os.Chdir(filepath.Join(originalWorkDir, tt.workdir))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -64,25 +74,25 @@ func TestCsvCommandE2E(t *testing.T) {
 			if err != nil {
 				t.Fatalf("downloading go modules:\n%s", string(log))
 			}
-			cmd = exec.Command(goLicensesPath, "csv", ".")
+			args := append([]string{"report", "."}, tt.args...)
+			cmd = exec.Command(goLicensesPath, args...)
 			// Capture stderr to buffer.
 			var stderr bytes.Buffer
 			cmd.Stderr = &stderr
-			t.Logf("%s $ go-licenses csv .", workdir)
+			t.Logf("%s $ go-licenses csv .", tt.workdir)
 			output, err := cmd.Output()
 			if err != nil {
 				t.Logf("\n=== start of log ===\n%s=== end of log ===\n\n\n", stderr.String())
 				t.Fatalf("running go-licenses csv: %s. Full log shown above.", err)
 			}
 			got := string(output)
-			goldenFilePath := "licenses.csv"
 			if *update {
-				err := ioutil.WriteFile(goldenFilePath, output, 0600)
+				err := ioutil.WriteFile(tt.goldenFilePath, output, 0600)
 				if err != nil {
 					t.Fatalf("writing golden file: %s", err)
 				}
 			}
-			goldenBytes, err := ioutil.ReadFile(goldenFilePath)
+			goldenBytes, err := ioutil.ReadFile(tt.goldenFilePath)
 			if err != nil {
 				if errors.Is(err, os.ErrNotExist) {
 					t.Fatalf("reading golden file: %s. Create a golden file by running `go test --update .`", err)
