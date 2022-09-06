@@ -16,12 +16,11 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"os"
 	"strings"
 
-	"github.com/golang/glog"
 	"github.com/spf13/cobra"
+	"k8s.io/klog/v2"
 )
 
 var (
@@ -50,17 +49,16 @@ To learn more about Go package argument, run "go help packages".`
 )
 
 func init() {
-	// Change glog default log level to INFO.
-	// Note glog is not initialized yet, so we can only use fmt for printing
-	// errors.
+	// Change klog default log level to INFO.
+	klog.InitFlags(nil)
 	err := flag.Set("logtostderr", "true")
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		klog.Error(err)
 		os.Exit(1)
 	}
 	err = flag.Set("stderrthreshold", "INFO")
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		klog.Error(err)
 		os.Exit(1)
 	}
 	rootCmd.PersistentFlags().Float64Var(&confidenceThreshold, "confidence_threshold", 0.9, "Minimum confidence required in order to positively identify a license.")
@@ -74,7 +72,7 @@ func main() {
 	rootCmd.SilenceUsage = true  // to avoid usage/help output on error
 
 	if err := rootCmd.Execute(); err != nil {
-		glog.Exit(err)
+		klog.Exit(err)
 	}
 }
 

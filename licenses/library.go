@@ -23,9 +23,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang/glog"
 	"github.com/google/go-licenses/internal/third_party/pkgsite/source"
 	"golang.org/x/tools/go/packages"
+	"k8s.io/klog/v2"
 )
 
 // Library is a collection of packages covered by the same license file.
@@ -91,7 +91,7 @@ func Libraries(ctx context.Context, classifier Classifier, ignoredPaths []string
 		}
 
 		if len(p.OtherFiles) > 0 {
-			glog.Warningf("%q contains non-Go code that can't be inspected for further dependencies:\n%s", p.PkgPath, strings.Join(p.OtherFiles, "\n"))
+			klog.Warningf("%q contains non-Go code that can't be inspected for further dependencies:\n%s", p.PkgPath, strings.Join(p.OtherFiles, "\n"))
 		}
 		var pkgDir string
 		switch {
@@ -107,12 +107,12 @@ func Libraries(ctx context.Context, classifier Classifier, ignoredPaths []string
 		}
 		if p.Module == nil {
 			otherErrorOccurred = true
-			glog.Errorf("Package %s does not have module info. Non go modules projects are no longer supported. For feedback, refer to https://github.com/google/go-licenses/issues/128.", p.PkgPath)
+			klog.Errorf("Package %s does not have module info. Non go modules projects are no longer supported. For feedback, refer to https://github.com/google/go-licenses/issues/128.", p.PkgPath)
 			return false
 		}
 		licensePath, err := Find(pkgDir, p.Module.Dir, classifier)
 		if err != nil {
-			glog.Errorf("Failed to find license for %s: %v", p.PkgPath, err)
+			klog.Errorf("Failed to find license for %s: %v", p.PkgPath, err)
 		}
 		pkgs[p.PkgPath] = p
 		pkgsByLicense[licensePath] = append(pkgsByLicense[licensePath], p)
@@ -153,7 +153,7 @@ func Libraries(ctx context.Context, classifier Classifier, ignoredPaths []string
 			// A known cause is that the module is vendored, so some information is lost.
 			splits := strings.SplitN(lib.LicensePath, "/vendor/", 2)
 			if len(splits) != 2 {
-				glog.Warningf("module %s does not have dir and it's not vendored, cannot discover the license URL. Report to go-licenses developer if you see this.", lib.module.Path)
+				klog.Warningf("module %s does not have dir and it's not vendored, cannot discover the license URL. Report to go-licenses developer if you see this.", lib.module.Path)
 			} else {
 				// This is vendored. Handle this known special case.
 
@@ -178,7 +178,7 @@ func Libraries(ctx context.Context, classifier Classifier, ignoredPaths []string
 					}
 				}
 				if parentPkg == nil {
-					glog.Warningf("cannot find parent package of vendored module %s", lib.module.Path)
+					klog.Warningf("cannot find parent package of vendored module %s", lib.module.Path)
 				} else {
 					// Vendored modules should be commited in the parent module, so it counts as part of the
 					// parent module.
@@ -266,7 +266,7 @@ func (l *Library) FileURL(ctx context.Context, filePath string) (string, error) 
 		// * https://github.com/google/licenseclassifier/blob/HEAD/LICENSE
 		// points to latest commit of main branch.
 		remote.SetCommit("HEAD")
-		glog.Warningf("module %s has empty version, defaults to HEAD. The license URL may be incorrect. Please verify!", m.Path)
+		klog.Warningf("module %s has empty version, defaults to HEAD. The license URL may be incorrect. Please verify!", m.Path)
 	}
 	relativePath, err := filepath.Rel(m.Dir, filePath)
 	if err != nil {
