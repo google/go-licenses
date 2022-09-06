@@ -21,7 +21,7 @@ import (
 	"os"
 	"text/template"
 
-	"github.com/golang/glog"
+	"k8s.io/klog/v2"
 	"github.com/google/go-licenses/licenses"
 	"github.com/spf13/cobra"
 )
@@ -74,13 +74,13 @@ func reportMain(_ *cobra.Command, args []string) error {
 			if err == nil {
 				libData.LicenseName = name
 			} else {
-				glog.Errorf("Error identifying license in %q: %v", lib.LicensePath, err)
+				klog.Errorf("Error identifying license in %q: %v", lib.LicensePath, err)
 			}
 			url, err := lib.FileURL(context.Background(), lib.LicensePath)
 			if err == nil {
 				libData.LicenseURL = url
 			} else {
-				glog.Warningf("Error discovering license URL: %s", err)
+				klog.Warningf("Error discovering license URL: %s", err)
 			}
 		}
 		reportData = append(reportData, libData)
