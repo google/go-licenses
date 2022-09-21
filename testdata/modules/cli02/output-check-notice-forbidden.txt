@@ -1,0 +1,17 @@
+Notice license type BSD-3-Clause found for library github.com/fsnotify/fsnotify
+Notice license type Apache-2.0 found for library github.com/google/go-licenses/testdata/modules/cli02
+Notice license type BSD-2-Clause found for library github.com/magiconair/properties
+Notice license type MIT found for library github.com/mitchellh/go-homedir
+Notice license type MIT found for library github.com/mitchellh/mapstructure
+Notice license type Apache-2.0 found for library github.com/pelletier/go-toml
+Notice license type Apache-2.0 found for library github.com/spf13/afero
+Notice license type MIT found for library github.com/spf13/cast
+Notice license type Apache-2.0 found for library github.com/spf13/cobra
+Notice license type MIT found for library github.com/spf13/jwalterweatherman
+Notice license type BSD-3-Clause found for library github.com/spf13/pflag
+Notice license type MIT found for library github.com/spf13/viper
+Notice license type MIT found for library github.com/subosito/gotenv
+Notice license type BSD-3-Clause found for library golang.org/x/sys
+Notice license type BSD-3-Clause found for library golang.org/x/text
+Notice license type Apache-2.0 found for library gopkg.in/ini.v1
+Notice license type Apache-2.0 found for library gopkg.in/yaml.v2
