@@ -17,7 +17,7 @@ package licenses
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -71,7 +71,7 @@ func findUpwards(dir string, r *regexp.Regexp, stopAt string, predicate func(pat
 	start := dir
 	// Stop once we go out of the stopAt dir.
 	for strings.HasPrefix(dir, stopAt) {
-		dirContents, err := ioutil.ReadDir(dir)
+		dirContents, err := os.ReadDir(dir)
 		if err != nil {
 			return "", err
 		}

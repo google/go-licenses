@@ -18,7 +18,6 @@ import (
 	"bytes"
 	"errors"
 	"flag"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -51,7 +50,7 @@ func TestReportCommandE2E(t *testing.T) {
 	t.Cleanup(func() { _ = os.Chdir(originalWorkDir) })
 
 	// This builds go-licenses CLI to temporary dir.
-	tempDir, err := ioutil.TempDir("", "")
+	tempDir, err := os.MkdirTemp("", "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -88,12 +87,12 @@ func TestReportCommandE2E(t *testing.T) {
 			}
 			got := string(output)
 			if *update {
-				err := ioutil.WriteFile(tt.goldenFilePath, output, 0600)
+				err := os.WriteFile(tt.goldenFilePath, output, 0600)
 				if err != nil {
 					t.Fatalf("writing golden file: %s", err)
 				}
 			}
-			goldenBytes, err := ioutil.ReadFile(tt.goldenFilePath)
+			goldenBytes, err := os.ReadFile(tt.goldenFilePath)
 			if err != nil {
 				if errors.Is(err, os.ErrNotExist) {
 					t.Fatalf("reading golden file: %s. Create a golden file by running `go test --update .`", err)
@@ -134,7 +133,7 @@ func TestCheckCommandE2E(t *testing.T) {
 	t.Cleanup(func() { _ = os.Chdir(originalWorkDir) })
 
 	// This builds go-licenses CLI to temporary dir.
-	tempDir, err := ioutil.TempDir("", "")
+	tempDir, err := os.MkdirTemp("", "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -184,12 +183,12 @@ func TestCheckCommandE2E(t *testing.T) {
 
 			got := filterOutput(stderr.String())
 			if *update {
-				err := ioutil.WriteFile(tt.goldenFilePath, []byte(got), 0600)
+				err := os.WriteFile(tt.goldenFilePath, []byte(got), 0600)
 				if err != nil {
 					t.Fatalf("writing golden file: %s", err)
 				}
 			}
-			goldenBytes, err := ioutil.ReadFile(tt.goldenFilePath)
+			goldenBytes, err := os.ReadFile(tt.goldenFilePath)
 			if err != nil {
 				if errors.Is(err, os.ErrNotExist) {
 					t.Fatalf("reading golden file: %s. Create a golden file by running `go test --update .`", err)
