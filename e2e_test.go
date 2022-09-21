@@ -119,11 +119,11 @@ func TestCheckCommandE2E(t *testing.T) {
 		wantExitCode   int
 	}{
 		{"testdata/modules/hello01", nil, "output-check-forbidden.txt", 0},
-		{"testdata/modules/hello01", []string{"--exclude-notice=true"}, "output-check-notice-forbidden.txt", 1},
+		{"testdata/modules/hello01", []string{"--exclude_notice=true"}, "output-check-notice-forbidden.txt", 1},
 		{"testdata/modules/cli02", nil, "output-check-forbidden.txt", 0},
-		{"testdata/modules/cli02", []string{"--exclude-notice=true"}, "output-check-notice-forbidden.txt", 1},
-		{"testdata/modules/cli02", []string{"--allowed-license-names=Apache-2.0"}, "output-check-license-names-1.txt", 1},
-		{"testdata/modules/cli02", []string{"--allowed-license-names=Apache-2.0,MIT"}, "output-check-license-names-2.txt", 1},
+		{"testdata/modules/cli02", []string{"--exclude_notice=true"}, "output-check-notice-forbidden.txt", 1},
+		{"testdata/modules/cli02", []string{"--allowed_license_names=Apache-2.0"}, "output-check-license-names-1.txt", 1},
+		{"testdata/modules/cli02", []string{"--allowed_license_names=Apache-2.0,MIT"}, "output-check-license-names-2.txt", 1},
 	}
 
 	originalWorkDir, err := os.Getwd()

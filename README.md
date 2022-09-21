@@ -179,6 +179,8 @@ for licenses considered forbidden.
 
 ## Usages
 
+### Report
+
 Report usage (default csv output):
 
 ```shell
@@ -191,17 +193,42 @@ Report usage (using custom template file):
 go-licenses report <package> [package...] --template=<template_file>
 ```
 
+### Save
+
 Save licenses, copyright notices and source code (depending on license type):
 
 ```shell
 go-licenses save <package> [package...] --save_path=<save_path>
 ```
 
+### Check
+
 Checking for forbidden licenses usage:
 
 ```shell
-go-licenses check <package> [package...]
+go-licenses check <package> [package...] 
 ```
+
+Checking for excluded license types:
+
+```shell
+go-licenses check <package> [package...] --exclude_forbidden=<bool> --exclude_notice=<bool> --exclude_permissive=<bool> --exclude_reciprocal=<bool> --exclude_restricted=<bool> --exclude_unencumbered=<bool> 
+```
+* See forbidden list: [github.com/google/licenseclassifier](https://github.com/google/licenseclassifier/blob/e6a9bb99b5a6f71d5a34336b8245e305f5430f99/license_type.go#L341)
+* See notice list:  [github.com/google/licenseclassifier](https://github.com/google/licenseclassifier/blob/e6a9bb99b5a6f71d5a34336b8245e305f5430f99/license_type.go#L249)
+* See permissive list:  [github.com/google/licenseclassifier](https://github.com/google/licenseclassifier/blob/e6a9bb99b5a6f71d5a34336b8245e305f5430f99/license_type.go#L321)
+* See reciprocal list:  [github.com/google/licenseclassifier](https://github.com/google/licenseclassifier/blob/e6a9bb99b5a6f71d5a34336b8245e305f5430f99/license_type.go#L225)
+* See restricted list:  [github.com/google/licenseclassifier](https://github.com/google/licenseclassifier/blob/e6a9bb99b5a6f71d5a34336b8245e305f5430f99/license_type.go#L185)
+* See unencumbered list:  [github.com/google/licenseclassifier](https://github.com/google/licenseclassifier/blob/e6a9bb99b5a6f71d5a34336b8245e305f5430f99/license_type.go#L324)
+
+Allow only specific license names:
+
+```shell
+go-licenses check <package> [package...] --allowed_license_names=<comma separated license names> 
+```
+
+* See supported license names: [github.com/google/licenseclassifier](https://github.com/google/licenseclassifier/blob/e6a9bb99b5a6f71d5a34336b8245e305f5430f99/license_type.go#L28)  
+
 
 Typically, specify the Go package that builds your Go binary.
 go-licenses expects the same package argument format as `go build`.  For examples:

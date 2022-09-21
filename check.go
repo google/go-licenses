@@ -48,14 +48,14 @@ var (
 )
 
 func init() {
-	checkCmd.Flags().StringSliceVar(&allowedLicenseNames, "allowed-license-names", []string{}, "list of allowed license names")
+	checkCmd.Flags().StringSliceVar(&allowedLicenseNames, "allowed_license_names", []string{}, "list of allowed license names")
 
-	checkCmd.Flags().BoolVarP(&excludeForbidden, "exclude-forbidden", "", true, "exclude forbidden licenses")
-	checkCmd.Flags().BoolVarP(&excludeNotice, "exclude-notice", "", false, "exclude notice licenses")
-	checkCmd.Flags().BoolVarP(&excludePermissive, "exclude-permissive", "", false, "exclude permissive licenses")
-	checkCmd.Flags().BoolVarP(&excludeReciprocal, "exclude-reciprocal", "", false, "exclude reciprocal licenses")
-	checkCmd.Flags().BoolVarP(&excludeRestricted, "exclude-restricted", "", false, "exclude restricted licenses")
-	checkCmd.Flags().BoolVarP(&excludeUnencumbered, "exclude-unencumbered", "", false, "exclude unencumbered licenses")
+	checkCmd.Flags().BoolVarP(&excludeForbidden, "exclude_forbidden", "", true, "exclude forbidden licenses")
+	checkCmd.Flags().BoolVarP(&excludeNotice, "exclude_notice", "", false, "exclude notice licenses")
+	checkCmd.Flags().BoolVarP(&excludePermissive, "exclude_permissive", "", false, "exclude permissive licenses")
+	checkCmd.Flags().BoolVarP(&excludeReciprocal, "exclude_reciprocal", "", false, "exclude reciprocal licenses")
+	checkCmd.Flags().BoolVarP(&excludeRestricted, "exclude_restricted", "", false, "exclude restricted licenses")
+	checkCmd.Flags().BoolVarP(&excludeUnencumbered, "exclude_unencumbered", "", false, "exclude unencumbered licenses")
 
 	rootCmd.AddCommand(checkCmd)
 }
