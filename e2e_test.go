@@ -124,6 +124,7 @@ func TestCheckCommandE2E(t *testing.T) {
 		{"testdata/modules/cli02", []string{"--exclude_notice=true"}, "output-check-notice-forbidden.txt", 1},
 		{"testdata/modules/cli02", []string{"--allowed_license_names=Apache-2.0"}, "output-check-license-names-1.txt", 1},
 		{"testdata/modules/cli02", []string{"--allowed_license_names=Apache-2.0,MIT"}, "output-check-license-names-2.txt", 1},
+		{"testdata/modules/cli02", []string{"--allowed_license_names= Apache-2.0, MIT"}, "output-check-license-names-2.txt", 1},
 	}
 
 	originalWorkDir, err := os.Getwd()
