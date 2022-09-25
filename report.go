@@ -21,9 +21,13 @@ import (
 	"os"
 	"text/template"
 
-	"k8s.io/klog/v2"
 	"github.com/google/go-licenses/licenses"
 	"github.com/spf13/cobra"
+	"k8s.io/klog/v2"
+)
+
+const (
+	UNKNOWN = "Unknown"
 )
 
 var (
@@ -49,6 +53,7 @@ type libraryData struct {
 	Name        string
 	LicenseURL  string
 	LicenseName string
+	Version     string
 }
 
 func reportMain(_ *cobra.Command, args []string) error {
@@ -64,10 +69,15 @@ func reportMain(_ *cobra.Command, args []string) error {
 
 	var reportData []libraryData
 	for _, lib := range libs {
+		version := lib.Version()
+		if len(version) == 0 {
+			version = UNKNOWN
+		}
 		libData := libraryData{
 			Name:        lib.Name(),
-			LicenseURL:  "Unknown",
-			LicenseName: "Unknown",
+			Version:     version,
+			LicenseURL:  UNKNOWN,
+			LicenseName: UNKNOWN,
 		}
 		if lib.LicensePath != "" {
 			name, _, err := classifier.Identify(lib.LicensePath)
