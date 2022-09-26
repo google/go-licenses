@@ -28,7 +28,7 @@ import (
 )
 
 var (
-	checkHelp = "Checks whether licenses for a package are not Forbidden."
+	checkHelp = "Checks whether licenses for a package are not allowed."
 	checkCmd  = &cobra.Command{
 		Use:   "check <package> [package...]",
 		Short: checkHelp,
@@ -37,42 +37,34 @@ var (
 		RunE:  checkMain,
 	}
 
-	allowedLicenseNames []string
-
-	excludeForbidden    bool
-	excludeNotice       bool
-	excludePermissive   bool
-	excludeReciprocal   bool
-	excludeRestricted   bool
-	excludeUnencumbered bool
+	allowedLicenses []string
+	disallowedTypes []string
 )
 
 func init() {
-	checkCmd.Flags().StringSliceVar(&allowedLicenseNames, "allowed_license_names", []string{}, "list of allowed license names")
-
-	checkCmd.Flags().BoolVarP(&excludeForbidden, "exclude_forbidden", "", true, "exclude forbidden licenses")
-	checkCmd.Flags().BoolVarP(&excludeNotice, "exclude_notice", "", false, "exclude notice licenses")
-	checkCmd.Flags().BoolVarP(&excludePermissive, "exclude_permissive", "", false, "exclude permissive licenses")
-	checkCmd.Flags().BoolVarP(&excludeReciprocal, "exclude_reciprocal", "", false, "exclude reciprocal licenses")
-	checkCmd.Flags().BoolVarP(&excludeRestricted, "exclude_restricted", "", false, "exclude restricted licenses")
-	checkCmd.Flags().BoolVarP(&excludeUnencumbered, "exclude_unencumbered", "", false, "exclude unencumbered licenses")
+	checkCmd.Flags().StringSliceVar(&allowedLicenses, "allowed_licenses", []string{}, "list of allowed license names")
+	checkCmd.Flags().StringSliceVar(&disallowedTypes, "disallowed_types", []string{}, "list of disallowed license types")
 
 	rootCmd.AddCommand(checkCmd)
 }
 
 func checkMain(_ *cobra.Command, args []string) error {
-	excludedLicenseTypes := make([]licenses.Type, 0)
+	disallowedLicenseTypes := make([]licenses.Type, 0)
 
-	checkLicenseName, checkLicenseType := true, false
 	allowedLicenseNames := getAllowedLicenseNames()
+	disallowedLicenseTypes = getDisallowedLicenseTypes()
 
-	if len(allowedLicenseNames) == 0 {
-		checkLicenseName, checkLicenseType = false, true
-		excludedLicenseTypes = getExcludedLicenseTypes()
+	hasLicenseNames := len(allowedLicenseNames) > 0
+	hasLicenseType := len(disallowedLicenseTypes) > 0
 
-		if len(excludedLicenseTypes) == 0 {
-			return errors.New("nothing configured to check")
-		}
+	if hasLicenseNames && hasLicenseType {
+		return errors.New("allowed_licenses && disallowed_types can't be used at the same time")
+	}
+
+	if !hasLicenseNames && !hasLicenseType {
+		// fallback to original behaviour to avoid breaking changes
+		disallowedLicenseTypes = []licenses.Type{licenses.Forbidden}
+		hasLicenseType = true
 	}
 
 	classifier, err := licenses.NewClassifier(confidenceThreshold)
@@ -94,12 +86,12 @@ func checkMain(_ *cobra.Command, args []string) error {
 			return err
 		}
 
-		if checkLicenseName && !isAllowedLicenseName(licenseName, allowedLicenseNames) {
+		if hasLicenseNames && !isAllowedLicenseName(licenseName, allowedLicenseNames) {
 			fmt.Fprintf(os.Stderr, "Not allowed license %s found for library %v\n", licenseName, lib)
 			found = true
 		}
 
-		if checkLicenseType && isExcludedLicenseType(licenseType, excludedLicenseTypes) {
+		if hasLicenseType && isDisallowedLicenseType(licenseType, disallowedLicenseTypes) {
 			fmt.Fprintf(os.Stderr, "%s license type %s found for library %v\n", cases.Title(language.English).String(licenseType.String()), licenseName, lib)
 			found = true
 		}
@@ -112,37 +104,36 @@ func checkMain(_ *cobra.Command, args []string) error {
 	return nil
 }
 
-func getExcludedLicenseTypes() []licenses.Type {
+func getDisallowedLicenseTypes() []licenses.Type {
+	if len(disallowedTypes) == 0 {
+		return []licenses.Type{}
+	}
+
 	excludedLicenseTypes := make([]licenses.Type, 0)
 
-	if excludeForbidden {
-		excludedLicenseTypes = append(excludedLicenseTypes, licenses.Forbidden)
-	}
-
-	if excludeNotice {
-		excludedLicenseTypes = append(excludedLicenseTypes, licenses.Notice)
-	}
-
-	if excludePermissive {
-		excludedLicenseTypes = append(excludedLicenseTypes, licenses.Permissive)
-	}
-
-	if excludeReciprocal {
-		excludedLicenseTypes = append(excludedLicenseTypes, licenses.Reciprocal)
-	}
-
-	if excludeRestricted {
-		excludedLicenseTypes = append(excludedLicenseTypes, licenses.Restricted)
-	}
-
-	if excludeUnencumbered {
-		excludedLicenseTypes = append(excludedLicenseTypes, licenses.Unencumbered)
+	for _, v := range disallowedTypes {
+		switch strings.TrimSpace(strings.ToLower(v)) {
+		case "forbidden":
+			excludedLicenseTypes = append(excludedLicenseTypes, licenses.Forbidden)
+		case "notice":
+			excludedLicenseTypes = append(excludedLicenseTypes, licenses.Notice)
+		case "permissive":
+			excludedLicenseTypes = append(excludedLicenseTypes, licenses.Permissive)
+		case "reciprocal":
+			excludedLicenseTypes = append(excludedLicenseTypes, licenses.Reciprocal)
+		case "restricted":
+			excludedLicenseTypes = append(excludedLicenseTypes, licenses.Restricted)
+		case "unencumbered":
+			excludedLicenseTypes = append(excludedLicenseTypes, licenses.Unencumbered)
+		default:
+			fmt.Fprintf(os.Stderr, "Unknown license type '%s' provided", v)
+		}
 	}
 
 	return excludedLicenseTypes
 }
 
-func isExcludedLicenseType(licenseType licenses.Type, excludedLicenseTypes []licenses.Type) bool {
+func isDisallowedLicenseType(licenseType licenses.Type, excludedLicenseTypes []licenses.Type) bool {
 	for _, excluded := range excludedLicenseTypes {
 		if excluded == licenseType {
 			return true
@@ -153,13 +144,13 @@ func isExcludedLicenseType(licenseType licenses.Type, excludedLicenseTypes []lic
 }
 
 func getAllowedLicenseNames() []string {
-	if len(allowedLicenseNames) == 0 {
+	if len(allowedLicenses) == 0 {
 		return []string{}
 	}
 
 	var allowed []string
 
-	for _, licenseName := range allowedLicenseNames {
+	for _, licenseName := range allowedLicenses {
 		allowed = append(allowed, strings.TrimSpace(licenseName))
 	}
 
