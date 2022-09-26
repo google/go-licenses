@@ -42,8 +42,8 @@ var (
 )
 
 func init() {
-	checkCmd.Flags().StringSliceVar(&allowedLicenses, "allowed_licenses", []string{}, "list of allowed license names")
-	checkCmd.Flags().StringSliceVar(&disallowedTypes, "disallowed_types", []string{}, "list of disallowed license types")
+	checkCmd.Flags().StringSliceVar(&allowedLicenses, "allowed_licenses", []string{}, "list of allowed license names, can't be used in combination with disallowed_types")
+	checkCmd.Flags().StringSliceVar(&disallowedTypes, "disallowed_types", []string{}, "list of disallowed license types, can't be used in combination with allowed_licenses")
 
 	rootCmd.AddCommand(checkCmd)
 }
