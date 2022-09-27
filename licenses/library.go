@@ -277,6 +277,13 @@ func (l *Library) FileURL(ctx context.Context, filePath string) (string, error) 
 	return remote.FileURL(relativePath), nil
 }
 
+func (l *Library) Version() string {
+	if l.module != nil {
+		return l.module.Version
+	}
+	return ""
+}
+
 // isStdLib returns true if this package is part of the Go standard library.
 func isStdLib(pkg *packages.Package) bool {
 	if pkg.Name == "unsafe" {
