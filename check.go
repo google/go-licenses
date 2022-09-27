@@ -43,7 +43,7 @@ var (
 
 func init() {
 	checkCmd.Flags().StringSliceVar(&allowedLicenses, "allowed_licenses", []string{}, "list of allowed license names, can't be used in combination with disallowed_types")
-	checkCmd.Flags().StringSliceVar(&disallowedTypes, "disallowed_types", []string{}, "list of disallowed license types, can't be used in combination with allowed_licenses")
+	checkCmd.Flags().StringSliceVar(&disallowedTypes, "disallowed_types", []string{}, "list of disallowed license types, can't be used in combination with allowed_licenses (default: forbidden, unknown)")
 
 	rootCmd.AddCommand(checkCmd)
 }
@@ -63,7 +63,7 @@ func checkMain(_ *cobra.Command, args []string) error {
 
 	if !hasLicenseNames && !hasLicenseType {
 		// fallback to original behaviour to avoid breaking changes
-		disallowedLicenseTypes = []licenses.Type{licenses.Forbidden}
+		disallowedLicenseTypes = []licenses.Type{licenses.Forbidden, licenses.Unknown}
 		hasLicenseType = true
 	}
 
@@ -92,7 +92,12 @@ func checkMain(_ *cobra.Command, args []string) error {
 		}
 
 		if hasLicenseType && isDisallowedLicenseType(licenseType, disallowedLicenseTypes) {
-			fmt.Fprintf(os.Stderr, "%s license type %s found for library %v\n", cases.Title(language.English).String(licenseType.String()), licenseName, lib)
+			fmt.Fprintf(
+				os.Stderr,
+				"%s license type %s found for library %v\n",
+				cases.Title(language.English).String(licenseType.String()),
+				licenseName,
+				lib)
 			found = true
 		}
 	}
@@ -125,8 +130,14 @@ func getDisallowedLicenseTypes() []licenses.Type {
 			excludedLicenseTypes = append(excludedLicenseTypes, licenses.Restricted)
 		case "unencumbered":
 			excludedLicenseTypes = append(excludedLicenseTypes, licenses.Unencumbered)
+		case "unknown":
+			excludedLicenseTypes = append(excludedLicenseTypes, licenses.Unknown)
 		default:
-			fmt.Fprintf(os.Stderr, "Unknown license type '%s' provided", v)
+			fmt.Fprintf(
+				os.Stderr,
+				"Unknown license type '%s' provided.\n"+
+					"Allowed types: forbidden, notice, permissive, reciprocal, restricted, unencumbered, unknown\n",
+				v)
 		}
 	}
 

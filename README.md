@@ -204,7 +204,7 @@ go-licenses save <package> [package...] --save_path=<save_path>
 
 ### Check
 
-Checking for forbidden licenses usage:
+Checking for forbidden and unknown licenses usage:
 
 ```shell
 go-licenses check <package> [package...] 
@@ -216,12 +216,14 @@ Checking for disallowed license types:
 go-licenses check <package> [package...] --disallowed_types=<comma separated license types> 
 ```
 
+Supported license types:
 * See `forbidden` list: [github.com/google/licenseclassifier](https://github.com/google/licenseclassifier/blob/e6a9bb99b5a6f71d5a34336b8245e305f5430f99/license_type.go#L341)
 * See `notice` list:  [github.com/google/licenseclassifier](https://github.com/google/licenseclassifier/blob/e6a9bb99b5a6f71d5a34336b8245e305f5430f99/license_type.go#L249)
 * See `permissive` list:  [github.com/google/licenseclassifier](https://github.com/google/licenseclassifier/blob/e6a9bb99b5a6f71d5a34336b8245e305f5430f99/license_type.go#L321)
 * See `reciprocal` list:  [github.com/google/licenseclassifier](https://github.com/google/licenseclassifier/blob/e6a9bb99b5a6f71d5a34336b8245e305f5430f99/license_type.go#L225)
 * See `restricted` list:  [github.com/google/licenseclassifier](https://github.com/google/licenseclassifier/blob/e6a9bb99b5a6f71d5a34336b8245e305f5430f99/license_type.go#L185)
 * See `unencumbered` list:  [github.com/google/licenseclassifier](https://github.com/google/licenseclassifier/blob/e6a9bb99b5a6f71d5a34336b8245e305f5430f99/license_type.go#L324)
+* `unknown`
 
 Allow only specific license names:
 
