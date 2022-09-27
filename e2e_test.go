@@ -41,6 +41,7 @@ func TestReportCommandE2E(t *testing.T) {
 		{"testdata/modules/replace04", nil, "licenses.csv"},
 
 		{"testdata/modules/hello01", []string{"--template", "licenses.tpl"}, "licenses.md"},
+		{"testdata/modules/template01", []string{"--template", "licenses.tpl"}, "licenses.md"},
 	}
 
 	originalWorkDir, err := os.Getwd()

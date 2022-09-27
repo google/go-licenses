@@ -148,6 +148,7 @@ data:
 ```go
 []struct {
   Name        string
+  Version     string
   LicenseURL  string
   LicenseName string
 }

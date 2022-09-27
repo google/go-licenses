@@ -49,7 +49,7 @@ func init() {
 }
 
 func checkMain(_ *cobra.Command, args []string) error {
-	disallowedLicenseTypes := make([]licenses.Type, 0)
+	var disallowedLicenseTypes []licenses.Type
 
 	allowedLicenseNames := getAllowedLicenseNames()
 	disallowedLicenseTypes = getDisallowedLicenseTypes()
