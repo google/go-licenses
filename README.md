@@ -180,6 +180,17 @@ for licenses considered forbidden.
 
 ## Usages
 
+### Global
+Typically, specify the Go package that builds your Go binary.
+go-licenses expects the same package argument format as `go build`.  For examples:
+
+* A rooted import path like `github.com/google/go-licenses` or `github.com/google/go-licenses/licenses`.
+* A relative path that denotes the package in that directory, like `.` or `./cmd/some-command`.
+
+To learn more about package argument, run `go help packages`.
+
+To learn more about go-licenses usages, run `go-licenses help`.
+
 ### Report
 
 Report usage (default csv output):
@@ -233,18 +244,7 @@ go-licenses check <package> [package...] --allowed_licenses=<comma separated lic
 
 * See supported license names: [github.com/google/licenseclassifier](https://github.com/google/licenseclassifier/blob/e6a9bb99b5a6f71d5a34336b8245e305f5430f99/license_type.go#L28)  
 
-
-Typically, specify the Go package that builds your Go binary.
-go-licenses expects the same package argument format as `go build`.  For examples:
-
-* A rooted import path like `github.com/google/go-licenses` or `github.com/google/go-licenses/licenses`.
-* A relative path that denotes the package in that directory, like `.` or `./cmd/some-command`.
-
-To learn more about package argument, run `go help packages`.
-
-To learn more about go-licenses usages, run `go-licenses help`.
-
-## Build tags
+### Build tags
 
 To read dependencies from packages with
 [build tags](https://golang.org/pkg/go/build/#hdr-Build_Constraints). Use the
@@ -263,7 +263,7 @@ github.com/client9/misspell,https://github.com/client9/misspell/blob/master/LICE
 github.com/golang/protobuf/proto,https://github.com/golang/protobuf/blob/master/proto/LICENSE,BSD-3-Clause
 ```
 
-## Ignoring packages
+### Ignoring packages
 
 Use the `--ignore` global flag to specify package path prefixes to be ignored.
 For example, to ignore your organization's internal packages under `github.com/example-corporation`:
