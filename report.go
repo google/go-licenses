@@ -17,7 +17,6 @@ package main
 import (
 	"context"
 	"encoding/csv"
-	"io/ioutil"
 	"os"
 	"text/template"
 
@@ -115,7 +114,7 @@ func reportCSV(libs []libraryData) error {
 }
 
 func reportTemplate(libs []libraryData) error {
-	templateBytes, err := ioutil.ReadFile(templateFile)
+	templateBytes, err := os.ReadFile(templateFile)
 	if err != nil {
 		return err
 	}

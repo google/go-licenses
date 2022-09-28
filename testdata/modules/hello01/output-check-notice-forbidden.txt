@@ -1,0 +1,1 @@
+Notice license type Apache-2.0 found for library github.com/google/go-licenses/testdata/modules/hello01

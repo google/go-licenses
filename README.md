@@ -180,6 +180,19 @@ for licenses considered forbidden.
 
 ## Usages
 
+### Global
+Typically, specify the Go package that builds your Go binary.
+go-licenses expects the same package argument format as `go build`.  For examples:
+
+* A rooted import path like `github.com/google/go-licenses` or `github.com/google/go-licenses/licenses`.
+* A relative path that denotes the package in that directory, like `.` or `./cmd/some-command`.
+
+To learn more about package argument, run `go help packages`.
+
+To learn more about go-licenses usages, run `go-licenses help`.
+
+### Report
+
 Report usage (default csv output):
 
 ```shell
@@ -192,29 +205,46 @@ Report usage (using custom template file):
 go-licenses report <package> [package...] --template=<template_file>
 ```
 
+### Save
+
 Save licenses, copyright notices and source code (depending on license type):
 
 ```shell
 go-licenses save <package> [package...] --save_path=<save_path>
 ```
 
-Checking for forbidden licenses usage:
+### Check
+
+Checking for forbidden and unknown licenses usage:
 
 ```shell
-go-licenses check <package> [package...]
+go-licenses check <package> [package...] 
 ```
 
-Typically, specify the Go package that builds your Go binary.
-go-licenses expects the same package argument format as `go build`.  For examples:
+Checking for disallowed license types:
 
-* A rooted import path like `github.com/google/go-licenses` or `github.com/google/go-licenses/licenses`.
-* A relative path that denotes the package in that directory, like `.` or `./cmd/some-command`.
+```shell
+go-licenses check <package> [package...] --disallowed_types=<comma separated license types> 
+```
 
-To learn more about package argument, run `go help packages`.
+Supported license types:
+* See `forbidden` list: [github.com/google/licenseclassifier](https://github.com/google/licenseclassifier/blob/e6a9bb99b5a6f71d5a34336b8245e305f5430f99/license_type.go#L341)
+* See `notice` list:  [github.com/google/licenseclassifier](https://github.com/google/licenseclassifier/blob/e6a9bb99b5a6f71d5a34336b8245e305f5430f99/license_type.go#L249)
+* See `permissive` list:  [github.com/google/licenseclassifier](https://github.com/google/licenseclassifier/blob/e6a9bb99b5a6f71d5a34336b8245e305f5430f99/license_type.go#L321)
+* See `reciprocal` list:  [github.com/google/licenseclassifier](https://github.com/google/licenseclassifier/blob/e6a9bb99b5a6f71d5a34336b8245e305f5430f99/license_type.go#L225)
+* See `restricted` list:  [github.com/google/licenseclassifier](https://github.com/google/licenseclassifier/blob/e6a9bb99b5a6f71d5a34336b8245e305f5430f99/license_type.go#L185)
+* See `unencumbered` list:  [github.com/google/licenseclassifier](https://github.com/google/licenseclassifier/blob/e6a9bb99b5a6f71d5a34336b8245e305f5430f99/license_type.go#L324)
+* `unknown`
 
-To learn more about go-licenses usages, run `go-licenses help`.
+Allow only specific license names:
 
-## Build tags
+```shell
+go-licenses check <package> [package...] --allowed_licenses=<comma separated license names> 
+```
+
+* See supported license names: [github.com/google/licenseclassifier](https://github.com/google/licenseclassifier/blob/e6a9bb99b5a6f71d5a34336b8245e305f5430f99/license_type.go#L28)  
+
+### Build tags
 
 To read dependencies from packages with
 [build tags](https://golang.org/pkg/go/build/#hdr-Build_Constraints). Use the
@@ -233,7 +263,7 @@ github.com/client9/misspell,https://github.com/client9/misspell/blob/master/LICE
 github.com/golang/protobuf/proto,https://github.com/golang/protobuf/blob/master/proto/LICENSE,BSD-3-Clause
 ```
 
-## Ignoring packages
+### Ignoring packages
 
 Use the `--ignore` global flag to specify package path prefixes to be ignored.
 For example, to ignore your organization's internal packages under `github.com/example-corporation`:

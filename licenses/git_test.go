@@ -15,7 +15,6 @@
 package licenses
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -26,7 +25,7 @@ import (
 func TestGitFileURL(t *testing.T) {
 	t.Parallel()
 
-	dir, err := ioutil.TempDir("", "git_test")
+	dir, err := os.MkdirTemp("", "git_test")
 	if err != nil {
 		t.Fatal(err)
 	}
