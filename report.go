@@ -26,101 +26,103 @@ import (
 )
 
 const (
-	UNKNOWN = "Unknown"
+  UNKNOWN = "Unknown"
 )
 
 var (
-	reportHelp = "Prints report of all licenses that apply to one or more Go packages and their dependencies."
-	reportCmd  = &cobra.Command{
-		Use:   "report <package> [package...]",
-		Short: reportHelp,
-		Long:  reportHelp + packageHelp,
-		Args:  cobra.MinimumNArgs(1),
-		RunE:  reportMain,
-	}
+  reportHelp = "Prints report of all licenses that apply to one or more Go packages and their dependencies."
+  reportCmd  = &cobra.Command{
+    Use:   "report <package> [package...]",
+    Short: reportHelp,
+    Long:  reportHelp + packageHelp,
+    Args:  cobra.MinimumNArgs(1),
+    RunE:  reportMain,
+  }
 
-	templateFile string
+  templateFile string
 )
 
 func init() {
-	reportCmd.Flags().StringVar(&templateFile, "template", "", "Custom Go template file to use for report")
+  reportCmd.Flags().StringVar(&templateFile, "template", "", "Custom Go template file to use for report")
 
-	rootCmd.AddCommand(reportCmd)
+  rootCmd.AddCommand(reportCmd)
 }
 
 type libraryData struct {
-	Name        string
-	LicenseURL  string
-	LicenseName string
-	Version     string
+  Name        string
+  LicenseURL  string
+  LicenseName string
+  Version     string
 }
 
 func reportMain(_ *cobra.Command, args []string) error {
-	classifier, err := licenses.NewClassifier(confidenceThreshold)
-	if err != nil {
-		return err
-	}
+  classifier, err := licenses.NewClassifier(confidenceThreshold)
+  if err != nil {
+    klog.Warningf("licenses.NewClassifier: %v", err)
+    return nil
+  }
 
-	libs, err := licenses.Libraries(context.Background(), classifier, ignore, args...)
-	if err != nil {
-		return err
-	}
+  libs, err := licenses.Libraries(context.Background(), classifier, ignore, args...)
+  if err != nil {
+    klog.Warningf("licenses.Libraries: swallowing errors")
+    return nil
+  }
 
-	var reportData []libraryData
-	for _, lib := range libs {
-		version := lib.Version()
-		if len(version) == 0 {
-			version = UNKNOWN
-		}
-		libData := libraryData{
-			Name:        lib.Name(),
-			Version:     version,
-			LicenseURL:  UNKNOWN,
-			LicenseName: UNKNOWN,
-		}
-		if lib.LicensePath != "" {
-			name, _, err := classifier.Identify(lib.LicensePath)
-			if err == nil {
-				libData.LicenseName = name
-			} else {
-				klog.Errorf("Error identifying license in %q: %v", lib.LicensePath, err)
-			}
-			url, err := lib.FileURL(context.Background(), lib.LicensePath)
-			if err == nil {
-				libData.LicenseURL = url
-			} else {
-				klog.Warningf("Error discovering license URL: %s", err)
-			}
-		}
-		reportData = append(reportData, libData)
-	}
+  var reportData []libraryData
+  for _, lib := range libs {
+    version := lib.Version()
+    if len(version) == 0 {
+      version = UNKNOWN
+    }
+    libData := libraryData{
+      Name:        lib.Name(),
+      Version:     version,
+      LicenseURL:  UNKNOWN,
+      LicenseName: UNKNOWN,
+    }
+    if lib.LicensePath != "" {
+      name, _, err := classifier.Identify(lib.LicensePath)
+      if err == nil {
+        libData.LicenseName = name
+      } else {
+        klog.Errorf("Error identifying license in %q: %v", lib.LicensePath, err)
+      }
+      url, err := lib.FileURL(context.Background(), lib.LicensePath)
+      if err == nil {
+        libData.LicenseURL = url
+      } else {
+        klog.Warningf("Error discovering license URL: %s", err)
+      }
+    }
+    reportData = append(reportData, libData)
+  }
 
-	if templateFile == "" {
-		return reportCSV(reportData)
-	} else {
-		return reportTemplate(reportData)
-	}
+  if templateFile == "" {
+    return reportCSV(reportData)
+  } else {
+    return reportTemplate(reportData)
+  }
 }
 
 func reportCSV(libs []libraryData) error {
-	writer := csv.NewWriter(os.Stdout)
-	for _, lib := range libs {
-		if err := writer.Write([]string{lib.Name, lib.LicenseURL, lib.LicenseName}); err != nil {
-			return err
-		}
-	}
-	writer.Flush()
-	return writer.Error()
+  writer := csv.NewWriter(os.Stdout)
+  for _, lib := range libs {
+    if err := writer.Write([]string{lib.Name, lib.LicenseURL, lib.LicenseName}); err != nil {
+      return err
+    }
+  }
+  writer.Flush()
+  return writer.Error()
 }
 
 func reportTemplate(libs []libraryData) error {
-	templateBytes, err := os.ReadFile(templateFile)
-	if err != nil {
-		return err
-	}
-	tmpl, err := template.New("").Parse(string(templateBytes))
-	if err != nil {
-		return err
-	}
-	return tmpl.Execute(os.Stdout, libs)
+  templateBytes, err := os.ReadFile(templateFile)
+  if err != nil {
+    return err
+  }
+  tmpl, err := template.New("").Parse(string(templateBytes))
+  if err != nil {
+    return err
+  }
+  return tmpl.Execute(os.Stdout, libs)
 }

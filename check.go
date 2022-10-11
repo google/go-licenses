@@ -18,6 +18,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"k8s.io/klog/v2"
 	"os"
 	"strings"
 
@@ -69,12 +70,14 @@ func checkMain(_ *cobra.Command, args []string) error {
 
 	classifier, err := licenses.NewClassifier(confidenceThreshold)
 	if err != nil {
-		return err
+		klog.Warningf("licenses.NewClassifier: %v", err)
+		return nil
 	}
 
 	libs, err := licenses.Libraries(context.Background(), classifier, ignore, args...)
 	if err != nil {
-		return err
+		klog.Warningf("licenses.Libraries: swallowing errors")
+		return nil
 	}
 
 	// indicate that a forbidden license was found

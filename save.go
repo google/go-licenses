@@ -71,12 +71,14 @@ func saveMain(_ *cobra.Command, args []string) error {
 
 	classifier, err := licenses.NewClassifier(confidenceThreshold)
 	if err != nil {
-		return err
+		klog.Warningf("licenses.NewClassifier: %v", err)
+		return nil
 	}
 
 	libs, err := licenses.Libraries(context.Background(), classifier, ignore, args...)
 	if err != nil {
-		return err
+		klog.Warningf("licenses.Libraries: swallowing errors")
+		return nil
 	}
 
 	// Check that the save path doesn't exist, otherwise it'd end up with a mix of

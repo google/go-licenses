@@ -53,7 +53,8 @@ func Find(dir string, rootDir string, classifier Classifier) (string, error) {
 	})
 	if err != nil {
 		if errors.Is(err, errNotFound) {
-			return "", fmt.Errorf("cannot find a known open source license for %q whose name matches regexp %s and locates up until %q", dir, licenseRegexp, rootDir)
+			return "", fmt.Errorf("not-found")
+			//return "", fmt.Errorf("cannot find a known open source license for %q whose name matches regexp %s and locates up until %q", dir, licenseRegexp, rootDir)
 		}
 		return "", fmt.Errorf("finding a known open source license: %w", err)
 	}

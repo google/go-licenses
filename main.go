@@ -72,7 +72,7 @@ func main() {
 	rootCmd.SilenceUsage = true  // to avoid usage/help output on error
 
 	if err := rootCmd.Execute(); err != nil {
-		klog.Exit(err)
+		klog.Warningf("rootCmd.Execute returned an error: %v", err)
 	}
 }
 

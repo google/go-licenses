@@ -67,6 +67,7 @@ func Libraries(ctx context.Context, classifier Classifier, ignoredPaths []string
 
 	rootPkgs, err := packages.Load(cfg, importPaths...)
 	if err != nil {
+		klog.Warningf("packages.Load: %v", err)
 		return nil, err
 	}
 
@@ -74,9 +75,22 @@ func Libraries(ctx context.Context, classifier Classifier, ignoredPaths []string
 	pkgsByLicense := make(map[string][]*packages.Package)
 	pkgErrorOccurred := false
 	otherErrorOccurred := false
+	var pkgErrorOccurredMsgs []string
 	packages.Visit(rootPkgs, func(p *packages.Package) bool {
 		if len(p.Errors) > 0 {
-			pkgErrorOccurred = true
+			for i, e := range p.Errors {
+				if strings.HasPrefix(e.Msg, "malformed import path") {
+					klog.Warningf("Libraries:packages.Visit: malformed import path: %v", p.PkgPath)
+				} else if strings.HasPrefix(e.Msg, "no required module provides package") {
+					klog.Warningf("Libraries:packages.Visit: no required module provides package: %v", p.PkgPath)
+				} else if strings.HasPrefix(e.Msg, "no Go files in") {
+					klog.Warningf("Libraries:packages.Visit: no Go files in: %v", p.PkgPath)
+				} else {
+					pkgErrorOccurred = true
+					pkgErrorOccurredMsgs = append(pkgErrorOccurredMsgs, fmt.Sprintf("p.Errors[%d]: %s: %+v", i, p.PkgPath, e.Msg))
+					klog.Warningf("p.Errors[%d]: %s: %+v", i, p.PkgPath, e.Msg)
+				}
+			}
 			return false
 		}
 		if isStdLib(p) {
@@ -112,18 +126,23 @@ func Libraries(ctx context.Context, classifier Classifier, ignoredPaths []string
 		}
 		licensePath, err := Find(pkgDir, p.Module.Dir, classifier)
 		if err != nil {
-			klog.Errorf("Failed to find license for %s: %v", p.PkgPath, err)
+			//klog.Errorf("Failed to find license for %s: %v", p.PkgPath, err)
+			klog.Errorf("%s: %v", p.PkgPath, err)
+		} else {
+			klog.Infof("%s: %v", p.PkgPath, licensePath)
 		}
 		pkgs[p.PkgPath] = p
 		pkgsByLicense[licensePath] = append(pkgsByLicense[licensePath], p)
 		return true
 	}, nil)
 	if pkgErrorOccurred {
+		klog.Warningf("pkgErrorOccurred: %v", err)
 		return nil, PackagesError{
 			pkgs: rootPkgs,
 		}
 	}
 	if otherErrorOccurred {
+		klog.Warningf("otherErrorOccurred: %v", pkgErrorOccurredMsgs)
 		return nil, fmt.Errorf("some errors occurred when loading direct and transitive dependency packages")
 	}
 
@@ -266,7 +285,8 @@ func (l *Library) FileURL(ctx context.Context, filePath string) (string, error) 
 		// * https://github.com/google/licenseclassifier/blob/HEAD/LICENSE
 		// points to latest commit of main branch.
 		remote.SetCommit("HEAD")
-		klog.Warningf("module %s has empty version, defaults to HEAD. The license URL may be incorrect. Please verify!", m.Path)
+		//klog.Warningf("module %s has empty version, defaults to HEAD. The license URL may be incorrect. Please verify!", m.Path)
+		klog.Warningf("module %s: The license URL may be incorrect. Please verify!", m.Path)
 	}
 	relativePath, err := filepath.Rel(m.Dir, filePath)
 	if err != nil {
