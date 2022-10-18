@@ -38,11 +38,12 @@ func TestLibraries(t *testing.T) {
 	}
 
 	for _, test := range []struct {
-		desc       string
-		importPath string
-		goflags    string
-		ignore     []string
-		wantLibs   []string
+		desc         string
+		importPath   string
+		goflags      string
+		includeTests bool
+		ignore       []string
+		wantLibs     []string
 	}{
 		{
 			desc:       "Detects direct dependency",
@@ -73,6 +74,24 @@ func TestLibraries(t *testing.T) {
 			},
 		},
 		{
+			desc:         "Detects the dependencies only imported in testing code",
+			importPath:   "github.com/google/go-licenses/licenses/testdata/testlib",
+			includeTests: true,
+			wantLibs: []string{
+				"github.com/google/go-licenses/licenses/testdata/testlib",
+				"github.com/google/go-licenses/licenses/testdata/testlib.test",
+				"github.com/google/go-licenses/licenses/testdata/indirect",
+			},
+		},
+		{
+			desc:         "Should not detect the dependencies only imported in testing code",
+			importPath:   "github.com/google/go-licenses/licenses/testdata/testlib",
+			includeTests: false,
+			wantLibs: []string{
+				"github.com/google/go-licenses/licenses/testdata/testlib",
+			},
+		},
+		{
 			desc:       "Build tagged package",
 			importPath: "github.com/google/go-licenses/licenses/testdata/tags",
 			goflags:    "-tags=tags",
@@ -87,7 +106,7 @@ func TestLibraries(t *testing.T) {
 				os.Setenv("GOFLAGS", test.goflags)
 				defer os.Unsetenv("GOFLAGS")
 			}
-			gotLibs, err := Libraries(context.Background(), classifier, test.ignore, test.importPath)
+			gotLibs, err := Libraries(context.Background(), classifier, test.includeTests, test.ignore, test.importPath)
 			if err != nil {
 				t.Fatalf("Libraries(_, %q) = (_, %q), want (_, nil)", test.importPath, err)
 			}
