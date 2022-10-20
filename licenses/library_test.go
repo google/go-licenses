@@ -79,7 +79,6 @@ func TestLibraries(t *testing.T) {
 			includeTests: true,
 			wantLibs: []string{
 				"github.com/google/go-licenses/licenses/testdata/testlib",
-				"github.com/google/go-licenses/licenses/testdata/testlib.test",
 				"github.com/google/go-licenses/licenses/testdata/indirect",
 			},
 		},
