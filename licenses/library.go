@@ -59,10 +59,11 @@ func (e PackagesError) Error() string {
 // A library is a collection of one or more packages covered by the same license file.
 // Packages not covered by a license will be returned as individual libraries.
 // Standard library packages will be ignored.
-func Libraries(ctx context.Context, classifier Classifier, ignoredPaths []string, importPaths ...string) ([]*Library, error) {
+func Libraries(ctx context.Context, classifier Classifier, includeTests bool, ignoredPaths []string, importPaths ...string) ([]*Library, error) {
 	cfg := &packages.Config{
 		Context: ctx,
 		Mode:    packages.NeedImports | packages.NeedDeps | packages.NeedFiles | packages.NeedName | packages.NeedModule,
+		Tests:   includeTests,
 	}
 
 	rootPkgs, err := packages.Load(cfg, importPaths...)
@@ -81,6 +82,12 @@ func Libraries(ctx context.Context, classifier Classifier, ignoredPaths []string
 		}
 		if isStdLib(p) {
 			// No license requirements for the Go standard library.
+			return false
+		}
+		if includeTests && isTestBinary(p) {
+			// A test binary only imports the standard library, so we do not need to check its license.
+			// Moreover, Find below will return an error because pkgDir is not under p.Module.Dir
+			// as pkgDir is under GOCACHE instead.
 			return false
 		}
 		for _, i := range ignoredPaths {
@@ -299,4 +306,9 @@ func isStdLib(pkg *packages.Package) bool {
 		prefix += sep
 	}
 	return strings.HasPrefix(pkg.GoFiles[0], prefix)
+}
+
+// isTestBinary returns true iff pkg is a test binary.
+func isTestBinary(pkg *packages.Package) bool {
+	return strings.HasSuffix(pkg.PkgPath, ".test")
 }

@@ -37,6 +37,7 @@ Prerequisites:
 
 	// Flags shared between subcommands
 	confidenceThreshold float64
+	includeTests        bool
 	ignore              []string
 	packageHelp         = `
 
@@ -62,6 +63,7 @@ func init() {
 		os.Exit(1)
 	}
 	rootCmd.PersistentFlags().Float64Var(&confidenceThreshold, "confidence_threshold", 0.9, "Minimum confidence required in order to positively identify a license.")
+	rootCmd.PersistentFlags().BoolVar(&includeTests, "include_tests", false, "Include packages only imported by testing code.")
 	rootCmd.PersistentFlags().StringSliceVar(&ignore, "ignore", nil, "Package path prefixes to be ignored. Dependencies from the ignored packages are still checked. Can be specified multiple times.")
 }
 
