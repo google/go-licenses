@@ -277,6 +277,20 @@ $ go-licenses check \
 Note that dependencies from the ignored packages are still resolved and checked.
 This flag makes effect to `check`, `report` and `save` commands.
 
+### Include testing packages
+
+Use the `--include_tests` global flag to include packages only imported by testing code.
+For example, those packages could be testing libraries/frameworks.
+Usually you would want to add this flag because if you're already analyzing the licenses of your dependencies,
+likely those packages also need to be taken into account.
+Example command:
+
+```shell
+go-licenses check --include_tests "github.com/google/go-licenses"
+```
+
+This flag makes effect to `check`, `report` and `save` commands.
+
 ## Warnings and errors
 
 The tool will log warnings and errors in some scenarios. This section provides
