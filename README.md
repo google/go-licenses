@@ -227,7 +227,7 @@ go-licenses check <package> [package...]
 * `--include_tests` to also check packages only imported by testing code (e.g., testing libraries/frameworks)
 
 ```shell
-go-licenses check --include_tests github.com/your-org/your-repo/...
+go-licenses check --include_tests github.com/google/go-licenses/...
 ```
 
 Checking for disallowed license types:
