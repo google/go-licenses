@@ -221,10 +221,10 @@ Checking for forbidden and unknown licenses usage:
 go-licenses check <package> [package...]
 ```
 
-**Tip**: Usually you'll want to add
+**Tip**: Usually you'll want to
 
-* `...` to check all the packages in your repository
-* `--include_tests` to also check packages only imported by testing code (e.g., testing libraries/frameworks)
+* append `/...` to the end of an import path prefix (e.g., your repo path) to include all packages matching that pattern
+* add `--include_tests` to also check packages only imported by testing code (e.g., testing libraries/frameworks)
 
 ```shell
 go-licenses check --include_tests github.com/google/go-licenses/...
