@@ -218,7 +218,16 @@ go-licenses save <package> [package...] --save_path=<save_path>
 Checking for forbidden and unknown licenses usage:
 
 ```shell
-go-licenses check <package> [package...] 
+go-licenses check <package> [package...]
+```
+
+**Tip**: Usually you'll want to
+
+* append `/...` to the end of an import path prefix (e.g., your repo path) to include all packages matching that pattern
+* add `--include_tests` to also check packages only imported by testing code (e.g., testing libraries/frameworks)
+
+```shell
+go-licenses check --include_tests github.com/google/go-licenses/...
 ```
 
 Checking for disallowed license types:
@@ -228,6 +237,7 @@ go-licenses check <package> [package...] --disallowed_types=<comma separated lic
 ```
 
 Supported license types:
+
 * See `forbidden` list: [github.com/google/licenseclassifier](https://github.com/google/licenseclassifier/blob/e6a9bb99b5a6f71d5a34336b8245e305f5430f99/license_type.go#L341)
 * See `notice` list:  [github.com/google/licenseclassifier](https://github.com/google/licenseclassifier/blob/e6a9bb99b5a6f71d5a34336b8245e305f5430f99/license_type.go#L249)
 * See `permissive` list:  [github.com/google/licenseclassifier](https://github.com/google/licenseclassifier/blob/e6a9bb99b5a6f71d5a34336b8245e305f5430f99/license_type.go#L321)
@@ -242,7 +252,7 @@ Allow only specific license names:
 go-licenses check <package> [package...] --allowed_licenses=<comma separated license names> 
 ```
 
-* See supported license names: [github.com/google/licenseclassifier](https://github.com/google/licenseclassifier/blob/e6a9bb99b5a6f71d5a34336b8245e305f5430f99/license_type.go#L28)  
+* See supported license names: [github.com/google/licenseclassifier](https://github.com/google/licenseclassifier/blob/e6a9bb99b5a6f71d5a34336b8245e305f5430f99/license_type.go#L28)
 
 ### Build tags
 
