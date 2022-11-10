@@ -16,7 +16,7 @@ require (
 	github.com/spf13/cobra v1.6.0
 	github.com/stretchr/testify v1.8.0 // indirect
 	go.opencensus.io v0.23.0
-	golang.org/x/mod v0.6.0
+	golang.org/x/mod v0.7.0
 	golang.org/x/net v0.2.0
 	golang.org/x/text v0.4.0
 	golang.org/x/tools v0.2.0
