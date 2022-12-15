@@ -20,7 +20,7 @@ require (
 	golang.org/x/mod v0.7.0
 	golang.org/x/net v0.4.0
 	golang.org/x/text v0.5.0
-	golang.org/x/tools v0.3.0
+	golang.org/x/tools v0.4.0
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/src-d/go-git.v4 v4.13.1
 	k8s.io/klog/v2 v2.80.1
