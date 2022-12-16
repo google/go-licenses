@@ -17,7 +17,10 @@ package main
 import (
 	"context"
 	"encoding/csv"
+	"io"
+	"net/http"
 	"os"
+	"strings"
 	"text/template"
 
 	"github.com/google/go-licenses/licenses"
@@ -50,9 +53,11 @@ func init() {
 
 type libraryData struct {
 	Name        string
+	ShortName   string
 	LicenseURL  string
 	LicenseName string
 	Version     string
+	License     string
 }
 
 func reportMain(_ *cobra.Command, args []string) error {
@@ -74,6 +79,7 @@ func reportMain(_ *cobra.Command, args []string) error {
 		}
 		libData := libraryData{
 			Name:        lib.Name(),
+			ShortName:   strings.Replace(lib.Name(), "github.com/", "", 1),
 			Version:     version,
 			LicenseURL:  UNKNOWN,
 			LicenseName: UNKNOWN,
@@ -88,6 +94,17 @@ func reportMain(_ *cobra.Command, args []string) error {
 			url, err := lib.FileURL(context.Background(), lib.LicensePath)
 			if err == nil {
 				libData.LicenseURL = url
+				rawUrl := strings.Replace(url, "github.com", "raw.githubusercontent.com", 1)
+				rawUrl = strings.Replace(rawUrl, "blob/", "", 1)
+				resp, err := http.Get(rawUrl)
+				if err != nil {
+					klog.Errorf("Error downloading license file from: %s, err: %v", rawUrl, err)
+				}
+				b, err := io.ReadAll(resp.Body)
+				if err != nil {
+					klog.Errorf("Error reading response body: %s, err: %v", rawUrl, err)
+				}
+				libData.License = string(b)
 			} else {
 				klog.Warningf("Error discovering license URL: %s", err)
 			}

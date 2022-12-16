@@ -148,9 +148,11 @@ data:
 ```go
 []struct {
   Name        string
-  Version     string
+  ShortName   string
   LicenseURL  string
   LicenseName string
+  Version     string
+  License     string
 }
 ```
 
@@ -181,6 +183,7 @@ for licenses considered forbidden.
 ## Usages
 
 ### Global
+
 Typically, specify the Go package that builds your Go binary.
 go-licenses expects the same package argument format as `go build`.  For examples:
 
