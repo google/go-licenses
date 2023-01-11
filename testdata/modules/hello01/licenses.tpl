@@ -1,3 +1,7 @@
 {{ range . }}
- - {{.Name}} ([{{.LicenseName}}]({{.LicenseURL}}))
+## {{.Name}} ([{{.LicenseName}}]({{.LicenseURL}}))
+
+```
+{{- licenseText . -}}
+```
 {{- end }}

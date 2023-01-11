@@ -151,8 +151,27 @@ data:
   Version     string
   LicenseURL  string
   LicenseName string
+  LicensePath string
 }
 ```
+
+The template is also passed a function `licenseText` which will render the text of the license stored at `LicensePath` if present.
+
+Example template rendering licenses as markdown:
+
+````
+{{ range . }}
+## {{ .Name }}
+
+* Name: {{ .Name }}
+* Version: {{ .Version }}
+* License: [{{ .LicenseName }}]({{ .LicenseURL }})
+
+```
+{{ licenseText . }}}
+```
+{{ end }}
+````
 
 ## Save licenses, copyright notices and source code (depending on license type)
 
