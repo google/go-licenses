@@ -57,6 +57,19 @@ type libraryData struct {
 	Version     string
 }
 
+// LicenseText reads and returns the contents of LicensePath, if set
+// or an empty string if not.
+func (lib libraryData) LicenseText() (string, error) {
+	if lib.LicensePath == "" {
+		return "", nil
+	}
+	data, err := ioutil.ReadFile(lib.LicensePath)
+	if err != nil {
+		return "", err
+	}
+	return string(data), nil
+}
+
 func reportMain(_ *cobra.Command, args []string) error {
 	classifier, err := licenses.NewClassifier(confidenceThreshold)
 	if err != nil {
@@ -121,19 +134,7 @@ func reportTemplate(libs []libraryData) error {
 	if err != nil {
 		return err
 	}
-	funcMap := template.FuncMap{
-		"licenseText": func(lib libraryData) (string, error) {
-			if lib.LicensePath == "" {
-				return "", nil
-			}
-			data, err := ioutil.ReadFile(lib.LicensePath)
-			if err != nil {
-				return "", err
-			}
-			return string(data), nil
-		},
-	}
-	tmpl, err := template.New("").Funcs(funcMap).Parse(string(templateBytes))
+	tmpl, err := template.New("").Parse(string(templateBytes))
 	if err != nil {
 		return err
 	}

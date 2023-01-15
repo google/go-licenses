@@ -2,6 +2,6 @@
 ## {{.Name}} ([{{.LicenseName}}]({{.LicenseURL}}))
 
 ```
-{{- licenseText . -}}
+{{- .LicenseText -}}
 ```
 {{- end }}

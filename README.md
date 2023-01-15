@@ -155,7 +155,8 @@ data:
 }
 ```
 
-The template is also passed a function `licenseText` which will render the text of the license stored at `LicensePath` if present.
+Each struct also has a `LicenseText` method which will return the text of the license stored at `LicensePath` if present,
+or an empty string if not.
 
 Example template rendering licenses as markdown:
 
@@ -168,7 +169,7 @@ Example template rendering licenses as markdown:
 * License: [{{ .LicenseName }}]({{ .LicenseURL }})
 
 ```
-{{ licenseText . }}}
+{{ .LicenseText }}
 ```
 {{ end }}
 ````
