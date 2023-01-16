@@ -151,8 +151,28 @@ data:
   Version     string
   LicenseURL  string
   LicenseName string
+  LicensePath string
 }
 ```
+
+Each struct also has a `LicenseText` method which will return the text of the license stored at `LicensePath` if present,
+or an empty string if not.
+
+Example template rendering licenses as markdown:
+
+````
+{{ range . }}
+## {{ .Name }}
+
+* Name: {{ .Name }}
+* Version: {{ .Version }}
+* License: [{{ .LicenseName }}]({{ .LicenseURL }})
+
+```
+{{ .LicenseText }}
+```
+{{ end }}
+````
 
 ## Save licenses, copyright notices and source code (depending on license type)
 

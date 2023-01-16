@@ -17,6 +17,7 @@ package main
 import (
 	"context"
 	"encoding/csv"
+	"io/ioutil"
 	"os"
 	"text/template"
 
@@ -52,7 +53,21 @@ type libraryData struct {
 	Name        string
 	LicenseURL  string
 	LicenseName string
+	LicensePath string
 	Version     string
+}
+
+// LicenseText reads and returns the contents of LicensePath, if set
+// or an empty string if not.
+func (lib libraryData) LicenseText() (string, error) {
+	if lib.LicensePath == "" {
+		return "", nil
+	}
+	data, err := ioutil.ReadFile(lib.LicensePath)
+	if err != nil {
+		return "", err
+	}
+	return string(data), nil
 }
 
 func reportMain(_ *cobra.Command, args []string) error {
@@ -79,6 +94,7 @@ func reportMain(_ *cobra.Command, args []string) error {
 			LicenseName: UNKNOWN,
 		}
 		if lib.LicensePath != "" {
+			libData.LicensePath = lib.LicensePath
 			name, _, err := classifier.Identify(lib.LicensePath)
 			if err == nil {
 				libData.LicenseName = name
