@@ -17,7 +17,7 @@ require (
 	github.com/stretchr/testify v1.8.0 // indirect
 	go.opencensus.io v0.23.0
 	golang.org/x/crypto v0.1.0 // indirect
-	golang.org/x/mod v0.7.0
+	golang.org/x/mod v0.9.0
 	golang.org/x/net v0.5.0
 	golang.org/x/text v0.6.0
 	golang.org/x/tools v0.5.0
