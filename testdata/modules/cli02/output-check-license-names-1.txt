@@ -1,12 +1,12 @@
-Not allowed license 'BSD-3-Clause' found for library 'github.com/fsnotify/fsnotify' in '/usr/local/google/home/gongyuan/go/pkg/mod/github.com/fsnotify/fsnotify@v1.4.9/LICENSE'.
-Not allowed license 'MPL-2.0' found for library 'github.com/hashicorp/hcl' in '/usr/local/google/home/gongyuan/go/pkg/mod/github.com/hashicorp/hcl@v1.0.0/LICENSE'.
-Not allowed license 'BSD-2-Clause' found for library 'github.com/magiconair/properties' in '/usr/local/google/home/gongyuan/go/pkg/mod/github.com/magiconair/properties@v1.8.5/LICENSE.md'.
-Not allowed license 'MIT' found for library 'github.com/mitchellh/go-homedir' in '/usr/local/google/home/gongyuan/go/pkg/mod/github.com/mitchellh/go-homedir@v1.1.0/LICENSE'.
-Not allowed license 'MIT' found for library 'github.com/mitchellh/mapstructure' in '/usr/local/google/home/gongyuan/go/pkg/mod/github.com/mitchellh/mapstructure@v1.4.1/LICENSE'.
-Not allowed license 'MIT' found for library 'github.com/spf13/cast' in '/usr/local/google/home/gongyuan/go/pkg/mod/github.com/spf13/cast@v1.3.1/LICENSE'.
-Not allowed license 'MIT' found for library 'github.com/spf13/jwalterweatherman' in '/usr/local/google/home/gongyuan/go/pkg/mod/github.com/spf13/jwalterweatherman@v1.1.0/LICENSE'.
-Not allowed license 'BSD-3-Clause' found for library 'github.com/spf13/pflag' in '/usr/local/google/home/gongyuan/go/pkg/mod/github.com/spf13/pflag@v1.0.5/LICENSE'.
-Not allowed license 'MIT' found for library 'github.com/spf13/viper' in '/usr/local/google/home/gongyuan/go/pkg/mod/github.com/spf13/viper@v1.8.0/LICENSE'.
-Not allowed license 'MIT' found for library 'github.com/subosito/gotenv' in '/usr/local/google/home/gongyuan/go/pkg/mod/github.com/subosito/gotenv@v1.2.0/LICENSE'.
-Not allowed license 'BSD-3-Clause' found for library 'golang.org/x/sys' in '/usr/local/google/home/gongyuan/go/pkg/mod/golang.org/x/sys@v0.0.0-20210510120138-977fb7262007/LICENSE'.
-Not allowed license 'BSD-3-Clause' found for library 'golang.org/x/text' in '/usr/local/google/home/gongyuan/go/pkg/mod/golang.org/x/text@v0.3.5/LICENSE'.
+Not allowed license 'BSD-3-Clause' found for library 'github.com/fsnotify/fsnotify'.
+Not allowed license 'MPL-2.0' found for library 'github.com/hashicorp/hcl'.
+Not allowed license 'BSD-2-Clause' found for library 'github.com/magiconair/properties'.
+Not allowed license 'MIT' found for library 'github.com/mitchellh/go-homedir'.
+Not allowed license 'MIT' found for library 'github.com/mitchellh/mapstructure'.
+Not allowed license 'MIT' found for library 'github.com/spf13/cast'.
+Not allowed license 'MIT' found for library 'github.com/spf13/jwalterweatherman'.
+Not allowed license 'BSD-3-Clause' found for library 'github.com/spf13/pflag'.
+Not allowed license 'MIT' found for library 'github.com/spf13/viper'.
+Not allowed license 'MIT' found for library 'github.com/subosito/gotenv'.
+Not allowed license 'BSD-3-Clause' found for library 'golang.org/x/sys'.
+Not allowed license 'BSD-3-Clause' found for library 'golang.org/x/text'.

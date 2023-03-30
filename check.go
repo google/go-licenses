@@ -93,7 +93,7 @@ func checkMain(_ *cobra.Command, args []string) error {
 		}
 
 		if hasLicenseNames && !isAllowedLicenseName(licenseName, allowedLicenseNames) {
-			fmt.Fprintf(os.Stderr, "Not allowed license '%s' found for library '%v' in '%s'.\n", licenseName, lib, lib.LicensePath)
+			fmt.Fprintf(os.Stderr, "Not allowed license '%s' found for library '%v'.\n", licenseName, lib)
 			found = true
 			continue
 		}
@@ -101,10 +101,10 @@ func checkMain(_ *cobra.Command, args []string) error {
 		if hasLicenseType && isDisallowedLicenseType(licenseType, disallowedLicenseTypes) {
 			fmt.Fprintf(
 				os.Stderr,
-				"License '%s' of not allowed license type '%s' found for library '%v' in '%s'.\n",
+				"License '%s' of not allowed license type '%s' found for library '%v'.\n",
 				licenseName,
 				cases.Title(language.English).String(licenseType.String()),
-				lib, lib.LicensePath)
+				lib)
 			found = true
 			continue
 		}

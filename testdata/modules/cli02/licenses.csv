@@ -14,5 +14,5 @@ github.com/spf13/viper,https://github.com/spf13/viper/blob/v1.8.0/LICENSE,MIT
 github.com/subosito/gotenv,https://github.com/subosito/gotenv/blob/v1.2.0/LICENSE,MIT
 golang.org/x/sys,https://cs.opensource.google/go/x/sys/+/977fb726:LICENSE,BSD-3-Clause
 golang.org/x/text,https://cs.opensource.google/go/x/text/+/v0.3.5:LICENSE,BSD-3-Clause
-gopkg.in/ini.v1,https://github.com/go-ini/ini/blob/v1.62.0/LICENSE,Apache-2.0
-gopkg.in/yaml.v2,https://github.com/go-yaml/yaml/blob/v2.4.0/LICENSE,Apache-2.0
+gopkg.in/ini.v1,Unknown,Apache-2.0
+gopkg.in/yaml.v2,Unknown,Apache-2.0
