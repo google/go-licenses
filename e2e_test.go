@@ -126,6 +126,7 @@ func TestCheckCommandE2E(t *testing.T) {
 		{"testdata/modules/cli02", []string{"--allowed_licenses=Apache-2.0"}, "output-check-license-names-1.txt", 1},
 		{"testdata/modules/cli02", []string{"--allowed_licenses=Apache-2.0,MIT"}, "output-check-license-names-2.txt", 1},
 		{"testdata/modules/cli02", []string{"--allowed_licenses= Apache-2.0, MIT"}, "output-check-license-names-2.txt", 1},
+		{"testdata/modules/nolicense05", nil, "output-check.txt", 1},
 	}
 
 	originalWorkDir, err := os.Getwd()
@@ -159,7 +160,9 @@ func TestCheckCommandE2E(t *testing.T) {
 			if err != nil {
 				t.Fatalf("downloading go modules:\n%s", string(log))
 			}
-			args := append([]string{"check", "."}, tt.args...)
+			// Extra flags to disable logging.
+			// Logs are not deterministic for this golden test.
+			args := append([]string{"--logtostderr=false", "--stderrthreshold=10", "check", "."}, tt.args...)
 			cmd = exec.Command(goLicensesPath, args...)
 			// Capture stderr to buffer.
 			var stderr bytes.Buffer
