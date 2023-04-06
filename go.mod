@@ -18,9 +18,9 @@ require (
 	go.opencensus.io v0.23.0
 	golang.org/x/crypto v0.1.0 // indirect
 	golang.org/x/mod v0.9.0
-	golang.org/x/net v0.5.0
-	golang.org/x/text v0.6.0
-	golang.org/x/tools v0.5.0
+	golang.org/x/net v0.6.0
+	golang.org/x/text v0.9.0
+	golang.org/x/tools v0.6.0
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/src-d/go-git.v4 v4.13.1
 	k8s.io/klog/v2 v2.80.1
