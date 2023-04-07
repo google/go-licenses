@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go/iam v0.4.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/google/go-cmp v0.5.8
-	github.com/google/go-replayers/httpreplay v1.1.1
+	github.com/google/go-replayers/httpreplay v1.2.0
 	github.com/google/licenseclassifier v0.0.0-20210722185704-3043a050f148
 	github.com/kr/text v0.2.0 // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
