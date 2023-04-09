@@ -1,12 +1,12 @@
 # go/pkgsite/source
 
-Vendored from <https://go.googlesource.com/pkgsite/+/ef8047b111963f61f5a0b3ae5b464cdc18dc5f74/internal/source>,
+Vendored from <https://go.googlesource.com/pkgsite/+/beceacdece62d95d6dc41a9b5f09da7b2a021020/internal/source>,
 because the source package is internal, and there's no plan to move it out anytime soon: <https://github.com/golang/go/issues/40477#issuecomment-868532845>.
 
 The entire source folder and be downloaded via:
 
 ```bash
-curl -LO https://go.googlesource.com/pkgsite/+archive/ef8047b111963f61f5a0b3ae5b464cdc18dc5f74/internal.tar.gz
+curl -LO https://go.googlesource.com/pkgsite/+archive/beceacdece62d95d6dc41a9b5f09da7b2a021020/internal.tar.gz
 ```
 
 Local modifications:
