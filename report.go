@@ -17,7 +17,6 @@ package main
 import (
 	"context"
 	"encoding/csv"
-	"io/ioutil"
 	"os"
 	"text/template"
 
@@ -63,7 +62,7 @@ func (lib libraryData) LicenseText() (string, error) {
 	if lib.LicensePath == "" {
 		return "", nil
 	}
-	data, err := ioutil.ReadFile(lib.LicensePath)
+	data, err := os.ReadFile(lib.LicensePath)
 	if err != nil {
 		return "", err
 	}
@@ -71,7 +70,7 @@ func (lib libraryData) LicenseText() (string, error) {
 }
 
 func reportMain(_ *cobra.Command, args []string) error {
-	classifier, err := licenses.NewClassifier(confidenceThreshold)
+	classifier, err := licenses.NewClassifier()
 	if err != nil {
 		return err
 	}
@@ -93,22 +92,34 @@ func reportMain(_ *cobra.Command, args []string) error {
 			LicenseURL:  UNKNOWN,
 			LicenseName: UNKNOWN,
 		}
-		if lib.LicensePath != "" {
-			libData.LicensePath = lib.LicensePath
-			name, _, err := classifier.Identify(lib.LicensePath)
-			if err == nil {
-				libData.LicenseName = name
-			} else {
-				klog.Errorf("Error identifying license in %q: %v", lib.LicensePath, err)
-			}
-			url, err := lib.FileURL(context.Background(), lib.LicensePath)
-			if err == nil {
-				libData.LicenseURL = url
-			} else {
-				klog.Warningf("Error discovering license URL: %s", err)
-			}
+
+		if lib.LicensePath == "" {
+			reportData = append(reportData, libData)
+			continue
 		}
-		reportData = append(reportData, libData)
+
+		libData.LicensePath = lib.LicensePath
+
+		url, err := lib.FileURL(context.Background(), lib.LicensePath)
+		if err == nil {
+			libData.LicenseURL = url
+		} else {
+			klog.Warningf("Error discovering license URL: %s", err)
+		}
+
+		licenses, err := classifier.Identify(lib.LicensePath)
+		if err != nil {
+			klog.Errorf("Error identifying license in %q: %v", lib.LicensePath, err)
+			reportData = append(reportData, libData)
+			continue
+		}
+
+		// Add each license to the report data, licenses is already sorted by
+		// location in the LICENSE file.
+		for _, license := range licenses {
+			libData.LicenseName = license.Name
+			reportData = append(reportData, libData)
+		}
 	}
 
 	if templateFile == "" {

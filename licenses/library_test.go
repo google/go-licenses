@@ -25,15 +25,25 @@ import (
 
 func TestLibraries(t *testing.T) {
 	classifier := classifierStub{
-		licenseNames: map[string]string{
-			"testdata/LICENSE":          "foo",
-			"testdata/direct/LICENSE":   "foo",
-			"testdata/indirect/LICENSE": "foo",
-		},
-		licenseTypes: map[string]Type{
-			"testdata/LICENSE":          Notice,
-			"testdata/direct/LICENSE":   Notice,
-			"testdata/indirect/LICENSE": Notice,
+		licenses: map[string][]License{
+			"testdata/LICENSE": {
+				{
+					Name: "foo",
+					Type: Notice,
+				},
+			},
+			"testdata/direct/LICENSE": {
+				{
+					Name: "foo",
+					Type: Notice,
+				},
+			},
+			"testdata/indirect/LICENSE": {
+				{
+					Name: "foo",
+					Type: Notice,
+				},
+			},
 		},
 	}
 

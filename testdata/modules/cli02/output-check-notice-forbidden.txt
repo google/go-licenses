@@ -3,6 +3,7 @@ License 'Apache-2.0' of not allowed license type 'Notice' found for library 'git
 License 'BSD-2-Clause' of not allowed license type 'Notice' found for library 'github.com/magiconair/properties'.
 License 'MIT' of not allowed license type 'Notice' found for library 'github.com/mitchellh/go-homedir'.
 License 'MIT' of not allowed license type 'Notice' found for library 'github.com/mitchellh/mapstructure'.
+License 'MIT' of not allowed license type 'Notice' found for library 'github.com/pelletier/go-toml'.
 License 'Apache-2.0' of not allowed license type 'Notice' found for library 'github.com/pelletier/go-toml'.
 License 'Apache-2.0' of not allowed license type 'Notice' found for library 'github.com/spf13/afero'.
 License 'MIT' of not allowed license type 'Notice' found for library 'github.com/spf13/cast'.
