@@ -97,44 +97,37 @@ func saveMain(_ *cobra.Command, args []string) error {
 			return err
 		}
 
-		mostRestrictive := licenses.Unknown
+		licenseTypes := make([]licenses.Type, 0, len(licenseList))
 		for _, license := range licenseList {
-			switch license.Type {
-			case licenses.Unknown:
-				// unknown
-			case licenses.Notice, licenses.Permissive, licenses.Unencumbered:
-				if mostRestrictive == licenses.Unknown {
-					// copy license > unknown
-					mostRestrictive = license.Type
-				}
-			case licenses.Restricted, licenses.Reciprocal:
-				if (mostRestrictive == licenses.Unknown) ||
-					(mostRestrictive == licenses.Notice) ||
-					(mostRestrictive == licenses.Permissive) ||
-					(mostRestrictive == licenses.Unencumbered) {
-					// copy code > copy license > unknown
-					mostRestrictive = license.Type
-				}
-			default:
-				// other > copy code > copy license > unknown
-				mostRestrictive = license.Type
-			}
+			licenseTypes = append(licenseTypes, license.Type)
 		}
 
-		switch mostRestrictive {
-		case licenses.Restricted, licenses.Reciprocal:
+		restrictiveness := licenses.LicenseTypeRestrictiveness(licenseTypes...)
+
+		switch restrictiveness {
+		case licenses.RestrictionsShareCode:
 			// Copy the entire source directory for the library.
 			libDir := filepath.Dir(lib.LicensePath)
 			if err := copySrc(libDir, libSaveDir); err != nil {
 				return err
 			}
-		case licenses.Notice, licenses.Permissive, licenses.Unencumbered:
+		case licenses.RestrictionsShareLicense:
 			// Just copy the license and copyright notice.
 			if err := copyNotices(lib.LicensePath, libSaveDir); err != nil {
 				return err
 			}
 		default:
-			libsWithBadLicenses[mostRestrictive] = append(libsWithBadLicenses[mostRestrictive], lib)
+			// Register all bad licenses, so we can print them out at the end.
+		FindAllBadLicences:
+			for _, license := range licenseList {
+				switch license.Type {
+				case licenses.Notice, licenses.Permissive, licenses.Unencumbered, licenses.Restricted, licenses.Reciprocal:
+					// these are allowed
+					continue FindAllBadLicences
+				}
+
+				libsWithBadLicenses[license.Type] = append(libsWithBadLicenses[license.Type], lib)
+			}
 		}
 	}
 
