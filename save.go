@@ -117,16 +117,21 @@ func saveMain(_ *cobra.Command, args []string) error {
 				return err
 			}
 		default:
-			// Register all bad licenses, so we can print them out at the end.
-		FindAllBadLicences:
-			for _, license := range licenseList {
-				switch license.Type {
-				case licenses.Notice, licenses.Permissive, licenses.Unencumbered, licenses.Restricted, licenses.Reciprocal:
-					// these are allowed
-					continue FindAllBadLicences
-				}
+			if len(licenseList) == 0 {
+				// If we can't identify the license, we can't fulfill its requirements.
+				libsWithBadLicenses[licenses.Unknown] = append(libsWithBadLicenses[licenses.Unknown], lib)
+			} else {
+				// Register all bad licenses, so we can print them out at the end.
+			FindAllBadLicences:
+				for _, license := range licenseList {
+					switch license.Type {
+					case licenses.Notice, licenses.Permissive, licenses.Unencumbered, licenses.Restricted, licenses.Reciprocal:
+						// these are allowed
+						continue FindAllBadLicences
+					}
 
-				libsWithBadLicenses[license.Type] = append(libsWithBadLicenses[license.Type], lib)
+					libsWithBadLicenses[license.Type] = append(libsWithBadLicenses[license.Type], lib)
+				}
 			}
 		}
 	}

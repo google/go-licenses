@@ -3,7 +3,6 @@ package licenses
 type LicenseRestrictiveness string
 
 const (
-	RestrictionsNone         LicenseRestrictiveness = "None"
 	RestrictionsShareLicense LicenseRestrictiveness = "ShareLicense"
 	RestrictionsShareCode    LicenseRestrictiveness = "ShareCode"
 	RestrictionsUnknown      LicenseRestrictiveness = "Unknown"
@@ -12,7 +11,8 @@ const (
 
 func LicenseTypeRestrictiveness(licenseTypes ...Type) LicenseRestrictiveness {
 	if len(licenseTypes) == 0 {
-		return RestrictionsNone
+		// No licenses foundm, so we don't know what the restrictions are
+		return RestrictionsUnknown
 	}
 
 	// Find any non-allowed licenses
