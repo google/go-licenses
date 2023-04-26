@@ -22,7 +22,6 @@ package source
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log" // We cannot use glog instead, because its "v" flag conflicts with other libraries we use.
 	"net/http"
@@ -49,38 +48,6 @@ type Info struct {
 	templates urlTemplates // for building URLs
 }
 
-// RepoURL returns a URL for the home page of the repository.
-func (i *Info) RepoURL() string {
-	if i == nil {
-		return ""
-	}
-	if i.templates.Repo == "" {
-		// The default repo template is just "{repo}".
-		return i.repoURL
-	}
-	return expand(i.templates.Repo, map[string]string{
-		"repo": i.repoURL,
-	})
-}
-
-// ModuleURL returns a URL for the home page of the module.
-func (i *Info) ModuleURL() string {
-	return i.DirectoryURL("")
-}
-
-// DirectoryURL returns a URL for a directory relative to the module's home directory.
-func (i *Info) DirectoryURL(dir string) string {
-	if i == nil {
-		return ""
-	}
-	return strings.TrimSuffix(expand(i.templates.Directory, map[string]string{
-		"repo":       i.repoURL,
-		"importPath": path.Join(strings.TrimPrefix(i.repoURL, "https://"), dir),
-		"commit":     i.commit,
-		"dir":        path.Join(i.moduleDir, dir),
-	}), "/")
-}
-
 // FileURL returns a URL for a file whose pathname is relative to the module's home directory.
 func (i *Info) FileURL(pathname string) string {
 	if i == nil {
@@ -95,114 +62,6 @@ func (i *Info) FileURL(pathname string) string {
 		"file":       path.Join(i.moduleDir, pathname),
 		"base":       base,
 	})
-}
-
-// LineURL returns a URL referring to a line in a file relative to the module's home directory.
-func (i *Info) LineURL(pathname string, line int) string {
-	if i == nil {
-		return ""
-	}
-	dir, base := path.Split(pathname)
-	return expand(i.templates.Line, map[string]string{
-		"repo":       i.repoURL,
-		"importPath": path.Join(strings.TrimPrefix(i.repoURL, "https://"), dir),
-		"commit":     i.commit,
-		"file":       path.Join(i.moduleDir, pathname),
-		"dir":        dir,
-		"base":       base,
-		"line":       strconv.Itoa(line),
-	})
-}
-
-// RawURL returns a URL referring to the raw contents of a file relative to the
-// module's home directory.
-func (i *Info) RawURL(pathname string) string {
-	if i == nil {
-		return ""
-	}
-	// Some templates don't support raw content serving.
-	if i.templates.Raw == "" {
-		return ""
-	}
-	moduleDir := i.moduleDir
-	// Special case: the standard library's source module path is set to "src",
-	// which is correct for source file links. But the README is at the repo
-	// root, not in the src directory. In other words,
-	// Module.Units[0].Readme.FilePath is not relative to
-	// Module.Units[0].SourceInfo.moduleDir, as it is for every other module.
-	// Correct for that here.
-	if i.repoURL == stdlib.GoSourceRepoURL {
-		moduleDir = ""
-	}
-	return expand(i.templates.Raw, map[string]string{
-		"repo":   i.repoURL,
-		"commit": i.commit,
-		"file":   path.Join(moduleDir, pathname),
-	})
-}
-
-// map of common urlTemplates
-var urlTemplatesByKind = map[string]urlTemplates{
-	"github":    githubURLTemplates,
-	"gitlab":    githubURLTemplates, // preserved for backwards compatibility (DB still has source_info->Kind = "gitlab")
-	"bitbucket": bitbucketURLTemplates,
-}
-
-// jsonInfo is a Go struct describing the JSON structure of an INFO.
-type jsonInfo struct {
-	RepoURL   string
-	ModuleDir string
-	Commit    string
-	// Store common templates efficiently by setting this to a short string
-	// we look up in a map. If Kind != "", then Templates == nil.
-	Kind      string        `json:",omitempty"`
-	Templates *urlTemplates `json:",omitempty"`
-}
-
-// ToJSONForDB returns the Info encoded for storage in the database.
-func (i *Info) MarshalJSON() (_ []byte, err error) {
-	defer derrors.Wrap(&err, "MarshalJSON")
-
-	ji := &jsonInfo{
-		RepoURL:   i.repoURL,
-		ModuleDir: i.moduleDir,
-		Commit:    i.commit,
-	}
-	// Store common templates efficiently, by name.
-	for kind, templs := range urlTemplatesByKind {
-		if i.templates == templs {
-			ji.Kind = kind
-			break
-		}
-	}
-	// We used to use different templates for GitHub and GitLab. Now that
-	// they're the same, prefer "github" for consistency (map random iteration
-	// order means we could get either here).
-	if ji.Kind == "gitlab" {
-		ji.Kind = "github"
-	}
-	if ji.Kind == "" && i.templates != (urlTemplates{}) {
-		ji.Templates = &i.templates
-	}
-	return json.Marshal(ji)
-}
-
-func (i *Info) UnmarshalJSON(data []byte) (err error) {
-	defer derrors.Wrap(&err, "UnmarshalJSON(data)")
-
-	var ji jsonInfo
-	if err := json.Unmarshal(data, &ji); err != nil {
-		return err
-	}
-	i.repoURL = trimVCSSuffix(ji.RepoURL)
-	i.moduleDir = ji.ModuleDir
-	i.commit = ji.Commit
-	if ji.Kind != "" {
-		i.templates = urlTemplatesByKind[ji.Kind]
-	} else if ji.Templates != nil {
-		i.templates = *ji.Templates
-	}
-	return nil
 }
 
 type Client struct {
@@ -416,10 +275,14 @@ func adjustGoRepoInfo(info *Info, modulePath string, isHash bool) {
 // moduleOrRepoPath. It is not when the argument is a module path that uses the
 // go command's general syntax, which ends in a ".vcs" (e.g. ".git", ".hg") that
 // is neither part of the repo nor the suffix. For example, if the argument is
-//   github.com/a/b/c
+//
+//	github.com/a/b/c
+//
 // then repo="github.com/a/b" and relativeModulePath="c"; together they make up the module path.
 // But if the argument is
-//   example.com/a/b.git/c
+//
+//	example.com/a/b.git/c
+//
 // then repo="example.com/a/b" and relativeModulePath="c"; the ".git" is omitted, since it is neither
 // part of the repo nor part of the relative path to the module within the repo.
 func matchStatic(moduleOrRepoPath string) (repo, relativeModulePath string, _ urlTemplates, transformCommit transformCommitFunc, _ error) {
@@ -533,7 +396,7 @@ var legacyTemplateMatches = []struct {
 	},
 	{
 		regexp.MustCompile(`/-/blob/\w+\{/dir\}/\{file\}#L\{line\}$`),
-		gitlab2URLTemplates, nil,
+		gitlabURLTemplates, nil,
 	},
 	{
 		regexp.MustCompile(`/tree\{/dir\}/\{file\}#n\{line\}$`),
@@ -648,13 +511,14 @@ var patterns = []struct {
 		templates: bitbucketURLTemplates,
 	},
 	{
-		pattern:   `^(?P<repo>gitlab\.com/[a-z0-9A-Z_.\-]+/[a-z0-9A-Z_.\-]+)`,
-		templates: githubURLTemplates,
+		// Gitlab repos can have multiple path components.
+		pattern:   `^(?P<repo>gitlab\.com/[^.]+)(\.git|$)`,
+		templates: gitlabURLTemplates,
 	},
 	{
 		// Assume that any site beginning with "gitlab." works like gitlab.com.
 		pattern:   `^(?P<repo>gitlab\.[a-z0-9A-Z.-]+/[a-z0-9A-Z_.\-]+/[a-z0-9A-Z_.\-]+)(\.git|$)`,
-		templates: githubURLTemplates,
+		templates: gitlabURLTemplates,
 	},
 	{
 		pattern:   `^(?P<repo>gitee\.com/[a-z0-9A-Z_.\-]+/[a-z0-9A-Z_.\-]+)(\.git|$)`,
@@ -676,7 +540,7 @@ var patterns = []struct {
 	},
 	{
 		pattern:   `^(?P<repo>git\.pirl\.io/[a-z0-9A-Z_.\-]+/[a-z0-9A-Z_.\-]+)`,
-		templates: gitlab2URLTemplates,
+		templates: gitlabURLTemplates,
 	},
 	{
 		pattern:         `^(?P<repo>gitea\.com/[a-z0-9A-Z_.\-]+/[a-z0-9A-Z_.\-]+)(\.git|$)`,
@@ -696,6 +560,11 @@ var patterns = []struct {
 	},
 	{
 		pattern:         `^(?P<repo>git\.openprivacy\.ca/[a-z0-9A-Z_.\-]+/[a-z0-9A-Z_.\-]+)(\.git|$)`,
+		templates:       giteaURLTemplates,
+		transformCommit: giteaTransformCommit,
+	},
+	{
+		pattern:         `^(?P<repo>codeberg\.org/[a-z0-9A-Z_.\-]+/[a-z0-9A-Z_.\-]+)(\.git|$)`,
 		templates:       giteaURLTemplates,
 		transformCommit: giteaTransformCommit,
 	},
@@ -788,14 +657,13 @@ func fdioTransformCommit(commit string, isHash bool) string {
 //
 // The template variables are:
 //
-// 	• {repo}       - Repository URL with "https://" prefix ("https://example.com/myrepo").
-// 	• {importPath} - Package import path ("example.com/myrepo/mypkg").
-// 	• {commit}     - Tag name or commit hash corresponding to version ("v0.1.0" or "1234567890ab").
-// 	• {dir}        - Path to directory of the package, relative to repo root ("mypkg").
-// 	• {file}       - Path to file containing the identifier, relative to repo root ("mypkg/file.go").
-// 	• {base}       - Base name of file containing the identifier, including file extension ("file.go").
-// 	• {line}       - Line number for the identifier ("41").
-//
+//   - {repo}       - Repository URL with "https://" prefix ("https://example.com/myrepo").
+//   - {importPath} - Package import path ("example.com/myrepo/mypkg").
+//   - {commit}     - Tag name or commit hash corresponding to version ("v0.1.0" or "1234567890ab").
+//   - {dir}        - Path to directory of the package, relative to repo root ("mypkg").
+//   - {file}       - Path to file containing the identifier, relative to repo root ("mypkg/file.go").
+//   - {base}       - Base name of file containing the identifier, including file extension ("file.go").
+//   - {line}       - Line number for the identifier ("41").
 type urlTemplates struct {
 	Repo      string `json:",omitempty"` // Optional URL template for the repository home page, with {repo}. If left empty, a default template "{repo}" is used.
 	Directory string // URL template for a directory, with {repo}, {importPath}, {commit}, {dir}.
@@ -830,7 +698,7 @@ var (
 		Line:      "{repo}/+/{commit}/{file}#{line}",
 		// Gitiles has no support for serving raw content at this time.
 	}
-	gitlab2URLTemplates = urlTemplates{
+	gitlabURLTemplates = urlTemplates{
 		Directory: "{repo}/-/tree/{commit}/{dir}",
 		File:      "{repo}/-/blob/{commit}/{file}",
 		Line:      "{repo}/-/blob/{commit}/{file}#L{line}",
@@ -913,34 +781,5 @@ func NewGitHubInfo(repoURL, moduleDir, commit string) *Info {
 		moduleDir: moduleDir,
 		commit:    commit,
 		templates: githubURLTemplates,
-	}
-}
-
-// NewStdlibInfo returns a source.Info for the standard library at the given
-// semantic version. It panics if the version does not correspond to a Go release
-// tag. It is for testing only.
-func NewStdlibInfo(version string) *Info {
-	info, err := newStdlibInfo(version)
-	if err != nil {
-		panic(err)
-	}
-	return info
-}
-
-// FilesInfo returns an Info that links to a path in the server's /files
-// namespace. The same path needs to be installed via frontend.Server.InstallFS.
-func FilesInfo(dir string) *Info {
-	// The repo and directory patterns need a final slash. Without it,
-	// http.FileServer redirects instead of serving the directory contents, with
-	// confusing results.
-	return &Info{
-		repoURL: path.Join("/files", dir),
-		templates: urlTemplates{
-			Repo:      "{repo}/",
-			Directory: "{repo}/{dir}/",
-			File:      "{repo}/{file}",
-			Line:      "{repo}/{file}#L{line}", // not supported now, but maybe someday
-			Raw:       "{repo}/{file}",
-		},
 	}
 }

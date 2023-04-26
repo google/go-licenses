@@ -1,15 +1,13 @@
 // Copyright 2019 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-
 package source
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -30,18 +28,27 @@ func TestModuleInfo(t *testing.T) {
 	client, done := newReplayClient(t, *record)
 	defer done()
 
-	check := func(t *testing.T, msg, got, want string) {
+	// Test names where we don't replay/record actual URLs.
+	skipReplayTests := map[string]bool{
+		// On 5-Jan-2022, gitee.com took too long to respond, so it wasn't possible
+		// to record the results.
+		"gitee.com": true,
+	}
+
+	check := func(t *testing.T, msg, got, want string, skipReplay bool) {
 		t.Helper()
 		if got != want {
 			t.Fatalf("%s:\ngot  %s\nwant %s", msg, got, want)
 		}
-		res, err := client.Head(got)
-		if err != nil {
-			t.Fatalf("%s: %v", got, err)
-		}
-		defer res.Body.Close()
-		if res.StatusCode != 200 {
-			t.Fatalf("%s: %v", got, res.Status)
+		if !skipReplay {
+			res, err := client.Head(got)
+			if err != nil {
+				t.Fatalf("%s: %v", got, err)
+			}
+			defer res.Body.Close()
+			if res.StatusCode != 200 {
+				t.Fatalf("%s: %v", got, res.Status)
+			}
 		}
 	}
 
@@ -194,43 +201,43 @@ func TestModuleInfo(t *testing.T) {
 		},
 		{
 			"vanity for googlesource.com",
-			"cuelang.org/go", "v0.0.9", "cuego/doc.go",
+			"go.chromium.org/goma/server", "v0.0.23", "log/log.go",
 
-			"https://cue.googlesource.com/cue",
-			"https://cue.googlesource.com/cue/+/v0.0.9",
-			"https://cue.googlesource.com/cue/+/v0.0.9/cuego/doc.go",
-			"https://cue.googlesource.com/cue/+/v0.0.9/cuego/doc.go#1",
+			"https://chromium.googlesource.com/infra/goma/server",
+			"https://chromium.googlesource.com/infra/goma/server/+/v0.0.23",
+			"https://chromium.googlesource.com/infra/goma/server/+/v0.0.23/log/log.go",
+			"https://chromium.googlesource.com/infra/goma/server/+/v0.0.23/log/log.go#1",
 			"",
 		},
 		{
 			"gitlab.com",
-			"gitlab.com/akita/akita", "v1.4.1", "event.go",
+			"gitlab.com/tozd/go/errors", "v0.3.0", "errors.go",
 
-			"https://gitlab.com/akita/akita",
-			"https://gitlab.com/akita/akita/tree/v1.4.1",
-			"https://gitlab.com/akita/akita/blob/v1.4.1/event.go",
-			"https://gitlab.com/akita/akita/blob/v1.4.1/event.go#L1",
-			"https://gitlab.com/akita/akita/raw/v1.4.1/event.go",
+			"https://gitlab.com/tozd/go/errors",
+			"https://gitlab.com/tozd/go/errors/-/tree/v0.3.0",
+			"https://gitlab.com/tozd/go/errors/-/blob/v0.3.0/errors.go",
+			"https://gitlab.com/tozd/go/errors/-/blob/v0.3.0/errors.go#L1",
+			"https://gitlab.com/tozd/go/errors/-/raw/v0.3.0/errors.go",
 		},
 		{
 			"other gitlab",
-			"gitlab.66xue.com/daihao/logkit", "v0.1.18", "color.go",
+			"gitlab.void-ptr.org/go/nu40c16", "v0.1.2", "nu40c16.go",
 
-			"https://gitlab.66xue.com/daihao/logkit",
-			"https://gitlab.66xue.com/daihao/logkit/tree/v0.1.18",
-			"https://gitlab.66xue.com/daihao/logkit/blob/v0.1.18/color.go",
-			"https://gitlab.66xue.com/daihao/logkit/blob/v0.1.18/color.go#L1",
-			"https://gitlab.66xue.com/daihao/logkit/raw/v0.1.18/color.go",
+			"https://gitlab.void-ptr.org/go/nu40c16",
+			"https://gitlab.void-ptr.org/go/nu40c16/-/tree/v0.1.2",
+			"https://gitlab.void-ptr.org/go/nu40c16/-/blob/v0.1.2/nu40c16.go",
+			"https://gitlab.void-ptr.org/go/nu40c16/-/blob/v0.1.2/nu40c16.go#L1",
+			"https://gitlab.void-ptr.org/go/nu40c16/-/raw/v0.1.2/nu40c16.go",
 		},
 		{
 			"gitee.com",
-			"gitee.com/Billcoding/gotypes", "v0.1.0", "type.go",
+			"gitee.com/eden-framework/plugins", "v0.0.7", "file.go",
 
-			"https://gitee.com/Billcoding/gotypes",
-			"https://gitee.com/Billcoding/gotypes/tree/v0.1.0",
-			"https://gitee.com/Billcoding/gotypes/blob/v0.1.0/type.go",
-			"https://gitee.com/Billcoding/gotypes/blob/v0.1.0/type.go#L1",
-			"https://gitee.com/Billcoding/gotypes/raw/v0.1.0/type.go",
+			"https://gitee.com/eden-framework/plugins",
+			"https://gitee.com/eden-framework/plugins/tree/v0.0.7",
+			"https://gitee.com/eden-framework/plugins/blob/v0.0.7/file.go",
+			"https://gitee.com/eden-framework/plugins/blob/v0.0.7/file.go#L1",
+			"https://gitee.com/eden-framework/plugins/raw/v0.0.7/file.go",
 		},
 		{
 			"sourcehut",
@@ -284,13 +291,13 @@ func TestModuleInfo(t *testing.T) {
 		},
 		{
 			"gogs",
-			"gogs.doschain.org/doschain/slog", "v1.0.0", "doc.go",
+			"gogs.buffalo-robot.com/zouhy/micro", "v0.4.2", "go.mod",
 
-			"https://gogs.doschain.org/doschain/slog",
-			"https://gogs.doschain.org/doschain/slog/src/v1.0.0",
-			"https://gogs.doschain.org/doschain/slog/src/v1.0.0/doc.go",
-			"https://gogs.doschain.org/doschain/slog/src/v1.0.0/doc.go#L1",
-			"https://gogs.doschain.org/doschain/slog/raw/v1.0.0/doc.go",
+			"https://gogs.buffalo-robot.com/zouhy/micro",
+			"https://gogs.buffalo-robot.com/zouhy/micro/src/v0.4.2",
+			"https://gogs.buffalo-robot.com/zouhy/micro/src/v0.4.2/go.mod",
+			"https://gogs.buffalo-robot.com/zouhy/micro/src/v0.4.2/go.mod#L1",
+			"https://gogs.buffalo-robot.com/zouhy/micro/raw/v0.4.2/go.mod",
 		},
 		{
 			"v2 as a branch",
@@ -304,13 +311,13 @@ func TestModuleInfo(t *testing.T) {
 		},
 		{
 			"v2 as subdirectory",
-			"gitlab.com/akita/akita/v2", "v2.0.0-rc.2", "event.go",
+			"github.com/gonutz/w32/v2", "v2.2.3", "com.go",
 
-			"https://gitlab.com/akita/akita",
-			"https://gitlab.com/akita/akita/tree/v2.0.0-rc.2/v2",
-			"https://gitlab.com/akita/akita/blob/v2.0.0-rc.2/v2/event.go",
-			"https://gitlab.com/akita/akita/blob/v2.0.0-rc.2/v2/event.go#L1",
-			"https://gitlab.com/akita/akita/raw/v2.0.0-rc.2/v2/event.go",
+			"https://github.com/gonutz/w32",
+			"https://github.com/gonutz/w32/tree/v2.2.3/v2",
+			"https://github.com/gonutz/w32/blob/v2.2.3/v2/com.go",
+			"https://github.com/gonutz/w32/blob/v2.2.3/v2/com.go#L1",
+			"https://github.com/gonutz/w32/raw/v2.2.3/v2/com.go",
 		},
 		{
 			"gopkg.in, one element",
@@ -414,28 +421,10 @@ func TestModuleInfo(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			check(t, "repo", info.RepoURL(), test.wantRepo)
-			check(t, "module", info.ModuleURL(), test.wantModule)
-			check(t, "file", info.FileURL(test.file), test.wantFile)
-			check(t, "line", info.LineURL(test.file, 1), test.wantLine)
-			if test.wantRaw != "" {
-				check(t, "raw", info.RawURL(test.file), test.wantRaw)
-			}
+			skip := skipReplayTests[test.desc]
+			check(t, "file", info.FileURL(test.file), test.wantFile, skip)
 		})
 	}
-
-	t.Run("stdlib-raw", func(t *testing.T) {
-		// Test raw URLs from the standard library, which are a special case.
-		info, err := ModuleInfo(context.Background(), &Client{client}, "std", "v1.13.3")
-		if err != nil {
-			t.Fatal(err)
-		}
-		const (
-			file = "doc/gopher/fiveyears.jpg"
-			want = "https://github.com/golang/go/raw/go1.13.3/doc/gopher/fiveyears.jpg"
-		)
-		check(t, "raw", info.RawURL(file), want)
-	})
 }
 
 func newReplayClient(t *testing.T, record bool) (*http.Client, func()) {
@@ -827,7 +816,7 @@ func (t testTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	}
 	resp := &http.Response{
 		StatusCode: statusCode,
-		Body:       ioutil.NopCloser(strings.NewReader(body)),
+		Body:       io.NopCloser(strings.NewReader(body)),
 	}
 	return resp, nil
 }
@@ -900,55 +889,6 @@ var testWeb = map[string]string{
 		`</head>`,
 }
 
-func TestJSON(t *testing.T) {
-	for _, test := range []struct {
-		in   *Info
-		want string
-	}{
-		{
-			nil,
-			`null`,
-		},
-		{
-			&Info{repoURL: "r", moduleDir: "m", commit: "c"},
-			`{"RepoURL":"r","ModuleDir":"m","Commit":"c"}`,
-		},
-		{
-			&Info{repoURL: "r", moduleDir: "m", commit: "c", templates: githubURLTemplates},
-			`{"RepoURL":"r","ModuleDir":"m","Commit":"c","Kind":"github"}`,
-		},
-		{
-			&Info{repoURL: "r", moduleDir: "m", commit: "c", templates: urlTemplates{File: "f"}},
-			`{"RepoURL":"r","ModuleDir":"m","Commit":"c","Templates":{"Directory":"","File":"f","Line":"","Raw":""}}`,
-		},
-		{
-			&Info{repoURL: "r", moduleDir: "m", commit: "c", templates: urlTemplates{Repo: "r", File: "f"}},
-			`{"RepoURL":"r","ModuleDir":"m","Commit":"c","Templates":{"Repo":"r","Directory":"","File":"f","Line":"","Raw":""}}`,
-		},
-	} {
-		bytes, err := json.Marshal(&test.in)
-		if err != nil {
-			t.Fatal(err)
-		}
-		got := string(bytes)
-		if got != test.want {
-			t.Errorf("%#v:\ngot  %s\nwant %s", test.in, got, test.want)
-			continue
-		}
-		var out Info
-		if err := json.Unmarshal(bytes, &out); err != nil {
-			t.Fatal(err)
-		}
-		var want Info
-		if test.in != nil {
-			want = *test.in
-		}
-		if out != want {
-			t.Errorf("got  %#v\nwant %#v", out, want)
-		}
-	}
-}
-
 func TestURLTemplates(t *testing.T) {
 	// Check that templates contain the right variables.
 
@@ -988,7 +928,7 @@ func TestMatchLegacyTemplates(t *testing.T) {
 		},
 		{
 			sm:                     sourceMeta{"", "", "", "https://git.lastassault.de/sup/networkoverlap/-/blob/master{/dir}/{file}#L{line}"},
-			wantTemplates:          gitlab2URLTemplates,
+			wantTemplates:          gitlabURLTemplates,
 			wantTransformCommitNil: true,
 		},
 		{
@@ -1019,19 +959,4 @@ func TestMatchLegacyTemplates(t *testing.T) {
 				test.sm, gotTemplates, gotNil, test.wantTemplates, test.wantTransformCommitNil)
 		}
 	}
-}
-
-func TestFilesInfo(t *testing.T) {
-	info := FilesInfo("/Users/bob")
-
-	check := func(got, want string) {
-		t.Helper()
-		if got != want {
-			t.Errorf("got %q, want %q", got, want)
-		}
-	}
-
-	check(info.RepoURL(), "/files/Users/bob/")
-	check(info.ModuleURL(), "/files/Users/bob/")
-	check(info.FileURL("dir/a.go"), "/files/Users/bob/dir/a.go")
 }

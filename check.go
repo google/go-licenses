@@ -67,7 +67,7 @@ func checkMain(_ *cobra.Command, args []string) error {
 		hasLicenseType = true
 	}
 
-	classifier, err := licenses.NewClassifier(confidenceThreshold)
+	classifier, err := licenses.NewClassifier()
 	if err != nil {
 		return err
 	}
@@ -87,26 +87,24 @@ func checkMain(_ *cobra.Command, args []string) error {
 			continue
 		}
 
-		licenseName, licenseType, err := classifier.Identify(lib.LicensePath)
+		licenses, err := classifier.Identify(lib.LicensePath)
 		if err != nil {
 			return err
 		}
 
-		if hasLicenseNames && !isAllowedLicenseName(licenseName, allowedLicenseNames) {
-			fmt.Fprintf(os.Stderr, "Not allowed license '%s' found for library '%v'.\n", licenseName, lib)
-			found = true
-			continue
-		}
-
-		if hasLicenseType && isDisallowedLicenseType(licenseType, disallowedLicenseTypes) {
-			fmt.Fprintf(
-				os.Stderr,
-				"License '%s' of not allowed license type '%s' found for library '%v'.\n",
-				licenseName,
-				cases.Title(language.English).String(licenseType.String()),
-				lib)
-			found = true
-			continue
+		for _, license := range licenses {
+			if hasLicenseNames && !isAllowedLicenseName(license.Name, allowedLicenseNames) {
+				fmt.Fprintf(os.Stderr, "Not allowed license '%s' found for library '%v'.\n", license.Name, lib)
+				found = true
+			} else if hasLicenseType && isDisallowedLicenseType(license.Type, disallowedLicenseTypes) {
+				fmt.Fprintf(
+					os.Stderr,
+					"License '%s' of not allowed license type '%s' found for library '%v'.\n",
+					license.Name,
+					cases.Title(language.English).String(license.Type.String()),
+					lib)
+				found = true
+			}
 		}
 	}
 

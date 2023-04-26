@@ -69,7 +69,7 @@ func saveMain(_ *cobra.Command, args []string) error {
 		}
 	}
 
-	classifier, err := licenses.NewClassifier(confidenceThreshold)
+	classifier, err := licenses.NewClassifier()
 	if err != nil {
 		return err
 	}
@@ -92,29 +92,54 @@ func saveMain(_ *cobra.Command, args []string) error {
 	for _, lib := range libs {
 		libSaveDir := filepath.Join(savePath, unvendor(lib.Name()))
 		// Detect what type of license this library has and fulfill its requirements, e.g. copy license, copyright notice, source code, etc.
-		_, licenseType, err := classifier.Identify(lib.LicensePath)
+		licenseList, err := classifier.Identify(lib.LicensePath)
 		if err != nil {
 			return err
 		}
-		switch licenseType {
-		case licenses.Restricted, licenses.Reciprocal:
+
+		licenseTypes := make([]licenses.Type, 0, len(licenseList))
+		for _, license := range licenseList {
+			licenseTypes = append(licenseTypes, license.Type)
+		}
+
+		restrictiveness := licenses.LicenseTypeRestrictiveness(licenseTypes...)
+
+		switch restrictiveness {
+		case licenses.RestrictionsShareCode:
 			// Copy the entire source directory for the library.
 			libDir := filepath.Dir(lib.LicensePath)
 			if err := copySrc(libDir, libSaveDir); err != nil {
 				return err
 			}
-		case licenses.Notice, licenses.Permissive, licenses.Unencumbered:
+		case licenses.RestrictionsShareLicense:
 			// Just copy the license and copyright notice.
 			if err := copyNotices(lib.LicensePath, libSaveDir); err != nil {
 				return err
 			}
 		default:
-			libsWithBadLicenses[licenseType] = append(libsWithBadLicenses[licenseType], lib)
+			if len(licenseList) == 0 {
+				// If we can't identify the license, we can't fulfill its requirements.
+				libsWithBadLicenses[licenses.Unknown] = append(libsWithBadLicenses[licenses.Unknown], lib)
+			} else {
+				// Register all bad licenses, so we can print them out at the end.
+			FindAllBadLicences:
+				for _, license := range licenseList {
+					switch license.Type {
+					case licenses.Notice, licenses.Permissive, licenses.Unencumbered, licenses.Restricted, licenses.Reciprocal:
+						// these are allowed
+						continue FindAllBadLicences
+					}
+
+					libsWithBadLicenses[license.Type] = append(libsWithBadLicenses[license.Type], lib)
+				}
+			}
 		}
 	}
+
 	if len(libsWithBadLicenses) > 0 {
 		return fmt.Errorf("one or more libraries have an incompatible/unknown license: %q", libsWithBadLicenses)
 	}
+
 	return nil
 }
 
@@ -122,7 +147,7 @@ func copySrc(src, dest string) error {
 	// Skip the .git directory for copying, if it exists, since we don't want to save the user's
 	// local Git config along with the source code.
 	opt := copy.Options{
-		Skip: func(src string) (bool, error) {
+		Skip: func(_ os.FileInfo, src, dest string) (bool, error) {
 			return strings.HasSuffix(src, ".git"), nil
 		},
 		AddPermission: 0600,

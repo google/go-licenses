@@ -28,27 +28,61 @@ func TestFind(t *testing.T) {
 	}
 
 	classifier := classifierStub{
-		licenseNames: map[string]string{
-			"testdata/LICENSE":                                   "foo",
-			"testdata/MIT/LICENSE.MIT":                           "MIT",
-			"testdata/licence/LICENCE":                           "foo",
-			"testdata/copying/COPYING":                           "foo",
-			"testdata/notice/NOTICE.txt":                         "foo",
-			"testdata/readme/README.md":                          "foo",
-			"testdata/lowercase/license":                         "foo",
-			"testdata/license-apache-2.0/LICENSE-APACHE-2.0.txt": "foo",
-			"testdata/unlicense/UNLICENSE":                       "unlicense",
-		},
-		licenseTypes: map[string]Type{
-			"testdata/LICENSE":                                   Notice,
-			"testdata/MIT/LICENSE.MIT":                           Notice,
-			"testdata/licence/LICENCE":                           Notice,
-			"testdata/copying/COPYING":                           Notice,
-			"testdata/notice/NOTICE.txt":                         Notice,
-			"testdata/readme/README.md":                          Notice,
-			"testdata/lowercase/license":                         Notice,
-			"testdata/license-apache-2.0/LICENSE-APACHE-2.0.txt": Notice,
-			"testdata/unlicense/UNLICENSE":                       Unencumbered,
+		licenses: map[string][]License{
+			"testdata/LICENSE": {
+				{
+					Name: "foo",
+					Type: Notice,
+				},
+			},
+			"testdata/MIT/LICENSE.MIT": {
+				{
+					Name: "MIT",
+					Type: Notice,
+				},
+			},
+			"testdata/licence/LICENCE": {
+				{
+					Name: "foo",
+					Type: Notice,
+				},
+			},
+			"testdata/copying/COPYING": {
+				{
+					Name: "foo",
+					Type: Notice,
+				},
+			},
+			"testdata/notice/NOTICE.txt": {
+				{
+					Name: "foo",
+					Type: Notice,
+				},
+			},
+			"testdata/readme/README.md": {
+				{
+					Name: "foo",
+					Type: Notice,
+				},
+			},
+			"testdata/lowercase/license": {
+				{
+					Name: "foo",
+					Type: Notice,
+				},
+			},
+			"testdata/license-apache-2.0/LICENSE-APACHE-2.0.txt": {
+				{
+					Name: "foo",
+					Type: Notice,
+				},
+			},
+			"testdata/unlicense/UNLICENSE": {
+				{
+					Name: "unlicense",
+					Type: Unencumbered,
+				},
+			},
 		},
 	}
 

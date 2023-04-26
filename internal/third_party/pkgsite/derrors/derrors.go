@@ -9,7 +9,6 @@ package derrors
 import (
 	"errors"
 	"fmt"
-	"net/http"
 )
 
 //lint:file-ignore ST1012 prefixing error values with Err would stutter
@@ -23,14 +22,6 @@ var (
 	InvalidArgument = errors.New("invalid argument")
 )
 
-var codes = []struct {
-	err  error
-	code int
-}{
-	{NotFound, http.StatusNotFound},
-	{InvalidArgument, http.StatusBadRequest},
-}
-
 // Wrap adds context to the error and allows
 // unwrapping the result to recover the original error.
 //
@@ -40,7 +31,7 @@ var codes = []struct {
 //
 // See Add for an equivalent function that does not allow
 // the result to be unwrapped.
-func Wrap(errp *error, format string, args ...interface{}) {
+func Wrap(errp *error, format string, args ...any) {
 	if *errp != nil {
 		*errp = fmt.Errorf("%s: %w", fmt.Sprintf(format, args...), *errp)
 	}

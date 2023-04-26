@@ -46,7 +46,7 @@ func Find(dir string, rootDir string, classifier Classifier) (string, error) {
 	}
 	found, err := findUpwards(dir, licenseRegexp, rootDir, func(path string) bool {
 		// TODO(RJPercival): Return license details
-		if _, _, err := classifier.Identify(path); err != nil {
+		if _, err := classifier.Identify(path); err != nil {
 			return false
 		}
 		return true

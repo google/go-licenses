@@ -18,84 +18,66 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/google/licenseclassifier"
+	licenseclassifier "github.com/google/licenseclassifier/v2"
+	"github.com/google/licenseclassifier/v2/assets"
 )
-
-// Type identifies a class of software license.
-type Type string
-
-// License types
-const (
-	// Unknown license type.
-	Unknown = Type("")
-	// Restricted licenses require mandatory source distribution if we ship a
-	// product that includes third-party code protected by such a license.
-	Restricted = Type("restricted")
-	// Reciprocal licenses allow usage of software made available under such
-	// licenses freely in *unmodified* form. If the third-party source code is
-	// modified in any way these modifications to the original third-party
-	// source code must be made available.
-	Reciprocal = Type("reciprocal")
-	// Notice licenses contain few restrictions, allowing original or modified
-	// third-party software to be shipped in any product without endangering or
-	// encumbering our source code. All of the licenses in this category do,
-	// however, have an "original Copyright notice" or "advertising clause",
-	// wherein any external distributions must include the notice or clause
-	// specified in the license.
-	Notice = Type("notice")
-	// Permissive licenses are even more lenient than a 'notice' license.
-	// Not even a copyright notice is required for license compliance.
-	Permissive = Type("permissive")
-	// Unencumbered covers licenses that basically declare that the code is "free for any use".
-	Unencumbered = Type("unencumbered")
-	// Forbidden licenses are forbidden to be used.
-	Forbidden = Type("FORBIDDEN")
-)
-
-func (t Type) String() string {
-	switch t {
-	case Unknown:
-		// licenseclassifier uses an empty string to indicate an unknown license
-		// type, which is unclear to users when printed as a string.
-		return "unknown"
-	default:
-		return string(t)
-	}
-}
 
 // Classifier can detect the type of a software license.
 type Classifier interface {
-	Identify(licensePath string) (string, Type, error)
+	Identify(licensePath string) ([]License, error)
 }
 
 type googleClassifier struct {
-	classifier *licenseclassifier.License
+	classifier *licenseclassifier.Classifier
 }
 
-// NewClassifier creates a classifier that requires a specified confidence threshold
-// in order to return a positive license classification.
-func NewClassifier(confidenceThreshold float64) (Classifier, error) {
-	c, err := licenseclassifier.New(confidenceThreshold)
+// NewClassifier creates a classifier
+func NewClassifier() (Classifier, error) {
+	c, err := assets.DefaultClassifier()
 	if err != nil {
 		return nil, err
 	}
 	return &googleClassifier{classifier: c}, nil
 }
 
+type License struct {
+	Name string
+	Type Type
+}
+
 // Identify returns the name and type of a license, given its file path.
 // An empty license path results in an empty name and Unknown type.
-func (c *googleClassifier) Identify(licensePath string) (string, Type, error) {
+func (c *googleClassifier) Identify(licensePath string) ([]License, error) {
 	if licensePath == "" {
-		return "", Unknown, nil
+		return nil, nil
 	}
-	content, err := os.ReadFile(licensePath)
+
+	file, err := os.Open(licensePath)
 	if err != nil {
-		return "", "", err
+		return nil, err
 	}
-	matches := c.classifier.MultipleMatch(string(content), true)
-	if len(matches) == 0 {
-		return "", "", fmt.Errorf("unknown license")
+	defer file.Close()
+
+	matches, err := c.classifier.MatchFrom(file)
+	if err != nil {
+		return nil, err
 	}
-	licenseName := matches[0].Name
-	return licenseName, Type(licenseclassifier.LicenseType(licenseName)), nil
+
+	licenses := []License{}
+	for _, match := range matches.Matches {
+		if match.MatchType != "License" {
+			continue
+		}
+
+		licenses = append(licenses, License{
+			Name: match.Name,
+			Type: LicenseType(match.Name),
+		})
+	}
+
+	if len(matches.Matches) > 0 {
+		return licenses, nil
+	} else {
+		return nil, fmt.Errorf("no license found")
+	}
 }
