@@ -15,7 +15,6 @@
 package licenses
 
 import (
-	"fmt"
 	"os"
 
 	licenseclassifier "github.com/google/licenseclassifier/v2"
@@ -83,9 +82,5 @@ func (c *googleClassifier) Identify(licensePath string) ([]License, error) {
 		})
 	}
 
-	if len(matches.Matches) > 0 {
-		return licenses, nil
-	} else {
-		return nil, fmt.Errorf("no license found")
-	}
+	return licenses, nil
 }

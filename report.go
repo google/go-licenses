@@ -17,11 +17,15 @@ package main
 import (
 	"context"
 	"encoding/csv"
+	"fmt"
 	"os"
 	"text/template"
+	"time"
 
+	"github.com/google/go-licenses/internal/third_party/pkgsite/source"
 	"github.com/google/go-licenses/licenses"
 	"github.com/spf13/cobra"
+	"golang.org/x/sync/errgroup"
 	"k8s.io/klog/v2"
 )
 
@@ -49,16 +53,24 @@ func init() {
 }
 
 type libraryData struct {
+	Name         string
+	Version      string
+	LicensePath  string
+	LicenseURL   string
+	LicenseNames []string
+}
+
+type libraryDataFlat struct {
 	Name        string
+	Version     string
+	LicensePath string
 	LicenseURL  string
 	LicenseName string
-	LicensePath string
-	Version     string
 }
 
 // LicenseText reads and returns the contents of LicensePath, if set
 // or an empty string if not.
-func (lib libraryData) LicenseText() (string, error) {
+func (lib libraryDataFlat) LicenseText() (string, error) {
 	if lib.LicensePath == "" {
 		return "", nil
 	}
@@ -80,56 +92,83 @@ func reportMain(_ *cobra.Command, args []string) error {
 		return err
 	}
 
-	var reportData []libraryData
-	for _, lib := range libs {
-		version := lib.Version()
-		if len(version) == 0 {
-			version = UNKNOWN
-		}
-		libData := libraryData{
-			Name:        lib.Name(),
-			Version:     version,
-			LicenseURL:  UNKNOWN,
-			LicenseName: UNKNOWN,
-		}
+	reportData := make([]libraryData, len(libs))
+	client := source.NewClient(time.Second * 20)
+	group, gctx := errgroup.WithContext(context.Background())
+	for idx, lib := range libs {
+		idx := idx
+		lib := lib
 
-		if lib.LicensePath == "" {
-			reportData = append(reportData, libData)
-			continue
+		reportData[idx] = libraryData{
+			Name:         lib.Name(),
+			Version:      UNKNOWN,
+			LicensePath:  UNKNOWN,
+			LicenseURL:   UNKNOWN,
+			LicenseNames: nil,
 		}
 
-		libData.LicensePath = lib.LicensePath
+		if version := lib.Version(); version != "" {
+			reportData[idx].Version = version
+		}
 
-		url, err := lib.FileURL(context.Background(), lib.LicensePath)
-		if err == nil {
-			libData.LicenseURL = url
+		if lib.LicenseFile != "" {
+			reportData[idx].LicensePath = lib.LicenseFile
+		}
+
+		for _, license := range lib.Licenses {
+			reportData[idx].LicenseNames = append(reportData[idx].LicenseNames, license.Name)
+		}
+
+		if lib.LicenseFile != "" {
+			group.Go(func() error {
+				url, err := lib.FileURL(gctx, client, lib.LicenseFile)
+				if err == nil {
+					reportData[idx].LicenseURL = url
+				} else {
+					klog.Warningf("Error discovering license URL: %s", err)
+				}
+				return nil
+			})
+		}
+	}
+
+	if err := group.Wait(); err != nil {
+		return err
+	}
+
+	// Flatten the report data
+	reportDataFlat := make([]libraryDataFlat, 0, len(reportData))
+	for _, lib := range reportData {
+		if len(lib.LicenseNames) == 0 {
+			klog.Errorf("Error identifying license in %q: %v", lib.LicensePath, fmt.Errorf("no license found"))
+			reportDataFlat = append(reportDataFlat, libraryDataFlat{
+				Name:        lib.Name,
+				Version:     lib.Version,
+				LicensePath: lib.LicensePath,
+				LicenseURL:  lib.LicenseURL,
+				LicenseName: UNKNOWN,
+			})
 		} else {
-			klog.Warningf("Error discovering license URL: %s", err)
-		}
-
-		licenses, err := classifier.Identify(lib.LicensePath)
-		if err != nil {
-			klog.Errorf("Error identifying license in %q: %v", lib.LicensePath, err)
-			reportData = append(reportData, libData)
-			continue
-		}
-
-		// Add each license to the report data, licenses is already sorted by
-		// location in the LICENSE file.
-		for _, license := range licenses {
-			libData.LicenseName = license.Name
-			reportData = append(reportData, libData)
+			for _, licenseName := range lib.LicenseNames {
+				reportDataFlat = append(reportDataFlat, libraryDataFlat{
+					Name:        lib.Name,
+					Version:     lib.Version,
+					LicensePath: lib.LicensePath,
+					LicenseURL:  lib.LicenseURL,
+					LicenseName: licenseName,
+				})
+			}
 		}
 	}
 
 	if templateFile == "" {
-		return reportCSV(reportData)
+		return reportCSV(reportDataFlat)
 	} else {
-		return reportTemplate(reportData)
+		return reportTemplate(reportDataFlat)
 	}
 }
 
-func reportCSV(libs []libraryData) error {
+func reportCSV(libs []libraryDataFlat) error {
 	writer := csv.NewWriter(os.Stdout)
 	for _, lib := range libs {
 		if err := writer.Write([]string{lib.Name, lib.LicenseURL, lib.LicenseName}); err != nil {
@@ -140,7 +179,7 @@ func reportCSV(libs []libraryData) error {
 	return writer.Error()
 }
 
-func reportTemplate(libs []libraryData) error {
+func reportTemplate(libs []libraryDataFlat) error {
 	templateBytes, err := os.ReadFile(templateFile)
 	if err != nil {
 		return err
