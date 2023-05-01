@@ -14,7 +14,7 @@ require (
 	golang.org/x/text v0.9.0
 	golang.org/x/tools v0.8.0
 	gopkg.in/src-d/go-git.v4 v4.13.1
-	k8s.io/klog/v2 v2.90.1
+	k8s.io/klog/v2 v2.100.1
 )
 
 require (
