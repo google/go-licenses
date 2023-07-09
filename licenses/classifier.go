@@ -63,11 +63,19 @@ func (c *googleClassifier) Identify(licensePath string) ([]License, error) {
 		return nil, err
 	}
 
+	foundLicenseNames := map[string]struct{}{}
+
 	licenses := []License{}
 	for _, match := range matches.Matches {
 		if match.MatchType != "License" {
 			continue
 		}
+
+		// Skip duplicate licenses.
+		if _, ok := foundLicenseNames[match.Name]; ok {
+			continue
+		}
+		foundLicenseNames[match.Name] = struct{}{}
 
 		licenses = append(licenses, License{
 			Name: match.Name,
