@@ -39,6 +39,7 @@ func TestReportCommandE2E(t *testing.T) {
 		{"testdata/modules/cli02", nil, "licenses.csv"},
 		{"testdata/modules/vendored03", nil, "licenses.csv"},
 		{"testdata/modules/replace04", nil, "licenses.csv"},
+		{"testdata/modules/complex", nil, "licenses.csv"},
 
 		{"testdata/modules/hello01", []string{"--template", "licenses.tpl"}, "licenses.md"},
 		{"testdata/modules/template01", []string{"--template", "licenses.tpl"}, "licenses.md"},
@@ -127,6 +128,7 @@ func TestCheckCommandE2E(t *testing.T) {
 		{"testdata/modules/cli02", []string{"--allowed_licenses=Apache-2.0,MIT"}, "output-check-license-names-2.txt", 1},
 		{"testdata/modules/cli02", []string{"--allowed_licenses= Apache-2.0, MIT"}, "output-check-license-names-2.txt", 1},
 		{"testdata/modules/nolicense05", nil, "output-check.txt", 1},
+		{"testdata/modules/complex", nil, "output-check-complex.txt", 0},
 	}
 
 	originalWorkDir, err := os.Getwd()
