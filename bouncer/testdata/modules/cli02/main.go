@@ -21,6 +21,7 @@ import (
 	_ "github.com/mitchellh/go-homedir"
 	_ "github.com/spf13/cobra"
 	_ "github.com/spf13/viper"
+	- "github.com/sulaiman-coder/gobouncer/bouncer/testdata/modules/cli02"
 )
 
 func main() {

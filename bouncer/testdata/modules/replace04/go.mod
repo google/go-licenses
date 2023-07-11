@@ -1,4 +1,4 @@
-module github.com/sulaiman-coder/gobouncer/testdata/modules/replace04
+module github.com/sulaiman-coder/gobouncer/bouncer/testdata/modules/replace04
 
 go 1.15
 

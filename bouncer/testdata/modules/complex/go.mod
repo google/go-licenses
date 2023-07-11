@@ -1,4 +1,4 @@
-module github.com/sulaiman-coder/gobouncer/testdata/modules/complex
+module github.com/sulaiman-coder/gobouncer/bouncer/testdata/modules/complex
 
 go 1.19
 
