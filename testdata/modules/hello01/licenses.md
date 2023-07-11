@@ -1,7 +1,7 @@
 
-## github.com/google/go-licenses/testdata/modules/hello01 ([Apache-2.0](https://github.com/google/go-licenses/blob/HEAD/testdata/modules/hello01/LICENSE))
-
+## github.com/sulaiman-coder/gobouncer/testdata/modules/hello01 ([Apache-2.0](https://github.com/sulaiman-coder/gobouncer/blob/HEAD/testdata/modules/hello01/LICENSE))
 ```
+
                                  Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/

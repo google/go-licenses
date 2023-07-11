@@ -14,7 +14,7 @@
 
 package source
 
-// This file includes all local additions to source package for google/go-licenses use-cases.
+// This file includes all local additions to source package for sulaiman-coder/gobouncer use-cases.
 
 // SetCommit overrides commit to a specified commit. Usually, you should pass your version to
 // ModuleInfo(). However, when you do not know the version and just wants a link that points to

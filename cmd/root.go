@@ -11,7 +11,7 @@ import (
 var rootCmd = &cobra.Command{
 	Use:   "bouncer",
 	Short: "A go license checker",
-	Long:  `A go license checker (an alternative wrapper for github.com/google/go-licenses)`,
+	Long:  `A go license checker (an alternative wrapper for github.com/sulaiman-coder/gobouncer)`,
 }
 
 func Execute() {

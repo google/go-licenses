@@ -1,4 +1,4 @@
-module github.com/google/go-licenses/testdata/modules/template01
+module github.com/sulaiman-coder/gobouncer/testdata/modules/template01
 
 go 1.15
 

@@ -1,4 +1,4 @@
-module github.com/google/go-licenses/testdata/modules/vendored03
+module github.com/sulaiman-coder/gobouncer/testdata/modules/vendored03
 
 go 1.15
 

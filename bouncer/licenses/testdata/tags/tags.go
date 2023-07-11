@@ -20,5 +20,5 @@ package tags
 import (
 	// This import should be detected as being a transitive dependency of whatever
 	// imports this package.
-	_ "github.com/sulaiman-coder/gobouncer/licenses/testdata/indirect"
+	_ "github.com/sulaiman-coder/gobouncer/bouncer/licenses/testdata/indirect"
 )

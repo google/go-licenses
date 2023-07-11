@@ -1,3 +1,3 @@
-module github.com/google/go-licenses/testdata/modules/hello01
+module github.com/sulaiman-coder/gobouncer/testdata/modules/hello01
 
 go 1.15

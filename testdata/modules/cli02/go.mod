@@ -1,4 +1,4 @@
-module github.com/google/go-licenses/testdata/modules/cli02
+module github.com/sulaiman-coder/gobouncer/testdata/modules/cli02
 
 go 1.15
 
