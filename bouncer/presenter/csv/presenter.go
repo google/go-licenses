@@ -8,10 +8,10 @@ import (
 )
 
 type Presenter struct {
-	resultStream []bouncer.LicenseResult
+	resultStream <-chan bouncer.LicenseResult
 }
 
-func NewPresenter(results []bouncer.LicenseResult) Presenter {
+func NewPresenter(results <-chan bouncer.LicenseResult) Presenter {
 	return Presenter{
 		resultStream: results,
 	}
@@ -19,8 +19,8 @@ func NewPresenter(results []bouncer.LicenseResult) Presenter {
 
 func (p Presenter) Present(target io.Writer) error {
 	writer := csv.NewWriter(target)
-	for _, result := range p.resultStream {
-		if err := writer.Write([]string{result.ModulePath, result.Type, result.License}); err != nil {
+	for result := range p.resultStream {
+		if err := writer.Write([]string{result.Library, result.URL, result.Type, result.License}); err != nil {
 			return err
 		}
 	}

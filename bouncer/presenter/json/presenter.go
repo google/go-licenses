@@ -9,17 +9,19 @@ import (
 )
 
 type jsonResult struct {
-	Module   string   `json:"module"`
+	Pkg string `json:"package"`
+	URL string `json:"url"`
+	// Path     string   `json:"local-path"`
 	Name     string   `json:"name"`
 	Type     string   `json:"type"`
 	Warnings []string `json:"warnings,omitempty"`
 }
 
 type Presenter struct {
-	resultStream []bouncer.LicenseResult
+	resultStream <-chan bouncer.LicenseResult
 }
 
-func NewPresenter(results []bouncer.LicenseResult) Presenter {
+func NewPresenter(results <-chan bouncer.LicenseResult) Presenter {
 	return Presenter{
 		resultStream: results,
 	}
@@ -50,7 +52,7 @@ func (p Presenter) Present(target io.Writer) error {
 	writer.SetIndent("", "  ")
 
 	results := make([]jsonResult, 0)
-	for _, result := range p.resultStream {
+	for result := range p.resultStream {
 		warnings := make([]string, 0)
 		if result.Errs != nil {
 			for _, err := range unwrap(result.Errs) {
@@ -58,9 +60,11 @@ func (p Presenter) Present(target io.Writer) error {
 			}
 		}
 		results = append(results, jsonResult{
-			Module:   result.ModulePath,
-			Name:     result.License,
-			Type:     result.Type,
+			Pkg:  result.Library,
+			URL:  result.URL,
+			Name: result.License,
+			Type: result.Type,
+			//Path:     result.Path,
 			Warnings: warnings,
 		})
 	}

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package bouncer
+package licenses
 
 import (
 	"fmt"
@@ -68,23 +68,23 @@ type Classifier interface {
 	Identify(licensePath string) (string, Type, error)
 }
 
-type googleLicenseClassifier struct {
+type googleClassifier struct {
 	classifier *licenseclassifier.License
 }
 
-// NewLicenseClassifier creates a classifier that requires a specified confidence threshold
+// NewClassifier creates a classifier that requires a specified confidence threshold
 // in order to return a positive license classification.
-func NewLicenseClassifier(confidenceThreshold float64, options ...licenseclassifier.OptionFunc) (Classifier, error) {
+func NewClassifier(confidenceThreshold float64, options ...licenseclassifier.OptionFunc) (Classifier, error) {
 	c, err := licenseclassifier.New(confidenceThreshold, options...)
 	if err != nil {
 		return nil, err
 	}
-	return &googleLicenseClassifier{classifier: c}, nil
+	return &googleClassifier{classifier: c}, nil
 }
 
 // Identify returns the name and type of a license, given its file path.
 // An empty license path results in an empty name and Unknown type.
-func (c *googleLicenseClassifier) Identify(licensePath string) (string, Type, error) {
+func (c *googleClassifier) Identify(licensePath string) (string, Type, error) {
 	if licensePath == "" {
 		return "", Unknown, nil
 	}

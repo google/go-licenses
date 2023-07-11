@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package bouncer
+package licenses
 
 import (
 	"fmt"
@@ -85,7 +85,7 @@ func TestIdentify(t *testing.T) {
 		},
 	} {
 		t.Run(test.desc, func(t *testing.T) {
-			c, err := NewLicenseClassifier(test.confidence)
+			c, err := NewClassifier(test.confidence)
 			if err != nil {
 				t.Fatalf("NewClassifier(%v) = (_, %q), want (_, nil)", test.confidence, err)
 			}

@@ -20,3 +20,11 @@ func Execute() {
 		os.Exit(1)
 	}
 }
+
+func init() {
+	setCliOptions()
+
+	cobra.OnInitialize(
+		initAppConfig,
+	)
+}

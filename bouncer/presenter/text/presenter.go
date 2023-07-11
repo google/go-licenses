@@ -10,10 +10,10 @@ import (
 )
 
 type Presenter struct {
-	resultStream []bouncer.LicenseResult
+	resultStream <-chan bouncer.LicenseResult
 }
 
-func NewPresenter(results []bouncer.LicenseResult) Presenter {
+func NewPresenter(results <-chan bouncer.LicenseResult) Presenter {
 	return Presenter{
 		resultStream: results,
 	}
@@ -22,8 +22,8 @@ func NewPresenter(results []bouncer.LicenseResult) Presenter {
 func (p Presenter) Present(target io.Writer) error {
 	writer := bufio.NewWriter(target)
 	results := make([]string, 0)
-	for _, result := range p.resultStream {
-		str := fmt.Sprintf("%-60s %-20s %-s", result.ModulePath, result.License, result.Type)
+	for result := range p.resultStream {
+		str := fmt.Sprintf("%-60s %-20s %-s", result.Library, result.License, result.Type)
 		results = append(results, str)
 	}
 

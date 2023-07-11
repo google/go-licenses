@@ -14,7 +14,6 @@ import (
 var checkCmd = &cobra.Command{
 	Use:   "check",
 	Short: "ensure only select licenses or types are used",
-	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		err := doCheckCmd(cmd, args)
 		if err != nil {
@@ -48,7 +47,13 @@ func doCheckCmd(_ *cobra.Command, args []string) error {
 		return fmt.Errorf("could not parse rules: %+v", err)
 	}
 
-	licenseFinder := bouncer.NewLicenseFinder("", 0.9)
+	var paths []string
+	if len(args) > 0 {
+		paths = args
+	} else {
+		paths = []string{"."}
+	}
+	licenseFinder := bouncer.NewLicenseFinder(paths, gitRemotes, 0.9)
 
 	resultStream, err := licenseFinder.Find()
 	if err != nil {
@@ -56,7 +61,7 @@ func doCheckCmd(_ *cobra.Command, args []string) error {
 	}
 
 	failed := false
-	for _, result := range resultStream {
+	for result := range resultStream {
 		allowable, _, err := rules.Evaluate(result)
 		if err != nil {
 			return err
@@ -64,7 +69,7 @@ func doCheckCmd(_ *cobra.Command, args []string) error {
 
 		if !allowable {
 			failed = true
-			fmt.Printf("Unallowable license (%s) from %q\n", result.License, result.ModulePath)
+			fmt.Printf("Unallowable license (%s) from %q\n", result.License, result.Library)
 		}
 	}
 

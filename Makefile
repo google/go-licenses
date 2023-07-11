@@ -2,7 +2,6 @@ TMP = ./.tmp
 RESULTS = $(TMP)/results
 ASSETS = assets
 DBASSET = $(ASSETS)/licenses.db
-DIST = ./dist
 # note: go tools requires an absolute path
 BIN = $(abspath $(TMP)/bin)
 COVER_REPORT = $(RESULTS)/cover.report
@@ -18,6 +17,8 @@ TITLE := $(BOLD)$(PURPLE)
 SUCCESS := $(BOLD)$(GREEN)
 # the quality gate lower threshold for unit test total % coverage (by function statements)
 COVERAGE_THRESHOLD := 55
+
+RELAESE_CMD=$(BIN)/goreleaser --rm-dist
 
 ifndef TMP
     $(error TMP is not set)
@@ -51,13 +52,13 @@ bootstrap: ## Download and install all project dependencies (+ prep tooling in t
 	go mod download
 	cat tools.go | grep _ | awk -F'"' '{print $$2}' | xargs -tI % env GOBIN=$(BIN) go install %
 	# install golangci-lint
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(BIN) v1.26.0
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(BIN) v1.47.2
 	# install pkger
-	cd $(TMP) && curl -sLo pkger.tar.gz https://github.com/markbates/pkger/releases/download/v0.17.0/pkger_0.17.0_$(shell uname)_$(shell uname -m).tar.gz && \
-		tar -xzvf pkger.tar.gz pkger && \
+	cd $(TMP) && curl -sLO https://github.com/markbates/pkger/releases/download/v0.17.0/pkger_0.17.0_$(shell uname)_x86_64.tar.gz && \
+		tar -xzvf pkger_0.17.0_$(shell uname)_x86_64.tar.gz pkger && \
 		mv pkger $(BIN)
 	# install goreleaser
-	curl -sfL https://install.goreleaser.com/github.com/goreleaser/goreleaser.sh | sh -s -- -b $(BIN) v0.138.0
+	GOBIN=$(BIN) go install github.com/goreleaser/goreleaser@v1.3.1
 
 $(DBASSET):
 	$(call title,Building assets)
@@ -85,13 +86,12 @@ unit: ## Run unit tests (with coverage)
 	@echo "Coverage: $$(cat $(COVER_TOTAL))"
 	@if [ $$(echo "$$(cat $(COVER_TOTAL)) >= $(COVERAGE_THRESHOLD)" | bc -l) -ne 1 ]; then echo "$(RED)$(BOLD)Failed coverage quality gate (> $(COVERAGE_THRESHOLD)%)$(RESET)" && false; fi
 
-snapshot: pkged.go
-	$(BIN)/goreleaser \
-		--snapshot \
-		--skip-publish \
-		--rm-dist
-
 # The following targets are all CI related
+
+ci-build-snapshot-packages: pkged.go
+	$(RELAESE_CMD) \
+		--snapshot \
+		--skip-publish 
 
 # note: since google's licenseclassifier requires the go tooling ('go list' from x/tools/go/packages) we need to use a golang image
 ci-plugs-out-test:
@@ -111,23 +111,24 @@ ci-test-linux-run:
 	./dist/gobouncer_linux_amd64/bouncer version && \
 	./dist/gobouncer_linux_amd64/bouncer list github.com/sulaiman-coder/gobouncer
 
+ci-test-linux-arm-run:
+	chmod 755 ./dist/gobouncer_linux_arm64/bouncer && \
+	./dist/gobouncer_linux_arm64/bouncer version && \
+	./dist/gobouncer_linux_arm64/bouncer list github.com/sulaiman-coder/gobouncer
+
 ci-test-mac-run:
 	chmod 755 ./dist/gobouncer_darwin_amd64/bouncer && \
 	./dist/gobouncer_darwin_amd64/bouncer version && \
 	./dist/gobouncer_darwin_amd64/bouncer list github.com/sulaiman-coder/gobouncer
 
-ci-test-windows-run:
-	./dist/gobouncer_windows_amd64/bouncer version && \
-	./dist/gobouncer_windows_amd64/bouncer list github.com/sulaiman-coder/gobouncer
+ci-test-mac-arm-run:
+	chmod 755 ./dist/gobouncer_darwin_arm64/bouncer && \
+	./dist/gobouncer_darwin_arm64/bouncer version && \
+	./dist/gobouncer_darwin_arm64/bouncer list github.com/sulaiman-coder/gobouncer
 
 ci-release: pkged.go
 	$(BIN)/goreleaser --rm-dist
 
-# all clean-related targets
-
-.PHONY: clean
-clean: clean-dist ## Remove anything with state
-
-.PHONY: clean-dist
-clean-dist:
-	rm -rf $(DIST)
+clean:
+	rm -rf dist
+	rm -rf .tmp
