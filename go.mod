@@ -1,4 +1,4 @@
-module github.com/google/go-licenses
+module github.com/sulaiman-coder/gobouncer
 
 go 1.19
 
