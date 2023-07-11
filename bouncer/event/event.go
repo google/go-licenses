@@ -1,8 +1,8 @@
 package event
 
-import "github.com/sulaiman-coder/gopeventbus"
+import eventbus "github.com/sulaiman-coder/goeventbus"
 
 const (
-	ModuleScanStarted peventbus.EventType = "bouncer-module-scan-started"
-	ModuleScanResult  peventbus.EventType = "bouncer-module-scan-result"
+	ModuleScanStarted eventbus.EventType = "bouncer-module-scan-started"
+	ModuleScanResult  eventbus.EventType = "bouncer-module-scan-result"
 )

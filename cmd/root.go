@@ -11,7 +11,7 @@ import (
 var rootCmd = &cobra.Command{
 	Use:   "bouncer",
 	Short: "A go license checker",
-	Long:  `A go license checker (an alternative wrapper for github.com/sulaiman-coder/gobouncer)`,
+	Long:  `A go license checker (an alternative wrapper for github.com/google/go-licenses)`,
 }
 
 func Execute() {
@@ -19,12 +19,4 @@ func Execute() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-}
-
-func init() {
-	setCliOptions()
-
-	cobra.OnInitialize(
-		initAppConfig,
-	)
 }

@@ -23,8 +23,8 @@ import (
 
 	"github.com/sulaiman-coder/gobouncer/bouncer/event"
 	"github.com/sulaiman-coder/gobouncer/internal/bus"
-	"github.com/sulaiman-coder/goeventbus"
-	"github.com/sulaiman-coder/goprogress"
+	eventbus "github.com/sulaiman-coder/goeventbus"
+	progress "github.com/sulaiman-coder/goprogress"
 
 	"github.com/google/licenseclassifier"
 	"github.com/hashicorp/go-multierror"

@@ -13,7 +13,7 @@ type Presenter interface {
 	Present(io.Writer) error
 }
 
-func GetPresenter(option Option, results <-chan bouncer.LicenseResult) Presenter {
+func GetPresenter(option Option, results []bouncer.LicenseResult) Presenter {
 	switch option {
 	case CSVPresenter:
 		return csv.NewPresenter(results)

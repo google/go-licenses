@@ -1,8 +1,9 @@
 package bouncer
 
 import (
-	"github.com/go-test/deep"
 	"testing"
+
+	"github.com/go-test/deep"
 )
 
 func TestRules_Evaluate(t *testing.T) {
@@ -21,8 +22,8 @@ func TestRules_Evaluate(t *testing.T) {
 			patterns: []string{"MIT-0"},
 			against: []LicenseResult{
 				{
-					Library: "lib1",
-					License: "MIT-0",
+					ModulePath: "lib1",
+					License:    "MIT-0",
 				},
 			},
 			expected: true,
@@ -33,16 +34,16 @@ func TestRules_Evaluate(t *testing.T) {
 			patterns: []string{"MIT-0", "BSD.*"},
 			against: []LicenseResult{
 				{
-					Library: "lib1",
-					License: "MIT-0",
+					ModulePath: "lib1",
+					License:    "MIT-0",
 				},
 				{
-					Library: "lib2",
-					License: "BSD",
+					ModulePath: "lib2",
+					License:    "BSD",
 				},
 				{
-					Library: "lib3",
-					License: "WTFPL",
+					ModulePath: "lib3",
+					License:    "WTFPL",
 				},
 			},
 			ignore:   []string{"lib3"},
@@ -54,19 +55,19 @@ func TestRules_Evaluate(t *testing.T) {
 			patterns: []string{"MIT.*"},
 			against: []LicenseResult{
 				{
-					Library: "lib1",
-					License: "MIT-0",
+					ModulePath: "lib1",
+					License:    "MIT-0",
 				},
 				{
-					Library: "lib2",
-					License: "BSD",
+					ModulePath: "lib2",
+					License:    "BSD",
 				},
 			},
 			expected: false,
 			failedHits: []LicenseResult{
 				{
-					Library: "lib2",
-					License: "BSD",
+					ModulePath: "lib2",
+					License:    "BSD",
 				},
 			},
 		},
@@ -76,19 +77,19 @@ func TestRules_Evaluate(t *testing.T) {
 			patterns: []string{"MIT.*"},
 			against: []LicenseResult{
 				{
-					Library: "lib1",
-					License: "MIT-0",
+					ModulePath: "lib1",
+					License:    "MIT-0",
 				},
 				{
-					Library: "lib2",
-					License: "BSD",
+					ModulePath: "lib2",
+					License:    "BSD",
 				},
 			},
 			expected: false,
 			failedHits: []LicenseResult{
 				{
-					Library: "lib1",
-					License: "MIT-0",
+					ModulePath: "lib1",
+					License:    "MIT-0",
 				},
 			},
 		},
@@ -98,12 +99,12 @@ func TestRules_Evaluate(t *testing.T) {
 			patterns: []string{"MIT.*"},
 			against: []LicenseResult{
 				{
-					Library: "lib1",
-					License: "MIT-0",
+					ModulePath: "lib1",
+					License:    "MIT-0",
 				},
 				{
-					Library: "lib2",
-					License: "BSD",
+					ModulePath: "lib2",
+					License:    "BSD",
 				},
 			},
 			expected:   true,

@@ -61,7 +61,7 @@ func (r Rules) Evaluate(results ...LicenseResult) (bool, []LicenseResult, error)
 resultsLoop:
 	for _, result := range results {
 		licenseName := result.License
-		libName := result.Library
+		libName := result.ModulePath
 
 		for _, i := range r.IgnorePkgs {
 			if i.Match([]byte(libName)) {
