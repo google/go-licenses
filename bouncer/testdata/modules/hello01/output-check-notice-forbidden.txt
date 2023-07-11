@@ -1,1 +1,0 @@
-License 'Apache-2.0' of not allowed license type 'Notice' found for library 'github.com/sulaiman-coder/gobouncer/testdata/modules/hello01'.
