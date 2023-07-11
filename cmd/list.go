@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/sulaiman-coder/gobouncer/bouncer"
 	"github.com/sulaiman-coder/gobouncer/bouncer/presenter"
+	"github.com/sulaiman-coder/gobouncer/bouncer/testdata/modules"
 )
 
 var gitRemotes []string
