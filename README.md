@@ -5,7 +5,7 @@
 
 A go dependency license checker.
 
-*This is thin a wrapper around [google's license classifier](https://www.github.com/google/licenseclassifier) forked from [go-license](https://www.github.com/google/gobouncer) with a few extra options.*
+*This is thin a wrapper around [google's license classifier](https://www.github.com/google/licenseclassifier) forked from [go-license](https://www.github.com/google/go-licenses) with a few extra options.*
 
 ## Installation
 

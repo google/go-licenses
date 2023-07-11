@@ -39,7 +39,7 @@ func licenseDBArchiveFetcher() ([]byte, error) {
 }
 
 func (r LicenseFinder) Find() (<-chan LicenseResult, error) {
-	// suppress log events from gobouncer
+	// suppress log events from go-licenses
 	flag.Parse()
 	_ = flag.Lookup("logtostderr").Value.Set("false")
 
