@@ -39,7 +39,7 @@ func (e *etuiStatus) render(rows, cols uint) string {
 	return "starting..."
 }
 
-func etui(workerErrs <-chan error, subscription *partybus.Subscription) error {
+func etui(workerErrs <-chan error, subscription *eventbus.Subscription) error {
 	status := &etuiStatus{lock: &sync.Mutex{}}
 	ctx, cancel := context.WithCancel(context.Background())
 
