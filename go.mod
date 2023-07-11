@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/adrg/xdg v0.2.1
 	github.com/go-test/deep v1.1.0
-	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
+	github.com/golang/glog v1.1.1
 	github.com/google/go-cmp v0.4.0
 	github.com/google/licenseclassifier v0.0.0-20200402202327-879cb1424de0
 	github.com/gookit/color v1.2.5
