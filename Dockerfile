@@ -1,6 +1,6 @@
 FROM golang:1.18 as build
 
-WORKDIR /go-licenses
+WORKDIR /gobouncer
 
 ARG GOFLAGS=""
 ENV GOFLAGS=$GOFLAGS
@@ -28,7 +28,7 @@ RUN go run . save . --save_path /THIRD_PARTY_NOTICES
 # Make a minimal image.
 FROM gcr.io/distroless/base
 
-COPY --from=build /go/bin/go-licenses /
+COPY --from=build /go/bin/gobouncer /
 COPY --from=build /THIRD_PARTY_NOTICES /THIRD_PARTY_NOTICES
 
-ENTRYPOINT ["/go-licenses"]
+ENTRYPOINT ["/gobouncer"]

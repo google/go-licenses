@@ -51,19 +51,19 @@ func TestReportCommandE2E(t *testing.T) {
 	}
 	t.Cleanup(func() { _ = os.Chdir(originalWorkDir) })
 
-	// This builds go-licenses CLI to temporary dir.
+	// This builds gobouncer CLI to temporary dir.
 	tempDir, err := os.MkdirTemp("", "")
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer os.RemoveAll(tempDir)
-	goLicensesPath := filepath.Join(tempDir, "go-licenses")
+	goLicensesPath := filepath.Join(tempDir, "gobouncer")
 	cmd := exec.Command("go", "build", "-o", goLicensesPath)
 	_, err = cmd.Output()
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Logf("Built go-licenses binary in %s.", goLicensesPath)
+	t.Logf("Built gobouncer binary in %s.", goLicensesPath)
 
 	for _, tt := range tests {
 		t.Run(tt.workdir, func(t *testing.T) {
@@ -81,11 +81,11 @@ func TestReportCommandE2E(t *testing.T) {
 			// Capture stderr to buffer.
 			var stderr bytes.Buffer
 			cmd.Stderr = &stderr
-			t.Logf("%s $ go-licenses report .", tt.workdir)
+			t.Logf("%s $ gobouncer report .", tt.workdir)
 			output, err := cmd.Output()
 			if err != nil {
 				t.Logf("\n=== start of log ===\n%s=== end of log ===\n\n\n", stderr.String())
-				t.Fatalf("running go-licenses report: %s. Full log shown above.", err)
+				t.Fatalf("running gobouncer report: %s. Full log shown above.", err)
 			}
 			got := string(output)
 			if *update {
@@ -104,7 +104,7 @@ func TestReportCommandE2E(t *testing.T) {
 			golden := string(goldenBytes)
 			if got != golden {
 				t.Logf("\n=== start of log ===\n%s=== end of log ===\n\n\n", stderr.String())
-				t.Fatalf("result of go-licenses report does not match the golden file.\n"+
+				t.Fatalf("result of gobouncer report does not match the golden file.\n"+
 					"Diff -golden +got:\n%s\n"+
 					"Update the golden by running `go test --update .`",
 					cmp.Diff(golden, got))
@@ -137,19 +137,19 @@ func TestCheckCommandE2E(t *testing.T) {
 	}
 	t.Cleanup(func() { _ = os.Chdir(originalWorkDir) })
 
-	// This builds go-licenses CLI to temporary dir.
+	// This builds gobouncer CLI to temporary dir.
 	tempDir, err := os.MkdirTemp("", "")
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer os.RemoveAll(tempDir)
-	goLicensesPath := filepath.Join(tempDir, "go-licenses")
+	goLicensesPath := filepath.Join(tempDir, "gobouncer")
 	cmd := exec.Command("go", "build", "-o", goLicensesPath)
 	_, err = cmd.Output()
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Logf("Built go-licenses binary in %s.", goLicensesPath)
+	t.Logf("Built gobouncer binary in %s.", goLicensesPath)
 
 	for _, tt := range tests {
 		t.Run(tt.workdir, func(t *testing.T) {
@@ -170,7 +170,7 @@ func TestCheckCommandE2E(t *testing.T) {
 			var stderr bytes.Buffer
 			cmd.Stderr = &stderr
 			exitCode := 0
-			t.Logf("%s $ go-licenses check .", tt.workdir)
+			t.Logf("%s $ gobouncer check .", tt.workdir)
 			output, err := cmd.Output()
 			if err != nil {
 				exitCode = -1
@@ -181,11 +181,11 @@ func TestCheckCommandE2E(t *testing.T) {
 			}
 
 			if len(output) != 0 {
-				t.Fatalf("unexpected output running go-licenses check: %s.", string(output))
+				t.Fatalf("unexpected output running gobouncer check: %s.", string(output))
 			}
 
 			if exitCode != tt.wantExitCode {
-				t.Fatalf("unexpected exit code running go-licenses check, expected %d but got %d", tt.wantExitCode, exitCode)
+				t.Fatalf("unexpected exit code running gobouncer check, expected %d but got %d", tt.wantExitCode, exitCode)
 			}
 
 			got := filterOutput(stderr.String())
@@ -205,7 +205,7 @@ func TestCheckCommandE2E(t *testing.T) {
 			golden := string(goldenBytes)
 			if got != golden {
 				t.Logf("\n=== start of log ===\n%s=== end of log ===\n\n\n", stderr.String())
-				t.Fatalf("result of go-licenses check does not match the golden file.\n"+
+				t.Fatalf("result of gobouncer check does not match the golden file.\n"+
 					"Diff -golden +got:\n%s\n"+
 					"Update the golden by running `go test --update .`",
 					cmp.Diff(golden, got))
