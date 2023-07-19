@@ -10,7 +10,7 @@ require (
 	github.com/google/licenseclassifier v0.0.0-20200402202327-879cb1424de0
 	github.com/gookit/color v1.5.3
 	github.com/hashicorp/go-multierror v1.1.1
-	github.com/markbates/pkger v0.17.0
+	github.com/markbates/pkger v0.17.1
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.16.0
