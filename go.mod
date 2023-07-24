@@ -9,10 +9,10 @@ require (
 	github.com/otiai10/copy v1.10.0
 	github.com/spf13/cobra v1.7.0
 	go.opencensus.io v0.24.0
-	golang.org/x/mod v0.10.0
-	golang.org/x/net v0.9.0
-	golang.org/x/text v0.9.0
-	golang.org/x/tools v0.8.0
+	golang.org/x/mod v0.12.0
+	golang.org/x/net v0.12.0
+	golang.org/x/text v0.11.0
+	golang.org/x/tools v0.11.0
 	gopkg.in/src-d/go-git.v4 v4.13.1
 	k8s.io/klog/v2 v2.90.1
 )
@@ -34,8 +34,8 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/src-d/gcfg v1.4.0 // indirect
 	github.com/xanzy/ssh-agent v0.3.0 // indirect
-	golang.org/x/crypto v0.1.0 // indirect
-	golang.org/x/sys v0.7.0 // indirect
+	golang.org/x/crypto v0.11.0 // indirect
+	golang.org/x/sys v0.10.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/src-d/go-billy.v4 v4.3.2 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
