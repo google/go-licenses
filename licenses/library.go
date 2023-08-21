@@ -62,6 +62,17 @@ func (e PackagesError) Error() string {
 // Packages not covered by a license will be returned as individual libraries.
 // Standard library packages will be ignored.
 func Libraries(ctx context.Context, classifier Classifier, includeTests bool, ignoredPaths []string, importPaths ...string) ([]*Library, error) {
+	// These are the steps we take to find libraries:
+	// 1. we list all modules and all packages
+	// 2. for each package, we find a list of candidates
+	// 3. we deduplicate all candidates
+	// 4. for each candidate, we classify if the candidate is a license file
+	// 5. for each package, we select the first candidates that is a license
+	//    file & add the package to a list of packages for that license file
+	// 6. we return an array of libraries (which are the license files, the
+	//    found licenses in that file, all the packages that had that file as
+	//    its first candidate and the module in which those packages live)
+
 	cfg := &packages.Config{
 		Context: ctx,
 		Mode:    packages.NeedImports | packages.NeedDeps | packages.NeedFiles | packages.NeedName | packages.NeedModule,
