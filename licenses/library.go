@@ -18,6 +18,7 @@ import (
 	"context"
 	"fmt"
 	"go/build"
+	"path"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -117,7 +118,33 @@ func Libraries(ctx context.Context, classifier Classifier, includeTests bool, ig
 			klog.Errorf("Package %s does not have module info. Non go modules projects are no longer supported. For feedback, refer to https://github.com/google/go-licenses/issues/128.", p.PkgPath)
 			return false
 		}
-		licensePath, err := Find(pkgDir, p.Module.Dir, classifier)
+
+		stopAt := p.Module.Dir
+		if isVendorModule(newModule(p.Module), pkgDir) {
+			splits := strings.SplitN(pkgDir, "/vendor/", 2)
+			moduleSplits := strings.Split(p.Module.Path, "/")
+			// There seems to be 3 common cases in terms of go module directory structure:
+			// - "github" case follows github.com/<org>/<repo>
+			// - "k8s.io" case follow k8s.io/<module>
+			// - "go.starlark.net" (and probably lots others not exactly sure why/when this happens) case where go.starlark.net is the only folder in the structure
+			// To account for the above, the stopAt is set to the the greatest depth up to 3 subfolders
+			// Alternative: Since license files should only exists in the context of module folders within
+			// the vendor directory, and not repo (github.com) folders or the vendor folder itself, we could
+			// set stopAt to vendor mainly just to ensure traversal never goes above vendor, finding the main module license
+			switch {
+			case len(moduleSplits) > 2:
+				stopAt = path.Join(splits[0], "vendor", moduleSplits[0], moduleSplits[1], moduleSplits[2])
+			case len(moduleSplits) == 2:
+				stopAt = path.Join(splits[0], "vendor", moduleSplits[0], moduleSplits[1])
+			case len(moduleSplits) == 1:
+				stopAt = path.Join(splits[0], "vendor", moduleSplits[0])
+			default:
+				klog.Errorf("module %s has an unexpected number of directories. Report to go-licenses developer if you see this.", p.Module.Path)
+				return false
+			}
+		}
+
+		licensePath, err := Find(pkgDir, stopAt, classifier)
 		if err != nil {
 			klog.Errorf("Failed to find license for %s: %v", p.PkgPath, err)
 		}
@@ -156,43 +183,25 @@ func Libraries(ctx context.Context, classifier Classifier, includeTests bool, ig
 				lib.module = newModule(pkg.Module)
 			}
 		}
-		if lib.module != nil && lib.module.Path != "" && lib.module.Dir == "" {
-			// A known cause is that the module is vendored, so some information is lost.
+		if isVendorModule(lib.module, lib.LicensePath) {
 			splits := strings.SplitN(lib.LicensePath, "/vendor/", 2)
-			if len(splits) != 2 {
-				klog.Warningf("module %s does not have dir and it's not vendored, cannot discover the license URL. Report to go-licenses developer if you see this.", lib.module.Path)
-			} else {
-				// This is vendored. Handle this known special case.
-
-				// Extra note why we identify a vendored package like this.
-				//
-				// For a normal package:
-				// * if it's not in a module, lib.module == nil
-				// * if it's in a module, lib.module.Dir != ""
-				// Only vendored modules will have lib.module != nil && lib.module.Path != "" && lib.module.Dir == "" as far as I know.
-				// So the if condition above is already very strict for vendored packages.
-				// On top of it, we checked the lib.LicensePath contains a vendor folder in it.
-				// So it's rare to have a false positive for both conditions at the same time, although it may happen in theory.
-				//
-				// These assumptions may change in the future,
-				// so we need to keep this updated with go tooling changes.
-				parentModDir := splits[0]
-				var parentPkg *packages.Package
-				for _, rootPkg := range rootPkgs {
-					if rootPkg.Module != nil && rootPkg.Module.Dir == parentModDir {
-						parentPkg = rootPkg
-						break
-					}
-				}
-				if parentPkg == nil {
-					klog.Warningf("cannot find parent package of vendored module %s", lib.module.Path)
-				} else {
-					// Vendored modules should be commited in the parent module, so it counts as part of the
-					// parent module.
-					lib.module = newModule(parentPkg.Module)
+			parentModDir := splits[0]
+			var parentPkg *packages.Package
+			for _, rootPkg := range rootPkgs {
+				if rootPkg.Module != nil && rootPkg.Module.Dir == parentModDir {
+					parentPkg = rootPkg
+					break
 				}
 			}
+			if parentPkg == nil {
+				klog.Warningf("cannot find parent package of vendored module %s", lib.module.Path)
+			} else {
+				// Vendored modules should be commited in the parent module, so it counts as part of the
+				// parent module.
+				lib.module = newModule(parentPkg.Module)
+			}
 		}
+
 		libraries = append(libraries, lib)
 	}
 	// Sort libraries to produce a stable result for snapshot diffing.
@@ -226,6 +235,33 @@ func commonAncestor(paths []string) string {
 		}
 	}
 	return min
+}
+
+func isVendorModule(module *Module, path string) bool {
+	if module != nil && module.Path != "" && module.Dir == "" {
+		// A known cause is that the module is vendored, so some information is lost.
+		splits := strings.SplitN(path, "/vendor/", 2)
+		if len(splits) != 2 {
+			klog.Warningf("module %s does not have dir and it's not vendored, cannot discover the license URL. Report to go-licenses developer if you see this.", module.Path)
+		} else {
+			// This is vendored. Handle this known special case.
+
+			// Extra note why we identify a vendored package like this.
+			//
+			// For a normal package:
+			// * if it's not in a module, lib.module == nil
+			// * if it's in a module, lib.module.Dir != ""
+			// Only vendored modules will have lib.module != nil && lib.module.Path != "" && lib.module.Dir == "" as far as I know.
+			// So the if condition above is already very strict for vendored packages.
+			// On top of it, we checked the lib.LicensePath contains a vendor folder in it.
+			// So it's rare to have a false positive for both conditions at the same time, although it may happen in theory.
+			//
+			// These assumptions may change in the future,
+			// so we need to keep this updated with go tooling changes.
+			return true
+		}
+	}
+	return false
 }
 
 func (l *Library) String() string {
