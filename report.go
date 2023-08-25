@@ -140,7 +140,13 @@ func reportMain(_ *cobra.Command, args []string) error {
 	reportDataFlat := make([]libraryDataFlat, 0, len(reportData))
 	for _, lib := range reportData {
 		if len(lib.LicenseNames) == 0 {
-			klog.Errorf("Error identifying license in %q: %v", lib.LicensePath, fmt.Errorf("no license found"))
+			if lib.LicensePath != UNKNOWN {
+				klog.Errorf("Error identifying license in %q: %v", lib.LicensePath, fmt.Errorf("no license found"))
+			} else if lib.Version != UNKNOWN {
+				klog.Errorf("Error identifying license for version %q of %q: %v", lib.Version, lib.Name, fmt.Errorf("no license found"))
+			} else {
+				klog.Errorf("Error identifying license for %q: %v", lib.Name, fmt.Errorf("no license found"))
+			}
 			reportDataFlat = append(reportDataFlat, libraryDataFlat{
 				Name:        lib.Name,
 				Version:     lib.Version,
