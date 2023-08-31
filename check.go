@@ -81,18 +81,13 @@ func checkMain(_ *cobra.Command, args []string) error {
 	found := false
 
 	for _, lib := range libs {
-		if lib.LicensePath == "" {
+		if lib.LicenseFile == "" {
 			fmt.Fprintf(os.Stderr, "Did not find license for library '%v'.\n", lib)
 			found = true
 			continue
 		}
 
-		licenses, err := classifier.Identify(lib.LicensePath)
-		if err != nil {
-			return err
-		}
-
-		for _, license := range licenses {
+		for _, license := range lib.Licenses {
 			if hasLicenseNames && !isAllowedLicenseName(license.Name, allowedLicenseNames) {
 				fmt.Fprintf(os.Stderr, "Not allowed license '%s' found for library '%v'.\n", license.Name, lib)
 				found = true

@@ -91,14 +91,9 @@ func saveMain(_ *cobra.Command, args []string) error {
 	libsWithBadLicenses := make(map[licenses.Type][]*licenses.Library)
 	for _, lib := range libs {
 		libSaveDir := filepath.Join(savePath, unvendor(lib.Name()))
-		// Detect what type of license this library has and fulfill its requirements, e.g. copy license, copyright notice, source code, etc.
-		licenseList, err := classifier.Identify(lib.LicensePath)
-		if err != nil {
-			return err
-		}
 
-		licenseTypes := make([]licenses.Type, 0, len(licenseList))
-		for _, license := range licenseList {
+		licenseTypes := make([]licenses.Type, 0, len(lib.Licenses))
+		for _, license := range lib.Licenses {
 			licenseTypes = append(licenseTypes, license.Type)
 		}
 
@@ -107,23 +102,23 @@ func saveMain(_ *cobra.Command, args []string) error {
 		switch restrictiveness {
 		case licenses.RestrictionsShareCode:
 			// Copy the entire source directory for the library.
-			libDir := filepath.Dir(lib.LicensePath)
+			libDir := filepath.Dir(lib.LicenseFile)
 			if err := copySrc(libDir, libSaveDir); err != nil {
 				return err
 			}
 		case licenses.RestrictionsShareLicense:
 			// Just copy the license and copyright notice.
-			if err := copyNotices(lib.LicensePath, libSaveDir); err != nil {
+			if err := copyNotices(lib.LicenseFile, libSaveDir); err != nil {
 				return err
 			}
 		default:
-			if len(licenseList) == 0 {
+			if len(lib.Licenses) == 0 {
 				// If we can't identify the license, we can't fulfill its requirements.
 				libsWithBadLicenses[licenses.Unknown] = append(libsWithBadLicenses[licenses.Unknown], lib)
 			} else {
 				// Register all bad licenses, so we can print them out at the end.
 			FindAllBadLicences:
-				for _, license := range licenseList {
+				for _, license := range lib.Licenses {
 					switch license.Type {
 					case licenses.Notice, licenses.Permissive, licenses.Unencumbered, licenses.Restricted, licenses.Reciprocal:
 						// these are allowed
