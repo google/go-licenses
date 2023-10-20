@@ -1,1 +1,0 @@
-License 'Apache-2.0' of not allowed license type 'Notice' found for library 'github.com/google/go-licenses/testdata/modules/hello01'.
