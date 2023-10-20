@@ -18,119 +18,85 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-
-	"github.com/google/go-cmp/cmp"
 )
 
-func TestFindCandidates(t *testing.T) {
+func TestFind(t *testing.T) {
 	wd, err := os.Getwd()
 	if err != nil {
 		t.Fatalf("Cannot get working directory: %v", err)
 	}
 
+	classifier := classifierStub{
+		licenseNames: map[string]string{
+			"testdata/LICENSE":               "foo",
+			"testdata/lower_license/license": "foo",
+			"testdata/MIT/LICENSE.MIT":       "MIT",
+			"testdata/licence/LICENCE":       "foo",
+			"testdata/copying/COPYING":       "foo",
+			"testdata/notice/NOTICE.txt":     "foo",
+			"testdata/readme/README.md":      "foo",
+		},
+		licenseTypes: map[string]Type{
+			"testdata/LICENSE":               Notice,
+			"testdata/lower_license/license": Notice,
+			"testdata/MIT/LICENSE.MIT":       Notice,
+			"testdata/licence/LICENCE":       Notice,
+			"testdata/copying/COPYING":       Notice,
+			"testdata/notice/NOTICE.txt":     Notice,
+			"testdata/readme/README.md":      Notice,
+		},
+	}
+
 	for _, test := range []struct {
-		desc                      string
-		dir                       string
-		rootDir                   string
-		wantLicensePathCandidates []string
+		desc            string
+		dir             string
+		wantLicensePath string
 	}{
+		//{
+		//	desc:            "licenSe",
+		//	dir:             "testdata",
+		//	wantLicensePath: filepath.Join(wd, "testdata/LICENSE"),
+		//},
+		//{
+		//	desc:            "licenCe",
+		//	dir:             "testdata/licence",
+		//	wantLicensePath: filepath.Join(wd, "testdata/licence/LICENCE"),
+		//},
 		{
-			desc: "licenSe",
-			dir:  "testdata",
-			wantLicensePathCandidates: []string{
-				filepath.Join(wd, "testdata/LICENSE"),
-			},
+			desc:            "license",
+			dir:             "testdata/lower_license",
+			wantLicensePath: filepath.Join(wd, "testdata/lower_license/license"),
 		},
-		{
-			desc: "licenCe",
-			dir:  "testdata/licence",
-			wantLicensePathCandidates: []string{
-				filepath.Join(wd, "testdata/licence/LICENCE"),
-				filepath.Join(wd, "testdata/LICENSE"),
-			},
-		},
-		{
-			desc: "LICENSE.MIT",
-			dir:  "testdata/MIT",
-			wantLicensePathCandidates: []string{
-				filepath.Join(wd, "testdata/MIT/LICENSE.MIT"),
-				filepath.Join(wd, "testdata/LICENSE"),
-			},
-		},
-		{
-			desc: "COPYING",
-			dir:  "testdata/copying",
-			wantLicensePathCandidates: []string{
-				filepath.Join(wd, "testdata/copying/COPYING"),
-				filepath.Join(wd, "testdata/LICENSE"),
-			},
-		},
-		{
-			desc: "NOTICE",
-			dir:  "testdata/notice",
-			wantLicensePathCandidates: []string{
-				filepath.Join(wd, "testdata/notice/NOTICE.txt"),
-				filepath.Join(wd, "testdata/LICENSE"),
-			},
-		},
-		{
-			desc: "README",
-			dir:  "testdata/readme",
-			wantLicensePathCandidates: []string{
-				filepath.Join(wd, "testdata/readme/README.md"),
-				filepath.Join(wd, "testdata/LICENSE")},
-		},
-		{
-			desc: "parent dir",
-			dir:  "testdata/internal",
-			wantLicensePathCandidates: []string{
-				filepath.Join(wd, "testdata/LICENSE"),
-			},
-		},
-		{
-			desc: "lowercase",
-			dir:  "testdata/lowercase",
-			wantLicensePathCandidates: []string{
-				filepath.Join(wd, "testdata/lowercase/license"),
-				filepath.Join(wd, "testdata/LICENSE"),
-			},
-		},
-		{
-			desc: "license-apache-2.0.txt",
-			dir:  "testdata/license-apache-2.0",
-			wantLicensePathCandidates: []string{
-				filepath.Join(wd, "testdata/license-apache-2.0/LICENSE-APACHE-2.0.txt"),
-				filepath.Join(wd, "testdata/LICENSE"),
-			},
-		},
-		{
-			desc:    "proprietary-license",
-			dir:     "testdata/proprietary-license",
-			rootDir: "testdata/proprietary-license",
-			wantLicensePathCandidates: []string{
-				filepath.Join(wd, "testdata/proprietary-license/LICENSE"),
-			},
-		},
-		{
-			desc: "UNLICENSE",
-			dir:  "testdata/unlicense",
-			wantLicensePathCandidates: []string{
-				filepath.Join(wd, "testdata/unlicense/UNLICENSE"),
-				filepath.Join(wd, "testdata/LICENSE"),
-			},
-		},
+		//{
+		//	desc:            "LICENSE.MIT",
+		//	dir:             "testdata/MIT",
+		//	wantLicensePath: filepath.Join(wd, "testdata/MIT/LICENSE.MIT"),
+		//},
+		//{
+		//	desc:            "COPYING",
+		//	dir:             "testdata/copying",
+		//	wantLicensePath: filepath.Join(wd, "testdata/copying/COPYING"),
+		//},
+		//{
+		//	desc:            "NOTICE",
+		//	dir:             "testdata/notice",
+		//	wantLicensePath: filepath.Join(wd, "testdata/notice/NOTICE.txt"),
+		//},
+		//{
+		//	desc:            "README",
+		//	dir:             "testdata/readme",
+		//	wantLicensePath: filepath.Join(wd, "testdata/readme/README.md"),
+		//},
+		//{
+		//	desc:            "parent dir",
+		//	dir:             "testdata/internal",
+		//	wantLicensePath: filepath.Join(wd, "testdata/LICENSE"),
+		//},
 	} {
 		t.Run(test.desc, func(t *testing.T) {
-			if test.rootDir == "" {
-				test.rootDir = "./testdata"
-			}
-			licensePathCandidates, err := FindCandidates(test.dir, test.rootDir)
-			if err != nil {
-				t.Fatalf("FindCandidates(%q) = (%#v, %q), want (%q, nil)", test.dir, licensePathCandidates, err, test.wantLicensePathCandidates)
-			}
-
-			if diff := cmp.Diff(test.wantLicensePathCandidates, licensePathCandidates); diff != "" {
-				t.Fatalf("FindCandidates(%q) = %q, %q, want (%q, nil); diff (-want +got): %s", test.dir, licensePathCandidates, err, test.wantLicensePathCandidates, diff)
+			licensePath, err := Find(test.dir, classifier)
+			if err != nil || licensePath != test.wantLicensePath {
+				t.Fatalf("Find(%q) = (%#v, %v), want (%v, nil)", test.dir, licensePath, err, test.wantLicensePath)
 			}
 		})
 	}

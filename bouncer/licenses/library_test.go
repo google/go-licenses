@@ -18,125 +18,55 @@ import (
 	"context"
 	"os"
 	"testing"
-	"time"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-licenses/internal/third_party/pkgsite/source"
+	"github.com/google/go-cmp/cmp/cmpopts"
 )
 
 func TestLibraries(t *testing.T) {
-	wd, err := os.Getwd()
-	if err != nil {
-		t.Fatalf("Cannot get working directory: %v", err)
-	}
-
 	classifier := classifierStub{
-		licenses: map[string][]License{
-			"testdata/LICENSE": {
-				{
-					Name: "foo",
-					Type: Notice,
-				},
-			},
-			"testdata/direct/LICENSE": {
-				{
-					Name: "foo",
-					Type: Notice,
-				},
-			},
-			"testdata/indirect/LICENSE": {
-				{
-					Name: "foo",
-					Type: Notice,
-				},
-			},
+		licenseNames: map[string]string{
+			"testdata/LICENSE":          "foo",
+			"testdata/direct/LICENSE":   "foo",
+			"testdata/indirect/LICENSE": "foo",
 		},
-	}
-
-	type wantedLibInfo struct {
-		Name        string
-		LicenseFile string
-		Licenses    []License
-	}
-
-	testdataLibInfo := wantedLibInfo{
-		Name:        "github.com/google/go-licenses/licenses/testdata",
-		LicenseFile: wd + "/testdata/LICENSE",
-		Licenses:    classifier.licenses["testdata/LICENSE"],
-	}
-	directLibInfo := wantedLibInfo{
-		Name:        "github.com/google/go-licenses/licenses/testdata/direct",
-		LicenseFile: wd + "/testdata/direct/LICENSE",
-		Licenses:    classifier.licenses["testdata/direct/LICENSE"],
-	}
-	indirectLibInfo := wantedLibInfo{
-		Name:        "github.com/google/go-licenses/licenses/testdata/indirect",
-		LicenseFile: wd + "/testdata/indirect/LICENSE",
-		Licenses:    classifier.licenses["testdata/indirect/LICENSE"],
+		licenseTypes: map[string]Type{
+			"testdata/LICENSE":          Notice,
+			"testdata/direct/LICENSE":   Notice,
+			"testdata/indirect/LICENSE": Notice,
+		},
 	}
 
 	for _, test := range []struct {
-		desc         string
-		importPath   string
-		goflags      string
-		includeTests bool
-		ignore       []string
-		wantLibs     []wantedLibInfo
+		desc       string
+		importPath string
+		goflags    string
+		wantLibs   []string
 	}{
 		{
 			desc:       "Detects direct dependency",
-			importPath: "github.com/google/go-licenses/licenses/testdata/direct",
-			wantLibs:   []wantedLibInfo{directLibInfo, indirectLibInfo},
+			importPath: "github.com/khulnasoft/go-bouncer/bouncer/licenses/testdata/direct",
+			wantLibs: []string{
+				"github.com/khulnasoft/go-bouncer/bouncer/licenses/testdata/direct",
+				"github.com/khulnasoft/go-bouncer/bouncer/licenses/testdata/indirect",
+			},
 		},
 		{
 			desc:       "Detects transitive dependency",
-			importPath: "github.com/google/go-licenses/licenses/testdata",
-			wantLibs:   []wantedLibInfo{testdataLibInfo, directLibInfo, indirectLibInfo},
-		},
-		{
-			desc:       "Ignores a package path",
-			importPath: "github.com/google/go-licenses/licenses/testdata",
-			ignore: []string{
-				"github.com/google/go-licenses/licenses/testdata/direct",
-			},
-			wantLibs: []wantedLibInfo{testdataLibInfo, indirectLibInfo},
-		},
-		{
-			desc:         "Detects the dependencies only imported in testing code",
-			importPath:   "github.com/google/go-licenses/licenses/testdata/testlib",
-			includeTests: true,
-			wantLibs: []wantedLibInfo{
-				indirectLibInfo,
-				{
-					Name:        "github.com/google/go-licenses/licenses/testdata/testlib",
-					LicenseFile: wd + "/testdata/LICENSE",
-					Licenses:    classifier.licenses["testdata/LICENSE"],
-				},
-			},
-		},
-		{
-			desc:         "Should not detect the dependencies only imported in testing code",
-			importPath:   "github.com/google/go-licenses/licenses/testdata/testlib",
-			includeTests: false,
-			wantLibs: []wantedLibInfo{
-				{
-					Name:        "github.com/google/go-licenses/licenses/testdata/testlib",
-					LicenseFile: wd + "/testdata/LICENSE",
-					Licenses:    classifier.licenses["testdata/LICENSE"],
-				},
+			importPath: "github.com/khulnasoft/go-bouncer/bouncer/licenses/testdata",
+			wantLibs: []string{
+				"github.com/khulnasoft/go-bouncer/bouncer/licenses/testdata",
+				"github.com/khulnasoft/go-bouncer/bouncer/licenses/testdata/direct",
+				"github.com/khulnasoft/go-bouncer/bouncer/licenses/testdata/indirect",
 			},
 		},
 		{
 			desc:       "Build tagged package",
-			importPath: "github.com/google/go-licenses/licenses/testdata/tags",
+			importPath: "github.com/khulnasoft/go-bouncer/bouncer/licenses/testdata/tags",
 			goflags:    "-tags=tags",
-			wantLibs: []wantedLibInfo{
-				indirectLibInfo,
-				{
-					Name:        "github.com/google/go-licenses/licenses/testdata/tags",
-					LicenseFile: wd + "/testdata/LICENSE",
-					Licenses:    classifier.licenses["testdata/LICENSE"],
-				},
+			wantLibs: []string{
+				"github.com/khulnasoft/go-bouncer/bouncer/licenses/testdata/tags",
+				"github.com/khulnasoft/go-bouncer/bouncer/licenses/testdata/indirect",
 			},
 		},
 	} {
@@ -145,25 +75,16 @@ func TestLibraries(t *testing.T) {
 				os.Setenv("GOFLAGS", test.goflags)
 				defer os.Unsetenv("GOFLAGS")
 			}
-			gotLibs, err := Libraries(context.Background(), classifier, test.includeTests, test.ignore, test.importPath)
+			gotLibs, err := Libraries(context.Background(), classifier, test.importPath)
 			if err != nil {
 				t.Fatalf("Libraries(_, %q) = (_, %q), want (_, nil)", test.importPath, err)
 			}
-
-			for i, gotLib := range gotLibs {
-				if diff := cmp.Diff(test.wantLibs[i].Name, gotLib.Name()); diff != "" {
-					t.Errorf("Libraries(_, %q)[%d].Name() diff (-want +got): %s", test.importPath, i, diff)
-				}
-				if diff := cmp.Diff(test.wantLibs[i].LicenseFile, gotLib.LicenseFile); diff != "" {
-					t.Errorf("Libraries(_, %q)[%d].LicenseFile diff (-want +got): %s", test.importPath, i, diff)
-				}
-				if diff := cmp.Diff(test.wantLibs[i].Licenses, gotLib.Licenses); diff != "" {
-					t.Errorf("Libraries(_, %q)[%d].Licenses diff (-want +got): %s", test.importPath, i, diff)
-				}
+			var gotLibNames []string
+			for _, lib := range gotLibs {
+				gotLibNames = append(gotLibNames, lib.Name())
 			}
-
-			if diff := cmp.Diff(len(test.wantLibs), len(gotLibs)); diff != "" {
-				t.Errorf("len(Libraries(_, %q)) diff (-want +got): %s", test.importPath, diff)
+			if diff := cmp.Diff(test.wantLibs, gotLibNames, cmpopts.SortSlices(func(x, y string) bool { return x < y })); diff != "" {
+				t.Errorf("Libraries(_, %q): diff (-want +got)\n%s", test.importPath, diff)
 			}
 		})
 	}
@@ -232,15 +153,10 @@ func TestLibraryFileURL(t *testing.T) {
 					"github.com/google/trillian",
 					"github.com/google/trillian/crypto",
 				},
-				LicenseFile: "/go/src/github.com/google/trillian/LICENSE",
-				module: &Module{
-					Path:    "github.com/google/trillian",
-					Dir:     "/go/src/github.com/google/trillian",
-					Version: "v1.2.3",
-				},
+				LicensePath: "/go/src/github.com/google/trillian/LICENSE",
 			},
 			path:    "/go/src/github.com/google/trillian/foo/README.md",
-			wantURL: "https://github.com/google/trillian/blob/v1.2.3/foo/README.md",
+			wantURL: "https://github.com/google/trillian/blob/master/foo/README.md",
 		},
 		{
 			desc: "Library on bitbucket.org",
@@ -249,15 +165,10 @@ func TestLibraryFileURL(t *testing.T) {
 					"bitbucket.org/user/project/pkg",
 					"bitbucket.org/user/project/pkg2",
 				},
-				LicenseFile: "/foo/bar/bitbucket.org/user/project/LICENSE",
-				module: &Module{
-					Path:    "bitbucket.org/user/project",
-					Dir:     "/foo/bar/bitbucket.org/user/project",
-					Version: "v1.2.3",
-				},
+				LicensePath: "/foo/bar/bitbucket.org/user/project/LICENSE",
 			},
 			path:    "/foo/bar/bitbucket.org/user/project/foo/README.md",
-			wantURL: "https://bitbucket.org/user/project/src/v1.2.3/foo/README.md",
+			wantURL: "https://bitbucket.org/user/project/src/master/pkg/foo/README.md",
 		},
 		{
 			desc: "Library on example.com",
@@ -266,58 +177,20 @@ func TestLibraryFileURL(t *testing.T) {
 					"example.com/user/project/pkg",
 					"example.com/user/project/pkg2",
 				},
-				LicenseFile: "/foo/bar/example.com/user/project/LICENSE",
-				module: &Module{
-					Path:    "example.com/user/project",
-					Dir:     "/foo/bar/example.com/user/project",
-					Version: "v1.2.3",
-				},
+				LicensePath: "/foo/bar/example.com/user/project/LICENSE",
 			},
 			path:    "/foo/bar/example.com/user/project/foo/README.md",
-			wantURL: "https://example.com/user/project/blob/v1.2.3/foo/README.md",
-		},
-		{
-			desc: "Library without version defaults to remote HEAD",
-			lib: &Library{
-				Packages: []string{
-					"github.com/google/trillian",
-					"github.com/google/trillian/crypto",
-				},
-				LicenseFile: "/go/src/github.com/google/trillian/LICENSE",
-				module: &Module{
-					Path: "github.com/google/trillian",
-					Dir:  "/go/src/github.com/google/trillian",
-				},
-			},
-			path:    "/go/src/github.com/google/trillian/foo/README.md",
-			wantURL: "https://github.com/google/trillian/blob/HEAD/foo/README.md",
-		},
-		{
-			desc: "Library on k8s.io",
-			lib: &Library{
-				Packages: []string{
-					"k8s.io/api/core/v1",
-				},
-				LicenseFile: "/go/modcache/k8s.io/api/LICENSE",
-				module: &Module{
-					Path:    "k8s.io/api",
-					Dir:     "/go/modcache/k8s.io/api",
-					Version: "v0.23.1",
-				},
-			},
-			path:    "/go/modcache/k8s.io/api/LICENSE",
-			wantURL: "https://github.com/kubernetes/api/blob/v0.23.1/LICENSE",
+			wantErr: true,
 		},
 	} {
 		t.Run(test.desc, func(t *testing.T) {
-			client := source.NewClient(time.Second * 20)
-			fileURL, err := test.lib.FileURL(context.Background(), client, test.path)
+			fileURL, err := test.lib.FileURL(test.path)
 			if gotErr := err != nil; gotErr != test.wantErr {
 				t.Fatalf("FileURL(%q) = (_, %q), want err? %t", test.path, err, test.wantErr)
 			} else if gotErr {
 				return
 			}
-			if got, want := fileURL, test.wantURL; got != want {
+			if got, want := fileURL.String(), test.wantURL; got != want {
 				t.Fatalf("FileURL(%q) = %q, want %q", test.path, got, want)
 			}
 		})

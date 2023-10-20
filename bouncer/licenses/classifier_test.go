@@ -18,65 +18,57 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"reflect"
 	"testing"
 )
 
 // Useful in other tests in this package
 type classifierStub struct {
-	licenses map[string][]License
-	errors   map[string]error
+	licenseNames map[string]string
+	licenseTypes map[string]Type
+	errors       map[string]error
 }
 
-func (c classifierStub) Identify(licensePath string) ([]License, error) {
+func (c classifierStub) Identify(licensePath string) (string, Type, error) {
 	// Convert licensePath to relative path for tests.
 	wd, err := os.Getwd()
 	if err != nil {
-		return nil, err
+		return "", Unknown, err
 	}
 	relPath, err := filepath.Rel(wd, licensePath)
 	if err != nil {
-		return nil, err
+		return "", Unknown, err
 	}
-	if licenses, ok := c.licenses[relPath]; ok {
-		return licenses, c.errors[relPath]
+	if name, ok := c.licenseNames[relPath]; ok {
+		return name, c.licenseTypes[relPath], c.errors[relPath]
 	}
 	if err := c.errors[relPath]; err != nil {
-		return nil, c.errors[relPath]
+		return "", Unknown, c.errors[relPath]
 	}
-	return nil, fmt.Errorf("classifierStub has no programmed response for %q", relPath)
+	return "", Unknown, fmt.Errorf("classifierStub has no programmed response for %q", relPath)
 }
 
 func TestIdentify(t *testing.T) {
 	for _, test := range []struct {
-		desc         string
-		file         string
-		confidence   float64
-		wantLicenses []License
-		wantType     Type
-		wantErr      bool
+		desc        string
+		file        string
+		confidence  float64
+		wantLicense string
+		wantType    Type
+		wantErr     bool
 	}{
 		{
-			desc:       "Apache 2.0 license",
-			file:       "testdata/LICENSE",
-			confidence: 1,
-			wantLicenses: []License{
-				{
-					Name: "Apache-2.0",
-					Type: Notice,
-				},
-			},
+			desc:        "Apache 2.0 license",
+			file:        "testdata/LICENSE",
+			confidence:  1,
+			wantLicense: "Apache-2.0",
+			wantType:    Notice,
 		},
 		{
-			desc:       "MIT license",
-			file:       "testdata/MIT/LICENSE.MIT",
-			confidence: 1,
-			wantLicenses: []License{
-				{
-					Name: "MIT",
-					Type: Notice,
-				},
-			},
+			desc:        "MIT license",
+			file:        "testdata/MIT/LICENSE.MIT",
+			confidence:  1,
+			wantLicense: "MIT",
+			wantType:    Notice,
 		},
 		{
 			desc:       "non-existent file",
@@ -85,27 +77,26 @@ func TestIdentify(t *testing.T) {
 			wantErr:    true,
 		},
 		{
-			desc:         "empty file path",
-			file:         "",
-			confidence:   1,
-			wantLicenses: nil,
+			desc:        "empty file path",
+			file:        "",
+			confidence:  1,
+			wantLicense: "",
+			wantType:    Unknown,
 		},
 	} {
 		t.Run(test.desc, func(t *testing.T) {
-			c, err := NewClassifier()
+			c, err := NewClassifier(test.confidence)
 			if err != nil {
 				t.Fatalf("NewClassifier(%v) = (_, %q), want (_, nil)", test.confidence, err)
 			}
-
-			gotLicenses, err := c.Identify(test.file)
+			gotLicense, gotType, err := c.Identify(test.file)
 			if gotErr := err != nil; gotErr != test.wantErr {
 				t.Fatalf("c.Identify(%q) = (_, _, %q), want err? %t", test.file, err, test.wantErr)
 			} else if gotErr {
 				return
 			}
-
-			if !reflect.DeepEqual(gotLicenses, test.wantLicenses) {
-				t.Fatalf("c.Identify(%q) = %q, want %q", test.file, gotLicenses, test.wantLicenses)
+			if gotLicense != test.wantLicense || gotType != test.wantType {
+				t.Fatalf("c.Identify(%q) = (%q, %q, %v), want (%q, %q, <nil>)", test.file, gotLicense, gotType, err, test.wantLicense, test.wantType)
 			}
 		})
 	}
