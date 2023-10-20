@@ -16,5 +16,5 @@ package testlib
 
 import (
 	// This import should be detected if includeTests set true
-	_ "github.com/google/go-licenses/licenses/testdata/indirect"
+	_ "github.com/khulnasoft/go-bouncer/bouncer/licenses/testdata/indirect"
 )
