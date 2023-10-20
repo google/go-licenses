@@ -8,7 +8,6 @@ require (
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/google/go-cmp v0.5.2
 	github.com/google/licenseclassifier v0.0.0-20200402202327-879cb1424de0
-	github.com/google/licenseclassifier/v2 v2.0.0
 	github.com/gookit/color v1.2.5
 	github.com/hashicorp/go-multierror v1.1.0
 	github.com/markbates/pkger v0.17.0
@@ -20,7 +19,6 @@ require (
 )
 
 require (
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/emirpasic/gods v1.12.0 // indirect
 	github.com/fsnotify/fsnotify v1.4.7 // indirect
 	github.com/gobuffalo/here v0.6.0 // indirect
