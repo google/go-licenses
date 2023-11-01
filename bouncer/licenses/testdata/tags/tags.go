@@ -1,3 +1,4 @@
+//go:build tags
 // +build tags
 
 // Copyright 2019 Google Inc. All Rights Reserved.
