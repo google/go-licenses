@@ -15,6 +15,9 @@
 package main
 
 import (
+	"os"
+
+	"github.com/google/go-licenses/report"
 	"github.com/spf13/cobra"
 )
 
@@ -35,5 +38,10 @@ func init() {
 
 func csvMain(_ *cobra.Command, args []string) error {
 	// without a --template flag, reportMain will output CSV
-	return reportMain(nil, args)
+	libraryData, err := report.Report(includeTests, ignore, args)
+	if err != nil {
+		return err
+	}
+
+	return report.ReportCSV(os.Stdout, libraryData)
 }
