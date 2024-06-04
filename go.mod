@@ -1,4 +1,4 @@
-module github.com/google/go-licenses
+module github.com/google/go-licenses/v2
 
 go 1.19
 
