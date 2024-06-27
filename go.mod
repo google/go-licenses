@@ -7,7 +7,7 @@ require (
 	github.com/google/go-replayers/httpreplay v1.2.0
 	github.com/google/licenseclassifier/v2 v2.0.0
 	github.com/otiai10/copy v1.10.0
-	github.com/spf13/cobra v1.7.0
+	github.com/spf13/cobra v1.8.1
 	go.opencensus.io v0.24.0
 	golang.org/x/mod v0.12.0
 	golang.org/x/net v0.14.0
