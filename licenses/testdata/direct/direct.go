@@ -16,8 +16,8 @@ package direct
 
 import (
 	// This import should be ignored, since it's an internal dependency.
-	_ "github.com/google/go-licenses/licenses/testdata/direct/subpkg"
+	_ "github.com/google/go-licenses/v2/licenses/testdata/direct/subpkg"
 	// This import should be detected as being a transitive dependency of whatever
 	// imports this package.
-	_ "github.com/google/go-licenses/licenses/testdata/indirect"
+	_ "github.com/google/go-licenses/v2/licenses/testdata/indirect"
 )

@@ -22,8 +22,8 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/google/go-licenses/internal/third_party/pkgsite/source"
-	"github.com/google/go-licenses/licenses"
+	"github.com/google/go-licenses/v2/internal/third_party/pkgsite/source"
+	"github.com/google/go-licenses/v2/licenses"
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"
 	"k8s.io/klog/v2"

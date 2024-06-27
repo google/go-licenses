@@ -21,7 +21,7 @@ import (
 	"time"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-licenses/internal/third_party/pkgsite/source"
+	"github.com/google/go-licenses/v2/internal/third_party/pkgsite/source"
 )
 
 func TestLibraries(t *testing.T) {
@@ -60,17 +60,17 @@ func TestLibraries(t *testing.T) {
 	}
 
 	testdataLibInfo := wantedLibInfo{
-		Name:        "github.com/google/go-licenses/licenses/testdata",
+		Name:        "github.com/google/go-licenses/v2/licenses/testdata",
 		LicenseFile: wd + "/testdata/LICENSE",
 		Licenses:    classifier.licenses["testdata/LICENSE"],
 	}
 	directLibInfo := wantedLibInfo{
-		Name:        "github.com/google/go-licenses/licenses/testdata/direct",
+		Name:        "github.com/google/go-licenses/v2/licenses/testdata/direct",
 		LicenseFile: wd + "/testdata/direct/LICENSE",
 		Licenses:    classifier.licenses["testdata/direct/LICENSE"],
 	}
 	indirectLibInfo := wantedLibInfo{
-		Name:        "github.com/google/go-licenses/licenses/testdata/indirect",
+		Name:        "github.com/google/go-licenses/v2/licenses/testdata/indirect",
 		LicenseFile: wd + "/testdata/indirect/LICENSE",
 		Licenses:    classifier.licenses["testdata/indirect/LICENSE"],
 	}
@@ -85,30 +85,30 @@ func TestLibraries(t *testing.T) {
 	}{
 		{
 			desc:       "Detects direct dependency",
-			importPath: "github.com/google/go-licenses/licenses/testdata/direct",
+			importPath: "github.com/google/go-licenses/v2/licenses/testdata/direct",
 			wantLibs:   []wantedLibInfo{directLibInfo, indirectLibInfo},
 		},
 		{
 			desc:       "Detects transitive dependency",
-			importPath: "github.com/google/go-licenses/licenses/testdata",
+			importPath: "github.com/google/go-licenses/v2/licenses/testdata",
 			wantLibs:   []wantedLibInfo{testdataLibInfo, directLibInfo, indirectLibInfo},
 		},
 		{
 			desc:       "Ignores a package path",
-			importPath: "github.com/google/go-licenses/licenses/testdata",
+			importPath: "github.com/google/go-licenses/v2/licenses/testdata",
 			ignore: []string{
-				"github.com/google/go-licenses/licenses/testdata/direct",
+				"github.com/google/go-licenses/v2/licenses/testdata/direct",
 			},
 			wantLibs: []wantedLibInfo{testdataLibInfo, indirectLibInfo},
 		},
 		{
 			desc:         "Detects the dependencies only imported in testing code",
-			importPath:   "github.com/google/go-licenses/licenses/testdata/testlib",
+			importPath:   "github.com/google/go-licenses/v2/licenses/testdata/testlib",
 			includeTests: true,
 			wantLibs: []wantedLibInfo{
 				indirectLibInfo,
 				{
-					Name:        "github.com/google/go-licenses/licenses/testdata/testlib",
+					Name:        "github.com/google/go-licenses/v2/licenses/testdata/testlib",
 					LicenseFile: wd + "/testdata/LICENSE",
 					Licenses:    classifier.licenses["testdata/LICENSE"],
 				},
@@ -116,11 +116,11 @@ func TestLibraries(t *testing.T) {
 		},
 		{
 			desc:         "Should not detect the dependencies only imported in testing code",
-			importPath:   "github.com/google/go-licenses/licenses/testdata/testlib",
+			importPath:   "github.com/google/go-licenses/v2/licenses/testdata/testlib",
 			includeTests: false,
 			wantLibs: []wantedLibInfo{
 				{
-					Name:        "github.com/google/go-licenses/licenses/testdata/testlib",
+					Name:        "github.com/google/go-licenses/v2/licenses/testdata/testlib",
 					LicenseFile: wd + "/testdata/LICENSE",
 					Licenses:    classifier.licenses["testdata/LICENSE"],
 				},
@@ -128,12 +128,12 @@ func TestLibraries(t *testing.T) {
 		},
 		{
 			desc:       "Build tagged package",
-			importPath: "github.com/google/go-licenses/licenses/testdata/tags",
+			importPath: "github.com/google/go-licenses/v2/licenses/testdata/tags",
 			goflags:    "-tags=tags",
 			wantLibs: []wantedLibInfo{
 				indirectLibInfo,
 				{
-					Name:        "github.com/google/go-licenses/licenses/testdata/tags",
+					Name:        "github.com/google/go-licenses/v2/licenses/testdata/tags",
 					LicenseFile: wd + "/testdata/LICENSE",
 					Licenses:    classifier.licenses["testdata/LICENSE"],
 				},

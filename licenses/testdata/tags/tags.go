@@ -1,3 +1,4 @@
+//go:build tags
 // +build tags
 
 // Copyright 2019 Google Inc. All Rights Reserved.
@@ -19,5 +20,5 @@ package tags
 import (
 	// This import should be detected as being a transitive dependency of whatever
 	// imports this package.
-	_ "github.com/google/go-licenses/licenses/testdata/indirect"
+	_ "github.com/google/go-licenses/v2/licenses/testdata/indirect"
 )
