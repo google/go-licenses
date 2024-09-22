@@ -2,7 +2,7 @@ release:
   prerelease: auto
 
 builds:
-  - binary: bouncer
+  - binary: golicenses
     env:
       - CGO_ENABLED=0
     goos:
