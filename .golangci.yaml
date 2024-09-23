@@ -1,56 +1,57 @@
 linters-settings:
   funlen:
-    lines: 75
-linters:
-  # inverted configuration with `enable-all` and `disable` is not scalable during updates of golangci-lint
-  disable-all: true
-  enable:
-    - asciicheck
-    - bodyclose
-    - deadcode
-    - depguard
-    - dogsled
-    - dupl
-    - errcheck
-    - funlen
-    - gocognit
-    - goconst
-    - gocritic
-    - gocyclo
-    - gofmt
-    - goimports
-    - golint
-    - goprintffuncname
-    - gosec
-    - gosimple
-    - govet
-    - ineffassign
-    - maligned
-    - misspell
-    - nakedret
-    - nolintlint
-    - prealloc
-    - rowserrcheck
-    - scopelint
-    - staticcheck
-    - structcheck
-    - stylecheck
-    - typecheck
-    - unconvert
-    - unparam
-    - unused
-    - varcheck
-    - whitespace
+    lines: 75  # Adjust the function length limit to 75 lines
 
-# do not enable...
-#    - gochecknoglobals
-#    - gochecknoinits    # this is too aggressive
-#    - godot
-#    - godox
-#    - goerr113
-#    - gomnd       # this is too aggressive
-#    - interfacer  # this is a good idea, but is no longer supported and is prone to false positives
-#    - lll         # without a way to specify per-line exception cases, this is not usable
-#    - nestif
-#    - testpackage
-#    - wsl
+linters:
+  disable-all: true  # Disable all linters by default
+
+  enable:  # Enable specific linters
+    - asciicheck         # Checks for non-ASCII characters in string literals
+    - bodyclose          # Ensures HTTP response bodies are closed
+    - deadcode           # Finds unused code
+    - depguard           # Restricts usage of certain dependencies
+    - dogsled            # Catches redundant multiple assignment
+    - dupl               # Finds duplicate code
+    - errcheck           # Checks for unhandled errors
+    - funlen             # Limits the length of functions
+    - gocognit           # Measures cognitive complexity of functions
+    - goconst            # Finds duplicated string/number constants
+    - gocritic           # Provides various lint rules
+    - gocyclo            # Reports cyclomatic complexity
+    - gofmt              # Ensures code is properly formatted
+    - goimports          # Ensures imports are formatted and grouped correctly
+    - golint             # Provides general linting for Go code
+    - goprintffuncname   # Ensures printf-like functions have appropriate names
+    - gosec              # Security-related static analysis
+    - gosimple           # Finds simplifications in code
+    - govet              # Reports suspicious constructs
+    - ineffassign        # Finds assignments to variables that are never used
+    - maligned           # Detects struct field alignment issues
+    - misspell           # Detects spelling errors in comments
+    - nakedret           # Finds naked returns in functions
+    - nolintlint         # Ensures nolint comments are used correctly
+    - prealloc           # Finds slice declarations that can be preallocated
+    - rowserrcheck       # Checks for missing error checks in rows.Scan
+    - scopelint          # Checks for issues with variable scope
+    - staticcheck        # Includes a variety of static analysis checks
+    - structcheck        # Finds unused struct fields
+    - stylecheck         # Enforces Go code style
+    - typecheck          # Checks for type errors
+    - unconvert          # Finds unnecessary conversions
+    - unparam            # Finds unused function parameters
+    - unused             # Finds unused code
+    - varcheck           # Finds unused global variables and constants
+    - whitespace         # Detects unnecessary whitespace
+
+# Disabled linters (commented out with reasons):
+# - gochecknoglobals  # Too aggressive for global variables
+# - gochecknoinits    # Too aggressive for init() functions
+# - godot             # Enforces a period at the end of sentences in comments (optional)
+# - godox             # Flags TODO comments (optional)
+# - goerr113          # Enforces use of errors package, but can be restrictive
+# - gomnd             # Flags magic numbers, can be overly aggressive
+# - interfacer        # Deprecated, no longer supported
+# - lll               # Enforces line length limits, but lacks exceptions for specific lines
+# - nestif            # Finds deeply nested if statements (optional)
+# - testpackage       # Flags when test files are in the same package as code (optional)
+# - wsl               # Finds issues with whitespace (optional)
