@@ -39,7 +39,7 @@ jobs:
       - name: Run Tests
         run: make test
 
-  build-artifacts:
+    build-artifacts:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -63,6 +63,12 @@ jobs:
       - name: Install dependencies
         run: go mod download
 
+      # Add a step to build or install license_serializer
+      - name: Build license_serializer
+        run: |
+          mkdir -p .tmp/bin
+          go build -o .tmp/bin/license_serializer ./path/to/license_serializer
+
       - name: Build snapshot artifacts
         run: make ci-build-snapshot-packages
 
@@ -71,6 +77,7 @@ jobs:
         with:
           name: artifacts
           path: dist
+
 
   test-linux-artifacts:
     needs: build-artifacts
