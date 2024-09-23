@@ -11,10 +11,10 @@ A go dependency license checker.
 
 ```bash
 # install the latest version to ./bin
-curl -sSfL https://raw.githubusercontent.com/khulnasoft/go-licenses/master/golicenses.sh | sh 
+curl -sSfL https://raw.githubusercontent.com/khulnasoft/go-licenses/khulnasoft/golicenses.sh | sh 
 
 # install a specific version to another directory
-curl -sSfL https://raw.githubusercontent.com/khulnasoft/go-licenses/master/golicenses.sh | sh -s -- -b ./path/to/bin v1.26.0
+curl -sSfL https://raw.githubusercontent.com/khulnasoft/go-licenses/khulnasoft/golicenses.sh | sh -s -- -b ./path/to/bin v1.26.0
 ```
 
 ## Usage
