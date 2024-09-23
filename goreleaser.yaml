@@ -1,17 +1,46 @@
 release:
   prerelease: auto
 
+env:
+  - CGO_ENABLED=0
+
 builds:
-  - binary: golicenses
-    env:
-      - CGO_ENABLED=0
+  - id: linux-build
+    binary: golicenses
     goos:
-      - darwin
       - linux
     goarch:
       - amd64
       - arm64
-    ldflags: -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.buildTime={{.Date}}`.
+    ldflags: &build-ldflags -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.buildTime={{.Date}}`.
+
+  - id: darwin-build
+    binary: golicenses
+    goos:
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ldflags: *build-ldflags
+
+  - id: windows-build
+    binary: golicenses
+    goos:
+      - windows
+    goarch:
+      - amd64
+    ldflags: *build-ldflags
 
 archives:
-  - format: tar.gz
+  - id: linux-archives
+    builds:
+      - linux-build
+
+  - id: darwin-archives
+    builds:
+      - darwin-build
+
+  - id: windows-archives
+    format: zip
+    builds:
+      - windows-build
