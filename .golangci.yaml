@@ -2,12 +2,10 @@ linters-settings:
   funlen:
     lines: 75
 linters:
-  # inverted configuration with `enable-all` and `disable` is not scalable during updates of golangci-lint
   disable-all: true
   enable:
     - asciicheck
     - bodyclose
-    - deadcode
     - depguard
     - dogsled
     - dupl
@@ -15,31 +13,25 @@ linters:
     - funlen
     - gocognit
     - goconst
-    - gocritic
+    # - gocritic
     - gocyclo
     - gofmt
     - goimports
-    - golint
+    - revive  # Replace golint with revive
     - goprintffuncname
     - gosec
     - gosimple
     - govet
     - ineffassign
-    - maligned
     - misspell
     - nakedret
     - nolintlint
     - prealloc
-    - rowserrcheck
-    - scopelint
     - staticcheck
-    - structcheck
     - stylecheck
-    - typecheck
     - unconvert
     - unparam
-    - unused
-    - varcheck
+    - unused  # This will cover deprecated checks
     - whitespace
 
 # do not enable...

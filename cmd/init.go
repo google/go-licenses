@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/spf13/viper"
 	"github.com/khulnasoft/go-licenses/golicenses/presenter"
 	"github.com/khulnasoft/go-licenses/internal/config"
+	"github.com/spf13/viper"
 )
 
 var appConfig *config.Application
