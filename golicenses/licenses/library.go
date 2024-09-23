@@ -29,10 +29,10 @@ import (
 )
 
 var (
-	// TODO(RJPercival): Support replacing "khulnasoft" with Go Module version
+	// TODO(RJPercival): Support replacing "master" with Go Module version
 	repoPathPrefixes = map[string]string{
-		"github.com":    "blob/khulnasoft/",
-		"bitbucket.org": "src/khulnasoft/",
+		"github.com":    "blob/master/",
+		"bitbucket.org": "src/master/",
 	}
 )
 
