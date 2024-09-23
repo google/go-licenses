@@ -1,0 +1,14 @@
+name: Scheduled Cache Cleanup
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # Runs every Sunday at midnight
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clean Go cache
+        run: |
+          rm -rf ~/go/pkg/mod
+          rm -rf .tmp/
