@@ -3,7 +3,3 @@ permit:
   - MIT.*
   - Apache.*
   - MPL.*
-
-ignore-packages:
-  # crypto/internal/boring is released under the openSSL license as a part of the Golang Standard Libary
-  - crypto/internal/boring
