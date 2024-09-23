@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/spf13/cobra"
 	"github.com/khulnasoft/go-licenses/golicenses"
 	"github.com/khulnasoft/go-licenses/golicenses/presenter"
-	"github.com/spf13/cobra"
 )
 
 var gitRemotes []string
