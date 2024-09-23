@@ -9,19 +9,17 @@ import (
 )
 
 type jsonResult struct {
-	Pkg string `json:"package"`
-	URL string `json:"url"`
-	// Path     string   `json:"local-path"`
+	Module   string   `json:"module"`
 	Name     string   `json:"name"`
 	Type     string   `json:"type"`
 	Warnings []string `json:"warnings,omitempty"`
 }
 
 type Presenter struct {
-	resultStream <-chan golicenses.LicenseResult
+	resultStream []golicenses.LicenseResult
 }
 
-func NewPresenter(results <-chan golicenses.LicenseResult) Presenter {
+func NewPresenter(results []golicenses.LicenseResult) Presenter {
 	return Presenter{
 		resultStream: results,
 	}
@@ -52,7 +50,7 @@ func (p Presenter) Present(target io.Writer) error {
 	writer.SetIndent("", "  ")
 
 	results := make([]jsonResult, 0)
-	for result := range p.resultStream {
+	for _, result := range p.resultStream {
 		warnings := make([]string, 0)
 		if result.Errs != nil {
 			for _, err := range unwrap(result.Errs) {
@@ -60,11 +58,9 @@ func (p Presenter) Present(target io.Writer) error {
 			}
 		}
 		results = append(results, jsonResult{
-			Pkg:  result.Library,
-			URL:  result.URL,
-			Name: result.License,
-			Type: result.Type,
-			//Path:     result.Path,
+			Module:   result.ModulePath,
+			Name:     result.License,
+			Type:     result.Type,
 			Warnings: warnings,
 		})
 	}

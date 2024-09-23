@@ -6,12 +6,15 @@ builds:
     env:
       - CGO_ENABLED=0
     goos:
+      - windows
       - darwin
       - linux
     goarch:
       - amd64
-      - arm64
     ldflags: -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.buildTime={{.Date}}`.
 
 archives:
   - format: tar.gz
+    format_overrides:
+      - goos: windows
+        format: zip

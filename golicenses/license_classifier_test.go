@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package licenses
+package golicenses
 
 import (
 	"fmt"
@@ -85,7 +85,7 @@ func TestIdentify(t *testing.T) {
 		},
 	} {
 		t.Run(test.desc, func(t *testing.T) {
-			c, err := NewClassifier(test.confidence)
+			c, err := NewLicenseClassifier(test.confidence)
 			if err != nil {
 				t.Fatalf("NewClassifier(%v) = (_, %q), want (_, nil)", test.confidence, err)
 			}

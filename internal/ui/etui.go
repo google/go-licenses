@@ -10,10 +10,10 @@ import (
 
 	"github.com/khulnasoft/go-progress"
 
-	"github.com/mitchellh/go-glint"
-	gc "github.com/mitchellh/go-glint/components"
 	"github.com/khulnasoft/go-licenses/golicenses/event"
 	"github.com/khulnasoft/go-pulsebus"
+	"github.com/mitchellh/go-glint"
+	gc "github.com/mitchellh/go-glint/components"
 )
 
 type etuiStatus struct {

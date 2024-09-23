@@ -4,13 +4,27 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/khulnasoft/go-licenses/golicenses"
 	"github.com/khulnasoft/go-licenses/golicenses/presenter"
 	"github.com/khulnasoft/go-licenses/internal/config"
+	"github.com/khulnasoft/go-pulsebus"
+	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 var appConfig *config.Application
+var eventBus *pulsebus.Bus
+var eventSubscription *pulsebus.Subscription
 var configPath string
+
+func init() {
+	setCliOptions()
+
+	cobra.OnInitialize(
+		initAppConfig,
+		initEventBus,
+	)
+}
 
 func setCliOptions() {
 	rootCmd.PersistentFlags().StringVarP(&configPath, "config", "c", "", "application config file")
@@ -43,4 +57,11 @@ func initAppConfig() {
 		os.Exit(1)
 	}
 	appConfig = cfg
+}
+
+func initEventBus() {
+	eventBus = pulsebus.NewBus()
+	eventSubscription = eventBus.Subscribe()
+
+	golicenses.SetBus(eventBus)
 }
