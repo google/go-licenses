@@ -64,8 +64,7 @@ get_binaries() {
   case "$PLATFORM" in
     darwin/amd64) BINARIES="golicenses" ;;
     linux/amd64) BINARIES="golicenses" ;;
-    darwin/arm64) BINARIES="golicenses" ;;
-    linux/arm64) BINARIES="golicenses" ;;
+    windows/amd64) BINARIES="golicenses" ;;
     *)
       log_crit "platform $PLATFORM is not supported.  Make sure this script is up-to-date and file request at https://github.com/${PREFIX}/issues/new"
       exit 1
