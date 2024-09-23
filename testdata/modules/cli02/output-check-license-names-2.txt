@@ -1,6 +1,0 @@
-Not allowed license 'BSD-3-Clause' found for library 'github.com/fsnotify/fsnotify'.
-Not allowed license 'MPL-2.0' found for library 'github.com/hashicorp/hcl'.
-Not allowed license 'BSD-2-Clause' found for library 'github.com/magiconair/properties'.
-Not allowed license 'BSD-3-Clause' found for library 'github.com/spf13/pflag'.
-Not allowed license 'BSD-3-Clause' found for library 'golang.org/x/sys'.
-Not allowed license 'BSD-3-Clause' found for library 'golang.org/x/text'.

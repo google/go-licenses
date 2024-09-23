@@ -1,1 +1,0 @@
-Did not find license for library 'github.com/google/go-licenses/testdata/modules/hello01'.
