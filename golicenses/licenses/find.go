@@ -17,7 +17,7 @@ package licenses
 import (
 	"fmt"
 	"go/build"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"regexp"
 )
@@ -57,7 +57,7 @@ func findUpwards(dir string, r *regexp.Regexp, stopAt []*regexp.Regexp, predicat
 	start := dir
 	// Stop once dir matches a stopAt regexp or dir is the filesystem root
 	for !matchAny(stopAt, dir) {
-		dirContents, err := ioutil.ReadDir(dir)
+		dirContents, err := os.ReadDir(dir)
 		if err != nil {
 			return "", err
 		}

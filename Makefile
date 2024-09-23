@@ -2,11 +2,11 @@ TMP = ./.tmp
 RESULTS = $(TMP)/results
 ASSETS = assets
 DBASSET = $(ASSETS)/licenses.db
-# note: go tools requires an absolute path
 BIN = $(abspath $(TMP)/bin)
 COVER_REPORT = $(RESULTS)/cover.report
 COVER_TOTAL = $(RESULTS)/cover.total
 LINTCMD = $(BIN)/golangci-lint run --tests=false --config .golangci.yaml
+
 BOLD := $(shell tput -T linux bold)
 PURPLE := $(shell tput -T linux setaf 5)
 GREEN := $(shell tput -T linux setaf 2)
@@ -15,7 +15,6 @@ RED := $(shell tput -T linux setaf 1)
 RESET := $(shell tput -T linux sgr0)
 TITLE := $(BOLD)$(PURPLE)
 SUCCESS := $(BOLD)$(GREEN)
-# the quality gate lower threshold for unit test total % coverage (by function statements)
 COVERAGE_THRESHOLD := 34
 
 RELEASE_CMD=$(BIN)/goreleaser --rm-dist
@@ -44,25 +43,18 @@ help:
 
 bootstrap: ## Download and install all project dependencies (+ prep tooling in the ./.tmp dir)
 	$(call title,Downloading dependencies)
-	# prep temp dirs
-	mkdir -p $(TMP) || exit 1
-	mkdir -p $(RESULTS) || exit 1
-	mkdir -p $(BIN) || exit 1
-	# download install project dependencies + tooling
+	@mkdir -p $(TMP) $(RESULTS) $(BIN) || exit 1
 	go mod download || exit 1
 	cat tools.go | grep _ | awk -F'"' '{print $$2}' | xargs -tI % env GOBIN=$(BIN) go install % || exit 1
-	# install golangci-lint
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(BIN) v1.47.2 || exit 1
-	# install pkger
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(BIN) v1.50.1 || exit 1
 	cd $(TMP) && curl -sLO https://github.com/markbates/pkger/releases/download/v0.17.0/pkger_0.17.0_$(shell uname)_x86_64.tar.gz && \
 		tar -xzvf pkger_0.17.0_$(shell uname)_x86_64.tar.gz pkger && \
 		mv pkger $(BIN) || exit 1
-	# install goreleaser
 	GOBIN=$(BIN) go install github.com/goreleaser/goreleaser@v1.3.1 || exit 1
 
 $(DBASSET):
 	$(call title,Building assets)
-	mkdir -p $(ASSETS) || exit 1
+	@mkdir -p $(ASSETS) || exit 1
 	$(BIN)/license_serializer -output $(ASSETS) || exit 1
 
 pkged.go: $(DBASSET)
@@ -89,22 +81,19 @@ lint-fix: ## Auto-format all source code + run golangci-lint fixers
 unit: ## Run unit tests (with coverage)
 	$(call title,Running unit tests)
 	go test -coverprofile $(COVER_REPORT) ./...
-	@go tool cover -func $(COVER_REPORT) | grep total |  awk '{print substr($$3, 1, length($$3)-1)}' > $(COVER_TOTAL)
+	@go tool cover -func $(COVER_REPORT) | grep total | awk '{print substr($$3, 1, length($$3)-1)}' > $(COVER_TOTAL)
 	@echo "Coverage: $$(cat $(COVER_TOTAL))"
-	@if [ $$(echo "$$(cat $(COVER_TOTAL)) >= $(COVERAGE_THRESHOLD)" | bc -l) -ne 1 ]; then echo "$(RED)$(BOLD)Failed coverage quality gate (> $(COVERAGE_THRESHOLD)%)$(RESET)" && false; fi
-
-# The following targets are all CI related
+	@if [ $$(echo "$$(cat $(COVER_TOTAL)) >= $(COVERAGE_THRESHOLD)" | bc -l) -ne 1 ]; then \
+		echo "$(RED)$(BOLD)Failed coverage quality gate (> $(COVERAGE_THRESHOLD)%)$(RESET)" && false; \
+	fi
 
 ci-build-snapshot-packages: pkged.go
-	$(RELEASE_CMD) \
-		--snapshot \
-		--skip-publish 
+	$(RELEASE_CMD) --snapshot --skip-publish
 
-# note: since google's licenseclassifier requires the go tooling ('go list' from x/tools/go/packages) we need to use a golang image
 ci-plugs-out-test:
 	docker run \
 		-v //var/run/docker.sock://var/run/docker.sock \
-		-v /${PWD}://src \
+		-v ${PWD}://src \
 		-w //src \
 		golang:latest \
 			/bin/bash -x -c "\
@@ -137,6 +126,4 @@ ci-release: pkged.go
 	$(BIN)/goreleaser --rm-dist
 
 clean: ## Clean build artifacts
-	rm -rf dist
-	rm -rf .tmp
-	rm -rf $(RESULTS)
+	rm -rf dist .tmp $(RESULTS)

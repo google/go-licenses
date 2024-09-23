@@ -4,7 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"strings"
 
 	"github.com/google/licenseclassifier"
@@ -35,7 +35,7 @@ func licenseDBArchiveFetcher() ([]byte, error) {
 	}
 
 	defer f.Close()
-	return ioutil.ReadAll(f)
+	return io.ReadAll(f)
 }
 
 func (r LicenseFinder) Find() (<-chan LicenseResult, error) {

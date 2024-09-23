@@ -16,7 +16,7 @@ package licenses
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 
 	"github.com/google/licenseclassifier"
 )
@@ -88,7 +88,7 @@ func (c *googleClassifier) Identify(licensePath string) (string, Type, error) {
 	if licensePath == "" {
 		return "", Unknown, nil
 	}
-	content, err := ioutil.ReadFile(licensePath)
+	content, err := os.ReadFile(licensePath)
 	if err != nil {
 		return "", "", err
 	}
