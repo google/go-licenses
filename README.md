@@ -1,3 +1,12 @@
+# Fork changes
+
+This fork is a fork of the original go-licenses tool. 
+
+Functionality added:
+- report --json flag to output the report in json format
+- report --with-license-content flag to include the license content in the report
+- report --exclude flag to exclude licenses from the report
+
 # Licenses tool
 
 > This is not an officially supported Google product.
