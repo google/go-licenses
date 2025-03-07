@@ -12,6 +12,7 @@ updates:
     schedule:
       interval: "weekly"
     target-branch: "master"
+    open-pull-requests-limit: 5
     commit-message:
       prefix: "chore"
       include: "scope"
