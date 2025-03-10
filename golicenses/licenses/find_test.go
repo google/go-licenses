@@ -35,6 +35,7 @@ func TestFind(t *testing.T) {
 			"testdata/copying/COPYING":       "foo",
 			"testdata/notice/NOTICE.txt":     "foo",
 			"testdata/readme/README.md":      "foo",
+			"testdata/unlicense/UNLICENSE":   "unlicense",
 		},
 		licenseTypes: map[string]Type{
 			"testdata/LICENSE":               Notice,
@@ -44,6 +45,7 @@ func TestFind(t *testing.T) {
 			"testdata/copying/COPYING":       Notice,
 			"testdata/notice/NOTICE.txt":     Notice,
 			"testdata/readme/README.md":      Notice,
+			"testdata/unlicense/UNLICENSE":   Unencumbered,
 		},
 	}
 
