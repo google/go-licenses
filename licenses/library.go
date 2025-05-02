@@ -353,7 +353,7 @@ func (l *Library) String() string {
 
 // FileURL attempts to determine the URL for a file in this library using
 // go module name and version.
-func (l *Library) FileURL(ctx context.Context, cl *source.Client, filePath string) (string, error) {
+func (l *Library) FileURL(ctx context.Context, cl *source.Client) (string, error) {
 	if l == nil {
 		return "", fmt.Errorf("library is nil")
 	}
@@ -393,7 +393,7 @@ func (l *Library) FileURL(ctx context.Context, cl *source.Client, filePath strin
 		remote.SetCommit("HEAD")
 		klog.Warningf("module %s has empty version, defaults to HEAD. The license URL may be incorrect. Please verify!", m.Path)
 	}
-	relativePath, err := filepath.Rel(m.Dir, filePath)
+	relativePath, err := filepath.Rel(m.Dir, l.LicenseFile)
 	if err != nil {
 		return "", wrap(err)
 	}
