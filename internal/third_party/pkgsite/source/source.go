@@ -151,7 +151,9 @@ func ModuleInfo(ctx context.Context, client *Client, modulePath, v string) (info
 		}
 	}
 	if info != nil {
-		adjustVersionedModuleDirectory(ctx, client, info)
+		if err := adjustVersionedModuleDirectory(ctx, client, info); err != nil {
+			return nil, err
+		}
 	}
 	if strings.HasPrefix(modulePath, "golang.org/") {
 		adjustGoRepoInfo(info, modulePath, version.IsPseudo(v))
@@ -443,20 +445,32 @@ func matchLegacyTemplates(ctx context.Context, sm *sourceMeta) (_ urlTemplates, 
 // subdirectories. See https://research.swtch.com/vgo-module for a discussion of
 // the "major branch" vs. "major subdirectory" conventions for organizing a
 // repo.
-func adjustVersionedModuleDirectory(ctx context.Context, client *Client, info *Info) {
+//
+// !! MODIFIED FOR google/go-licenses use-cases.
+func adjustVersionedModuleDirectory(ctx context.Context, client *Client, info *Info) error {
 	dirWithoutVersion := removeVersionSuffix(info.moduleDir)
 	if info.moduleDir == dirWithoutVersion {
-		return
+		return nil
 	}
 	// moduleDir does have a "/vN" for N > 1. To see if that is the actual directory,
 	// fetch the go.mod file from it.
-	res, err := client.doURL(ctx, "HEAD", info.FileURL("go.mod"), true)
-	// On any failure, assume that the right directory is the one without the version.
+	resp, err := client.doURL(ctx, "HEAD", info.FileURL("go.mod"), false)
 	if err != nil {
-		info.moduleDir = dirWithoutVersion
-	} else {
-		res.Body.Close()
+		return err
 	}
+	defer resp.Body.Close()
+	// On any failure, assume that the right directory is the one without the version.
+	switch {
+	case resp.StatusCode >= 200 && resp.StatusCode < 300:
+	// OK; continue
+	case resp.StatusCode == 404:
+		// go.mod not found
+		info.moduleDir = dirWithoutVersion
+	default:
+		// Server error
+		return fmt.Errorf("HEAD %s: unexpected server error: %s", info.FileURL("go.mod"), resp.Status)
+	}
+	return nil
 }
 
 // removeHTTPScheme removes an initial "http://" or "https://" from url.

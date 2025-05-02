@@ -736,7 +736,10 @@ func TestAdjustVersionedModuleDirectory(t *testing.T) {
 				commit:    test.commit,
 				templates: urlTemplates{File: "{repo}/{commit}/{file}"},
 			}
-			adjustVersionedModuleDirectory(ctx, client, info)
+			err := adjustVersionedModuleDirectory(ctx, client, info)
+			if err != nil {
+				t.Errorf("got %v, want nil", err)
+			}
 			got := info.moduleDir
 			if got != test.want {
 				t.Errorf("got %q, want %q", got, test.want)
