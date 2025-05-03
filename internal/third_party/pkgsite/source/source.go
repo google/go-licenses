@@ -64,6 +64,26 @@ func (i *Info) FileURL(pathname string) string {
 	})
 }
 
+// RawURL returns a URL referring to the raw contents of a file relative to the module's home directory.
+func (i *Info) RawURL(pathname string) string {
+	if i == nil {
+		return ""
+	}
+	// Some templates don't support raw content serving.
+	if i.templates.Raw == "" {
+		return ""
+	}
+	dir, base := path.Split(pathname)
+	return expand(i.templates.Raw, map[string]string{
+		"repo":       i.repoURL,
+		"importPath": path.Join(strings.TrimPrefix(i.repoURL, "https://"), dir),
+		"commit":     i.commit,
+		"dir":        dir,
+		"file":       path.Join(i.moduleDir, pathname),
+		"base":       base,
+	})
+}
+
 type Client struct {
 	// client used for HTTP requests. It is mutable for testing purposes.
 	// If nil, then moduleInfoDynamic will return nil, nil; also for testing.
@@ -452,9 +472,16 @@ func adjustVersionedModuleDirectory(ctx context.Context, client *Client, info *I
 	if info.moduleDir == dirWithoutVersion {
 		return nil
 	}
+
+	// prefer querying the raw URL, this URL generally has higher rate limits
+	url := info.RawURL("go.mod")
+	if url == "" {
+		url = info.FileURL("go.mod")
+	}
+
 	// moduleDir does have a "/vN" for N > 1. To see if that is the actual directory,
 	// fetch the go.mod file from it.
-	resp, err := client.doURL(ctx, "HEAD", info.FileURL("go.mod"), false)
+	resp, err := client.doURL(ctx, "HEAD", url, false)
 	if err != nil {
 		return err
 	}
@@ -468,7 +495,7 @@ func adjustVersionedModuleDirectory(ctx context.Context, client *Client, info *I
 		info.moduleDir = dirWithoutVersion
 	default:
 		// Server error
-		return fmt.Errorf("HEAD %s: unexpected server error: %s", info.FileURL("go.mod"), resp.Status)
+		return fmt.Errorf("HEAD %s: unexpected server error: %s", url, resp.Status)
 	}
 	return nil
 }
