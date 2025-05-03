@@ -121,7 +121,7 @@ func reportMain(_ *cobra.Command, args []string) error {
 
 		if lib.LicenseFile != "" {
 			group.Go(func() error {
-				url, err := lib.FileURL(gctx, client, lib.LicenseFile)
+				url, err := lib.FileURL(gctx, client)
 				if err == nil {
 					reportData[idx].LicenseURL = url
 				} else {
