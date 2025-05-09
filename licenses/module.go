@@ -30,6 +30,7 @@ type Module struct {
 	Path    string // module path
 	Version string // module version
 	Dir     string // directory holding files for this module, if any
+	ZipPath string // path to cached zip file, if any
 }
 
 func newModule(mod *packages.Module) *Module {
@@ -59,9 +60,13 @@ func newModule(mod *packages.Module) *Module {
 	// The +incompatible suffix does not affect module version.
 	// ref: https://golang.org/ref/mod#incompatible-versions
 	tmp.Version = strings.TrimSuffix(tmp.Version, "+incompatible")
-	return &Module{
+	m := &Module{
 		Path:    tmp.Path,
 		Version: tmp.Version,
 		Dir:     tmp.Dir,
 	}
+	if tmp.GoMod != "" {
+		m.ZipPath = strings.TrimSuffix(tmp.GoMod, ".mod") + ".zip"
+	}
+	return m
 }
