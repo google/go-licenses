@@ -154,12 +154,6 @@ func Libraries(ctx context.Context, classifier Classifier, includeTests bool, ig
 				return true
 			}
 
-			if p.Module == nil {
-				otherErrorOccurred = true
-				klog.Errorf("Package %s does not have module info. Non go modules projects are no longer supported. For feedback, refer to https://github.com/google/go-licenses/issues/128.", p.PkgPath)
-				return false
-			}
-
 			module := newModule(p.Module)
 
 			if module.Dir == "" {
@@ -411,6 +405,10 @@ func (l *Library) Version() string {
 
 // isStdLib returns true if this package is part of the Go standard library.
 func isStdLib(pkg *packages.Package) bool {
+	if pkg.Module == nil {
+		return true
+	}
+
 	if pkg.Name == "unsafe" {
 		// Special case unsafe stdlib, because it does not contain go files.
 		return true
