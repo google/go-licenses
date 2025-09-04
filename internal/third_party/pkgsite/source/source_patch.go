@@ -14,6 +14,11 @@
 
 package source
 
+import (
+	"path"
+	"strings"
+)
+
 // This file includes all local additions to source package for google/go-licenses use-cases.
 
 // SetCommit overrides commit to a specified commit. Usually, you should pass your version to
@@ -30,4 +35,26 @@ func (i *Info) SetCommit(commit string) {
 		return
 	}
 	i.commit = commit
+}
+
+// ModuleDir returns the sub-directory of the repo that holds the module, or
+// an empty string if located at the root.
+func (i *Info) ModuleDir() string {
+	return i.moduleDir
+}
+
+// RepoURL returns a URL for a file whose pathname is relative to the root of the repo.
+func (i *Info) RepoURL(pathname string) string {
+	if i == nil {
+		return ""
+	}
+	dir, base := path.Split(pathname)
+	return expand(i.templates.File, map[string]string{
+		"repo":       i.repoURL,
+		"importPath": path.Join(strings.TrimPrefix(i.repoURL, "https://"), dir),
+		"commit":     i.commit,
+		"dir":        dir,
+		"file":       pathname,
+		"base":       base,
+	})
 }

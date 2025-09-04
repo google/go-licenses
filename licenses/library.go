@@ -15,6 +15,7 @@
 package licenses
 
 import (
+	"archive/zip"
 	"context"
 	"fmt"
 	"go/build"
@@ -397,8 +398,22 @@ func (l *Library) FileURL(ctx context.Context, cl *source.Client, filePath strin
 	if err != nil {
 		return "", wrap(err)
 	}
-	// TODO: there are still rare cases this may result in an incorrect URL.
-	// https://github.com/google/go-licenses/issues/73#issuecomment-1005587408
+
+	// If the module isn't located at the repo root, Go may have copied the LICENSE file from
+	// the root to the module sub-directory.  Attempt to detect this so we can correctly link
+	// to the license url that's located at the root of the repo.
+	//
+	// This check takes advantage of the fact that the copied license is appended to the end
+	// of the cached zip file; if it's the last file, it's likely that Go copied it there.
+	//
+	// See https://go.dev/ref/mod#vcs-license
+	if remote.ModuleDir() != "" && m.ZipPath != "" {
+		if isLast, err := hasAppendedLicense(m.ZipPath); isLast {
+			return remote.RepoURL("LICENSE"), nil
+		} else if err != nil {
+			klog.Warningf("failed to open cached module zip %s: %w", m.ZipPath, err)
+		}
+	}
 	return remote.FileURL(relativePath), nil
 }
 
@@ -429,4 +444,23 @@ func isStdLib(pkg *packages.Package) bool {
 // isTestBinary returns true iff pkg is a test binary.
 func isTestBinary(pkg *packages.Package) bool {
 	return strings.HasSuffix(pkg.PkgPath, ".test")
+}
+
+// hasAppendedLicense opens the zip file supplied by fn and checks to see if the
+// last file in the .zip is called "LICENSE".
+func hasAppendedLicense(fn string) (bool, error) {
+	reader, err := zip.OpenReader(fn)
+	if err != nil {
+		return false, err
+	}
+	defer reader.Close()
+
+	if len(reader.File) == 0 {
+		return false, fmt.Errorf("zip file is empty")
+	}
+
+	lastFile := reader.File[len(reader.File)-1]
+	lastFileName := filepath.Base(lastFile.Name)
+
+	return lastFileName == "LICENSE", nil
 }
