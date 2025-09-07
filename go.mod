@@ -14,12 +14,12 @@ require (
 	golang.org/x/sync v0.3.0
 	golang.org/x/text v0.13.0
 	golang.org/x/tools v0.12.0
-	k8s.io/klog/v2 v2.90.1
+	k8s.io/klog/v2 v2.130.1
 )
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/go-logr/logr v1.2.0 // indirect
+	github.com/go-logr/logr v1.4.1 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/google/martian/v3 v3.3.2 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
