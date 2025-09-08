@@ -232,7 +232,7 @@ func Libraries(ctx context.Context, classifier Classifier, includeTests bool, ig
 	group, _ := errgroup.WithContext(ctx)
 	foundLicenseSlice := make([]struct {
 		candidate string
-		licenes   []License
+		licenses  []License
 	}, len(allCandidates))
 	counter := 0
 	for candidate := range allCandidates {
@@ -249,10 +249,10 @@ func Libraries(ctx context.Context, classifier Classifier, includeTests bool, ig
 
 			foundLicenseSlice[idx] = struct {
 				candidate string
-				licenes   []License
+				licenses  []License
 			}{
 				candidate: candidate,
-				licenes:   licenses,
+				licenses:  licenses,
 			}
 			return nil
 		})
@@ -264,11 +264,11 @@ func Libraries(ctx context.Context, classifier Classifier, includeTests bool, ig
 
 	foundLicenses := map[string][]License{}
 	for _, found := range foundLicenseSlice {
-		if len(found.licenes) == 0 {
+		if len(found.licenses) == 0 {
 			continue
 		}
 
-		foundLicenses[found.candidate] = found.licenes
+		foundLicenses[found.candidate] = found.licenses
 	}
 
 	pkgsByLicense := make(map[string][]pkgInfo)
