@@ -122,11 +122,10 @@ func reportMain(_ *cobra.Command, args []string) error {
 		if lib.LicenseFile != "" {
 			group.Go(func() error {
 				url, err := lib.FileURL(gctx, client, lib.LicenseFile)
-				if err == nil {
-					reportData[idx].LicenseURL = url
-				} else {
-					klog.Warningf("Error discovering license URL: %s", err)
+				if err != nil {
+					return fmt.Errorf("Error discovering license URL: %s", err)
 				}
+				reportData[idx].LicenseURL = url
 				return nil
 			})
 		}
