@@ -30,7 +30,7 @@ To use this tool, make sure:
 Use the following command to download and install this tool:
 
 ```shell
-go get -tool github.com/google/go-licenses/v2@latest
+go install github.com/google/go-licenses/v2@latest
 ```
 
 If you were using `go get` to install this tool, note that
