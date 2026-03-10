@@ -52,11 +52,7 @@ func TestReportCommandE2E(t *testing.T) {
 	t.Cleanup(func() { _ = os.Chdir(originalWorkDir) })
 
 	// This builds go-licenses CLI to temporary dir.
-	tempDir, err := os.MkdirTemp("", "")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer os.RemoveAll(tempDir)
+	tempDir := t.TempDir()
 	goLicensesPath := filepath.Join(tempDir, "go-licenses")
 	cmd := exec.Command("go", "build", "-o", goLicensesPath)
 	_, err = cmd.Output()
@@ -138,11 +134,7 @@ func TestCheckCommandE2E(t *testing.T) {
 	t.Cleanup(func() { _ = os.Chdir(originalWorkDir) })
 
 	// This builds go-licenses CLI to temporary dir.
-	tempDir, err := os.MkdirTemp("", "")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer os.RemoveAll(tempDir)
+	tempDir := t.TempDir()
 	goLicensesPath := filepath.Join(tempDir, "go-licenses")
 	cmd := exec.Command("go", "build", "-o", goLicensesPath)
 	_, err = cmd.Output()
@@ -175,7 +167,8 @@ func TestCheckCommandE2E(t *testing.T) {
 			if err != nil {
 				exitCode = -1
 
-				if exitError, ok := err.(*exec.ExitError); ok {
+				var exitError *exec.ExitError
+				if errors.As(err, &exitError) {
 					exitCode = exitError.ExitCode()
 				}
 			}
@@ -209,6 +202,76 @@ func TestCheckCommandE2E(t *testing.T) {
 					"Diff -golden +got:\n%s\n"+
 					"Update the golden by running `go test --update .`",
 					cmp.Diff(golden, got))
+			}
+		})
+	}
+}
+
+func TestSaveCommandE2E(t *testing.T) {
+	tests := []struct {
+		workdir               string
+		savePathAlreadyExists bool
+		wantExitCode          int
+	}{
+		{workdir: "testdata/modules/cli02", savePathAlreadyExists: false, wantExitCode: 0},
+		{workdir: "testdata/modules/cli02", savePathAlreadyExists: true, wantExitCode: 1},
+	}
+
+	originalWorkDir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = os.Chdir(originalWorkDir) })
+
+	// This builds go-licenses CLI to temporary dir.
+	tempDir := t.TempDir()
+	goLicensesPath := filepath.Join(tempDir, "go-licenses")
+	cmd := exec.Command("go", "build", "-o", goLicensesPath)
+	_, err = cmd.Output()
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("Built go-licenses binary in %s.", goLicensesPath)
+
+	for _, tt := range tests {
+		t.Run(tt.workdir, func(t *testing.T) {
+			err := os.Chdir(filepath.Join(originalWorkDir, tt.workdir))
+			if err != nil {
+				t.Fatal(err)
+			}
+			cmd := exec.Command("go", "mod", "download")
+			log, err := cmd.CombinedOutput()
+			if err != nil {
+				t.Fatalf("downloading go modules:\n%s", string(log))
+			}
+			ttTempDir := t.TempDir()
+			savePath := filepath.Join(ttTempDir, "licenses")
+			if tt.savePathAlreadyExists {
+				err = os.Mkdir(savePath, os.ModePerm)
+				if err != nil {
+					t.Fatal(err)
+				}
+			}
+			args := append([]string{"save", ".", "--save_path", savePath})
+			cmd = exec.Command(goLicensesPath, args...)
+			exitCode := 0
+			t.Logf("%s $ go-licenses save .", tt.workdir)
+			output, err := cmd.Output()
+			if err != nil {
+				exitCode = -1
+
+				var exitError *exec.ExitError
+				if errors.As(err, &exitError) {
+					exitCode = exitError.ExitCode()
+				}
+			}
+
+			if len(output) != 0 {
+				t.Fatalf("unexpected output running go-licenses check: %s.", string(output))
+			}
+
+			if exitCode != tt.wantExitCode {
+				t.Fatalf("unexpected exit code running go-licenses check, expected %d but got %d", tt.wantExitCode, exitCode)
 			}
 		})
 	}
