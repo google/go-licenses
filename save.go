@@ -81,8 +81,7 @@ func saveMain(_ *cobra.Command, args []string) error {
 
 	// Check that the save path doesn't exist, otherwise it'd end up with a mix of
 	// existing files and the output of this command.
-	if d, err := os.Open(savePath); err == nil {
-		d.Close()
+	if _, err := os.Stat(savePath); err == nil {
 		return fmt.Errorf("%s already exists", savePath)
 	} else if !os.IsNotExist(err) {
 		return err
