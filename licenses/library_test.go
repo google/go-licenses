@@ -17,12 +17,41 @@ package licenses
 import (
 	"context"
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-licenses/v2/internal/third_party/pkgsite/source"
+	"golang.org/x/tools/go/packages"
 )
+
+func TestIsStdLibUsesActiveToolchainRoot(t *testing.T) {
+	toolchainsRoot := t.TempDir()
+	activeRoot := filepath.Join(toolchainsRoot, "go1.26.6")
+	compiledRoot := filepath.Join(toolchainsRoot, "go1.26.5")
+	standardPackage := &packages.Package{
+		Name:    "fmt",
+		GoFiles: []string{filepath.Join(activeRoot, "src", "fmt", "print.go")},
+	}
+
+	if !isStdLib(standardPackage, activeRoot) {
+		t.Fatal("package from the active toolchain GOROOT was not identified as standard library")
+	}
+	if isStdLib(standardPackage, compiledRoot) {
+		t.Fatal("package was identified using the tool's compile-time GOROOT")
+	}
+	prefixCollision := &packages.Package{
+		Name:    "fmt",
+		GoFiles: []string{filepath.Join(activeRoot+"-other", "src", "fmt", "print.go")},
+	}
+	if isStdLib(prefixCollision, activeRoot) {
+		t.Fatal("GOROOT path prefix collision was identified as standard library")
+	}
+	if !isStdLib(&packages.Package{Name: "unsafe"}, activeRoot) {
+		t.Fatal("unsafe package was not identified as standard library")
+	}
+}
 
 func TestLibraries(t *testing.T) {
 	wd, err := os.Getwd()
