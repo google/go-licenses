@@ -17,7 +17,7 @@ package licenses
 import (
 	"context"
 	"fmt"
-	"go/build"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -83,6 +83,10 @@ func Libraries(ctx context.Context, classifier Classifier, includeTests bool, ig
 	if err != nil {
 		return nil, err
 	}
+	goRoot, err := activeGoRoot(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	vendoredSearch := []*Module{}
 	for _, parentPkg := range rootPkgs {
@@ -120,7 +124,7 @@ func Libraries(ctx context.Context, classifier Classifier, includeTests bool, ig
 				pkgErrorOccurred = true
 				return false
 			}
-			if isStdLib(p) {
+			if isStdLib(p, goRoot) {
 				// No license requirements for the Go standard library.
 				return false
 			}
@@ -409,8 +413,20 @@ func (l *Library) Version() string {
 	return ""
 }
 
+func activeGoRoot(ctx context.Context) (string, error) {
+	output, err := exec.CommandContext(ctx, "go", "env", "GOROOT").Output()
+	if err != nil {
+		return "", fmt.Errorf("resolve active Go toolchain GOROOT: %w", err)
+	}
+	goRoot := strings.TrimSpace(string(output))
+	if goRoot == "" || strings.ContainsAny(goRoot, "\r\n") || !filepath.IsAbs(goRoot) {
+		return "", fmt.Errorf("active Go toolchain returned invalid GOROOT %q", goRoot)
+	}
+	return filepath.Clean(goRoot), nil
+}
+
 // isStdLib returns true if this package is part of the Go standard library.
-func isStdLib(pkg *packages.Package) bool {
+func isStdLib(pkg *packages.Package, goRoot string) bool {
 	if pkg.Name == "unsafe" {
 		// Special case unsafe stdlib, because it does not contain go files.
 		return true
@@ -418,12 +434,11 @@ func isStdLib(pkg *packages.Package) bool {
 	if len(pkg.GoFiles) == 0 {
 		return false
 	}
-	prefix := build.Default.GOROOT
-	sep := string(filepath.Separator)
-	if !strings.HasSuffix(prefix, sep) {
-		prefix += sep
+	relativePath, err := filepath.Rel(filepath.Join(goRoot, "src"), pkg.GoFiles[0])
+	if err != nil || filepath.IsAbs(relativePath) || relativePath == ".." {
+		return false
 	}
-	return strings.HasPrefix(pkg.GoFiles[0], prefix)
+	return !strings.HasPrefix(relativePath, ".."+string(filepath.Separator))
 }
 
 // isTestBinary returns true iff pkg is a test binary.
