@@ -43,3 +43,31 @@ func TestTypes(t *testing.T) {
 		}
 	}
 }
+
+func TestTypeString(t *testing.T) {
+	if got := Unknown.String(); got != "unknown" {
+		t.Errorf("Unknown.String() = %q, want %q", got, "unknown")
+	}
+	if got := Restricted.String(); got != "restricted" {
+		t.Errorf("Restricted.String() = %q, want %q", got, "restricted")
+	}
+	if got := Permissive.String(); got != "permissive" {
+		t.Errorf("Permissive.String() = %q, want %q", got, "permissive")
+	}
+}
+
+func TestLicenseType(t *testing.T) {
+	if got := LicenseType("Apache-2.0"); got != Notice {
+		t.Errorf("LicenseType(Apache-2.0) = %v, want %v", got, Notice)
+	}
+	if got := LicenseType("MIT"); got != Notice {
+		t.Errorf("LicenseType(MIT) = %v, want %v", got, Notice)
+	}
+	if got := LicenseType("GPL-3.0"); got != Restricted {
+		t.Errorf("LicenseType(GPL-3.0) = %v, want %v", got, Restricted)
+	}
+	if got := LicenseType("NonExistentLicense"); got != Unknown {
+		t.Errorf("LicenseType(NonExistentLicense) = %v, want %v", got, Unknown)
+	}
+}
+

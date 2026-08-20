@@ -3,7 +3,7 @@ package licenses
 // Type identifies a class of software license.
 type Type string
 
-// License types
+// License types.
 const (
 	// Unknown license type.
 	Unknown = Type("")

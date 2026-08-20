@@ -30,7 +30,7 @@ type googleClassifier struct {
 	classifier *licenseclassifier.Classifier
 }
 
-// NewClassifier creates a classifier
+// NewClassifier creates a classifier.
 func NewClassifier() (Classifier, error) {
 	c, err := assets.DefaultClassifier()
 	if err != nil {
