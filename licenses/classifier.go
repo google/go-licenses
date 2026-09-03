@@ -66,7 +66,9 @@ func (c *googleClassifier) Identify(licensePath string) ([]License, error) {
 
 	licenses := []License{}
 	for _, match := range matches.Matches {
-		if match.MatchType != "License" {
+		// Some projects only include the license header in their LICENSE
+		// file instead of the full license text, so accept "Header" matches.
+		if match.MatchType != "License" && match.MatchType != "Header" {
 			continue
 		}
 
