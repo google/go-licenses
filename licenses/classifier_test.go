@@ -79,6 +79,17 @@ func TestIdentify(t *testing.T) {
 			},
 		},
 		{
+			desc:       "Apache 2.0 header only",
+			file:       "testdata/headeronly/LICENSE",
+			confidence: 1,
+			wantLicenses: []License{
+				{
+					Name: "Apache-2.0",
+					Type: Notice,
+				},
+			},
+		},
+		{
 			desc:       "non-existent file",
 			file:       "non-existent-file",
 			confidence: 1,
