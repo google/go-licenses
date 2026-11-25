@@ -84,20 +84,6 @@ func Libraries(ctx context.Context, classifier Classifier, includeTests bool, ig
 		return nil, err
 	}
 
-	vendoredSearch := []*Module{}
-	for _, parentPkg := range rootPkgs {
-		if parentPkg.Module == nil {
-			continue
-		}
-
-		module := newModule(parentPkg.Module)
-		if module.Dir == "" {
-			continue
-		}
-
-		vendoredSearch = append(vendoredSearch, module)
-	}
-
 	type pkgInfo struct {
 		// pkgPath is the import path of the package.
 		pkgPath string
@@ -182,15 +168,12 @@ func Libraries(ctx context.Context, classifier Classifier, includeTests bool, ig
 					//
 					// These assumptions may change in the future,
 					// so we need to keep this updated with go tooling changes.
-					for _, parentModule := range vendoredSearch {
-						if strings.HasPrefix(pkgDir, parentModule.Dir) {
-							module = parentModule
-							break
-						}
-					}
-
-					if module.Dir == "" {
-						klog.Warningf("cannot find parent package of vendored module %s", module.Path)
+					//
+					// Keep the vendored module's own path and version (from vendor/modules.txt),
+					// only fill in its directory. The vendor folder is laid out by the original
+					// module path, not by the path of a replacement.
+					if i := strings.LastIndex(pkgDir, "/vendor/"); i >= 0 {
+						module.Dir = filepath.Join(pkgDir[:i], "vendor", filepath.FromSlash(p.Module.Path))
 					}
 				}
 			}
