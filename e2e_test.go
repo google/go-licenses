@@ -39,6 +39,7 @@ func TestReportCommandE2E(t *testing.T) {
 		{"testdata/modules/cli02", nil, "licenses.csv"},
 		{"testdata/modules/vendored03", nil, "licenses.csv"},
 		{"testdata/modules/replace04", nil, "licenses.csv"},
+		{"testdata/modules/vendoredreplace06", nil, "licenses.csv"},
 		{"testdata/modules/complex", nil, "licenses.csv"},
 
 		{"testdata/modules/hello01", []string{"--template", "licenses.tpl"}, "licenses.md"},

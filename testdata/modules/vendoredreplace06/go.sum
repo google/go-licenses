@@ -1,0 +1,3 @@
+github.com/golang/protobuf v1.3.1/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
+github.com/mailgun/groupcache v1.3.0 h1:qie8iED3OIo2ICCbYx9vZybsVUGBJdZkroidGfao7q4=
+github.com/mailgun/groupcache v1.3.0/go.mod h1:IC2jAVGyQ4t9S8D1Hsul0zMWkMDuVR8N/Cex7bgCvNg=

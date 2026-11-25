@@ -1,0 +1,4 @@
+# github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da => github.com/mailgun/groupcache v1.3.0
+## explicit
+github.com/golang/groupcache/lru
+# github.com/golang/groupcache => github.com/mailgun/groupcache v1.3.0
